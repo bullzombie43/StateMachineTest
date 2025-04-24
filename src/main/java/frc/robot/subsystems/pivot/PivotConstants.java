@@ -30,4 +30,23 @@ public class PivotConstants {
       };
   public static double maxVelocityRotPerSec = 1;
   public static double maxAccelerationRotPerSec = 2;
+
+  public static final double forwardSoftLimitDegrees = 180.0;
+  public static final double reverseSoftLimitDegrees = -90.0;
+
+  public static final double acceptablePitchErrorDegrees = 1.0;
+
+  /*Setpoints */
+  public static final double stowDegrees = 0.0;
+  public static final double intakeDegrees = 0.0;
+  public static final double climbDegrees = 0.0;
+  public static final double L1Degrees = 0.0;
+  public static final double L2Degrees = 0.0;
+  public static final double L3Degrees = 0.0;
+  public static final double L4Degrees = 0.0;
+  public static final double bargeDegrees = 0.0;
+  public static final double processorDegrees = 0.0;
+  public static final double lowAlgeaDegrees = 0.0;
+  public static final double highAlgeaDegrees = 0.0;
+  
 }

@@ -4,8 +4,16 @@
 
 package frc.robot.subsystems.pivot;
 
+import static frc.robot.subsystems.pivot.PivotConstants.acceptablePitchErrorDegrees;
+import static frc.robot.subsystems.pivot.PivotConstants.climbDegrees;
+import static frc.robot.subsystems.pivot.PivotConstants.forwardSoftLimitDegrees;
+import static frc.robot.subsystems.pivot.PivotConstants.intakeDegrees;
+import static frc.robot.subsystems.pivot.PivotConstants.reverseSoftLimitDegrees;
+import static frc.robot.subsystems.pivot.PivotConstants.stowDegrees;
+
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -142,16 +150,58 @@ public class Pivot extends SubsystemBase {
   }
 
   /*Methods to handle each of the system states */
-  public void handleStowing(){}
+  public void handleStowing(){
+    setSetpointDegrees(stowDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
 
-  public void handleIntaking(){}
+  public void handleIntaking(){
+    setSetpointDegrees(intakeDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
 
-  public void handleTargetting(){}
+  public void handleTargetting(){
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
 
-  public void handleClimbing(){}
+  public void handleClimbing(){
+    setSetpointDegrees(climbDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
 
   public void handleIdling(){
     pivotIO.setVoltage(0.0);
   }
 
+  /*Exposed Methods for setting and getting state and setpoint */
+  public void setWantedState(WantedState wantedState) {
+    this.wantedState = wantedState;
+  }
+
+  public void setWantedState(WantedState wantedState, double setpointDegrees) {
+    this.wantedState = wantedState;
+    setSetpointDegrees(setpointDegrees);
+  }
+
+  public void setSetpointDegrees(double angleDegrees) {
+    double clampedDegrees = 
+      MathUtil.clamp(angleDegrees, reverseSoftLimitDegrees, forwardSoftLimitDegrees);
+    this.setpointDegrees = clampedDegrees;
+  }
+
+  public WantedState getWantedState() {
+    return wantedState;
+  }
+
+  public SystemState getSystemState() {
+    return systemState;
+  }
+
+  public boolean pivotAtSetpoint(){
+    return MathUtil.isNear(setpointDegrees, inputs.pivotPositionDegrees, acceptablePitchErrorDegrees);
+  }
+
+  public double getCurrentPositionDegrees(){
+    return inputs.pivotPositionDegrees;
+  }
 }
