@@ -17,8 +17,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 public class PivotIOPhoenix6 implements PivotIO {
-  private final TalonFX pivotMotor;
-  private final CANcoder pivotEncoder = new CANcoder(pivotEncoderId, pivotCanbus);
+  protected final TalonFX pivotMotor = new TalonFX(pivotMotorId, pivotCanbus);
+  protected final CANcoder pivotEncoder = new CANcoder(pivotEncoderId, pivotCanbus);
 
   private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
   private final CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
@@ -27,8 +27,6 @@ public class PivotIOPhoenix6 implements PivotIO {
       new PositionVoltage(0.0).withEnableFOC(true);
 
   public PivotIOPhoenix6() {
-    pivotMotor = new TalonFX(pivotMotorId, pivotCanbus);
-
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
     motorConfig.CurrentLimits.SupplyCurrentLimit = supplyCurrentLimit;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;

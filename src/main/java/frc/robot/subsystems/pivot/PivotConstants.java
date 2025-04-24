@@ -48,4 +48,8 @@ public class PivotConstants {
   public static final double processorDegrees = 0.0;
   public static final double lowAlgeaDegrees = 0.0;
   public static final double highAlgeaDegrees = 0.0;
+
+  /*Simulation Values */
+  public static final double simMOI = 1.00; // kg*m^2
+  public static final double simArmLength = 0.15; // meters
 }
