@@ -11,13 +11,12 @@ import static frc.robot.subsystems.pivot.PivotConstants.intakeDegrees;
 import static frc.robot.subsystems.pivot.PivotConstants.reverseSoftLimitDegrees;
 import static frc.robot.subsystems.pivot.PivotConstants.stowDegrees;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 public class Pivot extends SubsystemBase {
   public enum WantedState {
@@ -68,7 +67,6 @@ public class Pivot extends SubsystemBase {
   private SystemState systemState = SystemState.STOWING;
   private double setpointDegrees = 0.0;
 
-
   /** Creates a new Pivot. */
   public Pivot(PivotIO io) {
     this.pivotIO = io;
@@ -78,39 +76,51 @@ public class Pivot extends SubsystemBase {
 
   @Override
   public void periodic() {
-    //Process Inputs
+    // Process Inputs
     pivotIO.updateInputs(inputs);
     Logger.processInputs("Pivot", inputs);
 
-    //Set Alerts
+    // Set Alerts
     pivotMotorDisconnected.set(!inputs.motorConnected);
     pivotEncoderDisconnected.set(!inputs.encoderConnected);
 
-    //Update Gains and Motion Constraints
-    LoggedTunableNumber.ifChanged(hashCode(), 
-      () -> pivotIO.setGains(kP.get(), kA.get(), kD.get(), kS.get(), kV.get(), kA.get(), kG.get()),
-      kP,kI,kD,kS,kV,kA,kG);
+    // Update Gains and Motion Constraints
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () ->
+            pivotIO.setGains(kP.get(), kA.get(), kD.get(), kS.get(), kV.get(), kA.get(), kG.get()),
+        kP,
+        kI,
+        kD,
+        kS,
+        kV,
+        kA,
+        kG);
 
-    LoggedTunableNumber.ifChanged(hashCode(), 
-      () -> pivotIO.setProfileConstraints(maxVeloRotPerSecTunable.get(), maxAccelRotPerSecTunable.get()), 
-      maxVeloRotPerSecTunable, maxAccelRotPerSecTunable);
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () ->
+            pivotIO.setProfileConstraints(
+                maxVeloRotPerSecTunable.get(), maxAccelRotPerSecTunable.get()),
+        maxVeloRotPerSecTunable,
+        maxAccelRotPerSecTunable);
 
     /*State Machine Logic*/
-    
-    //Update the intended SystemState based on the desired WantedState
+
+    // Update the intended SystemState based on the desired WantedState
     SystemState newState = handleStateTransition();
     if (newState != systemState) {
       Logger.recordOutput("Pivot/SystemState", newState.toString());
       systemState = newState;
     }
 
-    //If we're disabled we are forced to IDLE
-    if(DriverStation.isDisabled()){
+    // If we're disabled we are forced to IDLE
+    if (DriverStation.isDisabled()) {
       systemState = SystemState.IS_IDLE;
     }
 
-    //Control the motors based on the system state
-    switch(systemState){
+    // Control the motors based on the system state
+    switch (systemState) {
       case STOWING:
         handleStowing();
         break;
@@ -128,13 +138,13 @@ public class Pivot extends SubsystemBase {
         handleIdling();
     }
 
-    //Log Outputs
+    // Log Outputs
     Logger.recordOutput("Pivot/WantedState", wantedState);
     Logger.recordOutput("Pivot/setpointDegrees", setpointDegrees);
   }
 
-  public SystemState handleStateTransition(){
-    switch(wantedState){
+  public SystemState handleStateTransition() {
+    switch (wantedState) {
       case STOW:
         return SystemState.STOWING;
       case INTAKE:
@@ -143,33 +153,33 @@ public class Pivot extends SubsystemBase {
         return SystemState.MOVING_TO_TARGET;
       case CLIMB:
         return SystemState.CLIMBING;
-      case IDLE:  
+      case IDLE:
       default:
         return SystemState.IS_IDLE;
     }
   }
 
   /*Methods to handle each of the system states */
-  public void handleStowing(){
+  public void handleStowing() {
     setSetpointDegrees(stowDegrees);
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
-  public void handleIntaking(){
+  public void handleIntaking() {
     setSetpointDegrees(intakeDegrees);
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
-  public void handleTargetting(){
+  public void handleTargetting() {
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
-  public void handleClimbing(){
+  public void handleClimbing() {
     setSetpointDegrees(climbDegrees);
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
-  public void handleIdling(){
+  public void handleIdling() {
     pivotIO.setVoltage(0.0);
   }
 
@@ -184,8 +194,8 @@ public class Pivot extends SubsystemBase {
   }
 
   public void setSetpointDegrees(double angleDegrees) {
-    double clampedDegrees = 
-      MathUtil.clamp(angleDegrees, reverseSoftLimitDegrees, forwardSoftLimitDegrees);
+    double clampedDegrees =
+        MathUtil.clamp(angleDegrees, reverseSoftLimitDegrees, forwardSoftLimitDegrees);
     this.setpointDegrees = clampedDegrees;
   }
 
@@ -197,11 +207,12 @@ public class Pivot extends SubsystemBase {
     return systemState;
   }
 
-  public boolean pivotAtSetpoint(){
-    return MathUtil.isNear(setpointDegrees, inputs.pivotPositionDegrees, acceptablePitchErrorDegrees);
+  public boolean pivotAtSetpoint() {
+    return MathUtil.isNear(
+        setpointDegrees, inputs.pivotPositionDegrees, acceptablePitchErrorDegrees);
   }
 
-  public double getCurrentPositionDegrees(){
+  public double getCurrentPositionDegrees() {
     return inputs.pivotPositionDegrees;
   }
 }

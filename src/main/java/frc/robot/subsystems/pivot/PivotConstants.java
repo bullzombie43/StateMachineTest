@@ -48,5 +48,4 @@ public class PivotConstants {
   public static final double processorDegrees = 0.0;
   public static final double lowAlgeaDegrees = 0.0;
   public static final double highAlgeaDegrees = 0.0;
-  
 }
