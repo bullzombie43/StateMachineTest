@@ -3,6 +3,7 @@ package frc.robot.subsystems.pivot;
 import static frc.robot.subsystems.pivot.PivotConstants.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -16,6 +17,13 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PhoenixUtil;
+
 public class PivotIOPhoenix6 implements PivotIO {
   protected final TalonFX pivotMotor = new TalonFX(pivotMotorId, pivotCanbus);
   protected final CANcoder pivotEncoder = new CANcoder(pivotEncoderId, pivotCanbus);
@@ -25,6 +33,15 @@ public class PivotIOPhoenix6 implements PivotIO {
 
   private final PositionVoltage positionVoltageRequest =
       new PositionVoltage(0.0).withEnableFOC(true);
+
+  private final StatusSignal<Angle> rotorPositionDegrees;
+  private final StatusSignal<AngularVelocity> rotorVelocityDegreesPerSec;
+  private final StatusSignal<Voltage> pivotVoltage;
+  private final StatusSignal<Current> pivotCurrent;
+  private final StatusSignal<Temperature> pivotTemperature;
+  private final StatusSignal<Angle> absolutePositionDegrees;
+  private final StatusSignal<AngularVelocity> absoluteVelocityDegreesPerSec;
+
 
   public PivotIOPhoenix6() {
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
@@ -55,6 +72,42 @@ public class PivotIOPhoenix6 implements PivotIO {
     encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
 
     pivotEncoder.getConfigurator().apply(encoderConfig); // Apply Encoder Configuration
+
+    //Status Signals
+    rotorPositionDegrees = pivotMotor.getPosition(); 
+    rotorVelocityDegreesPerSec = pivotMotor.getVelocity();
+    pivotVoltage = pivotMotor.getMotorVoltage();
+    pivotCurrent = pivotMotor.getSupplyCurrent();
+    pivotTemperature = pivotMotor.getDeviceTemp();
+    absolutePositionDegrees = pivotEncoder.getAbsolutePosition();
+    absoluteVelocityDegreesPerSec = pivotEncoder.getVelocity();
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+      100, 
+      rotorPositionDegrees,
+      rotorVelocityDegreesPerSec,
+      pivotVoltage,
+      pivotCurrent,
+      pivotTemperature
+      );
+
+    BaseStatusSignal.setUpdateFrequencyForAll(200,
+      absolutePositionDegrees,
+      absoluteVelocityDegreesPerSec
+    );
+
+    pivotMotor.optimizeBusUtilization();
+    pivotEncoder.optimizeBusUtilization();
+
+    PhoenixUtil.registerSignals(
+      true, 
+      rotorPositionDegrees,
+      rotorVelocityDegreesPerSec,
+      pivotVoltage,
+      pivotCurrent,
+      pivotTemperature,
+      absolutePositionDegrees,
+      absoluteVelocityDegreesPerSec);
   }
 
   @Override
@@ -83,30 +136,23 @@ public class PivotIOPhoenix6 implements PivotIO {
   @Override
   public void updateInputs(PivotIOInputs inputs) {
     inputs.motorConnected =
-        BaseStatusSignal.refreshAll(
-                pivotMotor.getMotorVoltage(),
-                pivotMotor.getSupplyCurrent(),
-                pivotMotor.getDeviceTemp(),
-                pivotMotor.getPosition(),
-                pivotMotor.getVelocity())
-            .isOK();
+        BaseStatusSignal.isAllGood(rotorPositionDegrees, rotorVelocityDegreesPerSec, pivotVoltage,pivotCurrent,pivotTemperature);
 
     inputs.encoderConnected =
-        BaseStatusSignal.refreshAll(pivotEncoder.getAbsolutePosition(), pivotEncoder.getVelocity())
-            .isOK();
+        BaseStatusSignal.isAllGood(absolutePositionDegrees,absoluteVelocityDegreesPerSec);
 
-    inputs.pivotVoltage = pivotMotor.getMotorVoltage().getValueAsDouble();
-    inputs.pivotCurrent = pivotMotor.getSupplyCurrent().getValueAsDouble();
-    inputs.pivotTemperature = pivotMotor.getDeviceTemp().getValueAsDouble();
+    inputs.pivotVoltage = pivotVoltage.getValueAsDouble();
+    inputs.pivotCurrent = pivotCurrent.getValueAsDouble();
+    inputs.pivotTemperature = pivotTemperature.getValueAsDouble();
     inputs.pivotPositionDegrees =
-        pivotMotor.getPosition().getValueAsDouble() * DEGREES_PER_ROTATION;
+        rotorPositionDegrees.getValueAsDouble() * DEGREES_PER_ROTATION;
     inputs.pivotVelocityDegreesPerSec =
-        pivotMotor.getVelocity().getValueAsDouble() * DEGREES_PER_ROTATION;
+        rotorVelocityDegreesPerSec.getValueAsDouble() * DEGREES_PER_ROTATION;
 
     // The encoder is direct to the pivot shaft so just multiply by 360 to convert from rotation to
     // degrees
-    inputs.absolutePositionDegrees = pivotEncoder.getAbsolutePosition().getValueAsDouble() * 360.0;
-    inputs.absoluteVelocityDegreesPerSec = pivotEncoder.getVelocity().getValueAsDouble() * 360.0;
+    inputs.absolutePositionDegrees =  absolutePositionDegrees.getValueAsDouble() * 360.0;
+    inputs.absoluteVelocityDegreesPerSec = absoluteVelocityDegreesPerSec.getValueAsDouble() * 360.0;
   }
 
   @Override
