@@ -15,6 +15,7 @@ package frc.robot.util;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import java.util.function.Supplier;
 
 public class PhoenixUtil {
@@ -54,5 +55,28 @@ public class PhoenixUtil {
     if (rioSignals.length > 0) {
       BaseStatusSignal.refreshAll(rioSignals);
     }
+  }
+
+  /** Copy all settings from one TalonFXConfiguration to another */
+  public static void copyConfig(TalonFXConfiguration copyTo, TalonFXConfiguration copyFrom) {
+    copyTo.Audio = copyFrom.Audio;
+    copyTo.ClosedLoopGeneral = copyFrom.ClosedLoopGeneral;
+    copyFrom.ClosedLoopRamps = copyFrom.ClosedLoopRamps;
+    copyTo.CurrentLimits = copyFrom.CurrentLimits;
+    copyTo.CustomParams = copyFrom.CustomParams;
+    copyTo.DifferentialConstants = copyFrom.DifferentialConstants;
+    copyTo.DifferentialSensors = copyFrom.DifferentialSensors;
+    copyTo.Feedback = copyFrom.Feedback;
+    copyTo.FutureProofConfigs = copyFrom.FutureProofConfigs;
+    copyTo.HardwareLimitSwitch = copyFrom.HardwareLimitSwitch;
+    copyTo.MotionMagic = copyFrom.MotionMagic;
+    copyTo.MotorOutput = copyFrom.MotorOutput;
+    copyTo.OpenLoopRamps = copyFrom.OpenLoopRamps;
+    copyTo.Slot0 = copyFrom.Slot0;
+    copyTo.Slot1 = copyFrom.Slot1;
+    copyTo.Slot2 = copyFrom.Slot2;
+    copyTo.SoftwareLimitSwitch = copyFrom.SoftwareLimitSwitch;
+    copyTo.TorqueCurrent = copyFrom.TorqueCurrent;
+    copyTo.Voltage = copyFrom.Voltage;
   }
 }
