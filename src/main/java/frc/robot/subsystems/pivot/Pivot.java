@@ -15,6 +15,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
@@ -69,8 +70,11 @@ public class Pivot extends SubsystemBase {
   private final PivotIOInputsAutoLogged inputs = new PivotIOInputsAutoLogged();
 
   private WantedState wantedState = WantedState.STOW;
-  private SystemState systemState = SystemState.STOWING;
+  private SystemState systemState = SystemState.AT_TARGET;
+  private WantedState prevWantedState = WantedState.STOW;
+
   private double setpointDegrees = 0.0;
+  private boolean atSetpoint = pivotAtSetpoint();
 
   /** Creates a new Pivot. */
   public Pivot(PivotIO io) {
@@ -84,6 +88,10 @@ public class Pivot extends SubsystemBase {
     // Process Inputs
     pivotIO.updateInputs(inputs);
     Logger.processInputs("Pivot", inputs);
+
+    //Update if we are at the setpoint each loop so behavior is consistent within each loop
+    atSetpoint = pivotAtSetpoint();
+    Logger.recordOutput("Pivot/atSetpoint", atSetpoint);
 
     // Set Alerts
     pivotMotorDisconnected.set(!inputs.motorConnected);
@@ -110,7 +118,9 @@ public class Pivot extends SubsystemBase {
         maxVeloRotPerSecTunable,
         maxAccelRotPerSecTunable);
 
-    /*State Machine Logic*/
+    /*
+     * State Machine Logic
+    */
 
     // Update the intended SystemState based on the desired WantedState
     SystemState newState = handleStateTransition();
@@ -125,22 +135,48 @@ public class Pivot extends SubsystemBase {
     }
 
     // Control the motors based on the system state
-    switch (systemState) {
-      case STOWING:
-        handleStowing();
-        break;
-      case INTAKING:
-        handleIntaking();
-        break;
-      case MOVING_TO_TARGET:
-        handleTargetting();
-        break;
-      case CLIMBING:
-        handleClimbing();
-        break;
-      case IS_IDLE:
-      default:
-        handleIdling();
+    if(systemState == SystemState.IS_IDLE){
+      handleIdling();
+    } else if (systemState == SystemState.IN_TRANSITION) {
+      switch (wantedState) {
+        case STOW:
+          handleStow();
+          break;
+        case INTAKE:
+          handleIntake();
+        case L1:
+          handleL1();
+          break;
+        case L2:
+          handleL2();
+          break;
+        case L3: 
+          handleL3();
+          break;
+        case L4:
+          handleL4();
+          break;
+        case BARGE:
+          handleBarge();
+          break;
+        case PROCESSOR:
+          handleProcessor();
+          break;
+        case LOW_ALGEA:
+          handleLowAlgea();
+          break;
+        case HIGH_ALGEA:
+          handleHighAlgea();
+          break;
+        case CLIMB:
+          handleClimb();
+          break;
+        case IDLE:
+        default:
+          break;
+    }
+    } else {
+      //DO Nothing
     }
 
     // Log Outputs
@@ -150,42 +186,12 @@ public class Pivot extends SubsystemBase {
 
   public SystemState handleStateTransition() {
     switch (wantedState) {
-      case STOW:
-        return SystemState.STOWING;
-      case INTAKE:
-        return SystemState.INTAKING;
-      case AT_TARGET:
-        return SystemState.MOVING_TO_TARGET;
-      case CLIMB:
-        return SystemState.CLIMBING;
       case IDLE:
-      default:
         return SystemState.IS_IDLE;
+      default:
+        // If we are not at the setpoint / goal state, then we are in transition
+        return atSetpoint ? SystemState.AT_TARGET : SystemState.IN_TRANSITION;
     }
-  }
-
-  /*Methods to handle each of the system states */
-  public void handleStowing() {
-    setSetpointDegrees(stowDegrees);
-    pivotIO.setSetpointDegrees(setpointDegrees);
-  }
-
-  public void handleIntaking() {
-    setSetpointDegrees(intakeDegrees);
-    pivotIO.setSetpointDegrees(setpointDegrees);
-  }
-
-  public void handleTargetting() {
-    pivotIO.setSetpointDegrees(setpointDegrees);
-  }
-
-  public void handleClimbing() {
-    setSetpointDegrees(climbDegrees);
-    pivotIO.setSetpointDegrees(setpointDegrees);
-  }
-
-  public void handleIdling() {
-    pivotIO.setVoltage(0.0);
   }
 
   /*Exposed Methods for setting and getting state and setpoint */
@@ -219,5 +225,70 @@ public class Pivot extends SubsystemBase {
 
   public double getCurrentPositionDegrees() {
     return inputs.pivotPositionDegrees;
+  }
+
+  /*
+   * 
+   * Handle Methods
+   * 
+   */
+
+  public void handleIdling(){
+    pivotIO.setVoltage(0.0);
+  }
+
+  public void handleStow(){
+    setSetpointDegrees(PivotConstants.stowDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleIntake() {
+    setSetpointDegrees(PivotConstants.intakeDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleL1() {
+    setSetpointDegrees(PivotConstants.L1Degrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleL2() {
+    setSetpointDegrees(PivotConstants.L2Degrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleL3() {
+    setSetpointDegrees(PivotConstants.L3Degrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleL4() {
+    setSetpointDegrees(PivotConstants.L4Degrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleBarge() {
+    setSetpointDegrees(PivotConstants.bargeDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleProcessor() {
+    setSetpointDegrees(PivotConstants.processorDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleLowAlgea() {
+    setSetpointDegrees(PivotConstants.lowAlgeaDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleHighAlgea() {
+    setSetpointDegrees(PivotConstants.highAlgeaDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleClimb() {
+    setSetpointDegrees(PivotConstants.climbDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
   }
 }

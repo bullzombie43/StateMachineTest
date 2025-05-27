@@ -172,7 +172,7 @@ public class Elevator extends SubsystemBase {
         default:
           break;
       }
-    } else if (systemState == SystemState.AT_TARGET) {
+    } else {
       //Do Nothing
     }
 
