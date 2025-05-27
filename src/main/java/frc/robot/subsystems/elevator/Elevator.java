@@ -13,6 +13,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.util.LoggedTunableNumber;
 
 public class Elevator extends SubsystemBase {
@@ -33,10 +34,8 @@ public class Elevator extends SubsystemBase {
 
   public enum SystemState {
     IS_IDLE,
-    STOWING,
-    INTAKING,
-    NORMAL_TARGETTING,
-    CLIMBING
+    IN_TRANSITION,
+    AT_TARGET
   }
 
   private static final LoggedTunableNumber kP =
@@ -69,9 +68,11 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
   private WantedState wantedState = WantedState.STOW;
-  private SystemState systemState = SystemState.STOWING;
+  private SystemState systemState = SystemState.AT_TARGET;
   private WantedState prevWantedState = WantedState.STOW;
+
   private double setpointMeters = 0.0;
+  private boolean atSetpoint = atSetpoint();
 
   public Elevator(ElevatorIO io) {
     this.elevatorIO = io;
@@ -85,6 +86,10 @@ public class Elevator extends SubsystemBase {
     //Process Inputs
     elevatorIO.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
+
+    //Update if we are at the setpoint each loop so behavior is consistent within each loop
+    atSetpoint = atSetpoint();
+    Logger.recordOutput("Elevator/atSetpoint", atSetpoint);
 
     //Set Alerts
     leftMotorDisconnected.set(inputs.leftMotorConnected);
@@ -111,12 +116,14 @@ public class Elevator extends SubsystemBase {
         maxVeloRotPerSecTunable,
         maxAccelRotPerSecTunable);
 
-    /*State Machine Logic */
-
+    /* 
+     * State Machine Logic
+    */
+    
     // Update the intended SystemState based on the desired WantedState
     SystemState newState = handleStateTransition();
     if (newState != systemState) {
-      Logger.recordOutput("Pivot/SystemState", newState.toString());
+      Logger.recordOutput("Elevator/SystemState", newState.toString());
       systemState = newState;
     }
 
@@ -126,57 +133,63 @@ public class Elevator extends SubsystemBase {
     }
 
     // Control the motors based on the system state
-    switch (systemState) {
-      case STOWING:
-        handleStowing();
-        break;
-      case INTAKING:
-        handleIntaking();
-        break;
-      case NORMAL_TARGETTING:
-        handleTargetting();
-        break;
-      case CLIMBING:
-        handleClimbing();
-        break;
-      case IS_IDLE:
-      default:
-        handleIdling();
+    if(systemState == SystemState.IS_IDLE) {
+      handleIdling();
+    } else if (systemState == SystemState.IN_TRANSITION) {
+      switch (wantedState) {
+        case STOW:
+          handleStow();
+          break;
+        case INTAKE:
+          handleIntake();
+        case L1:
+          handleL1();
+          break;
+        case L2:
+          handleL2();
+          break;
+        case L3: 
+          handleL3();
+          break;
+        case L4:
+          handleL4();
+          break;
+        case BARGE:
+          handleBarge();
+          break;
+        case PROCESSOR:
+          handleProcessor();
+          break;
+        case LOW_ALGEA:
+          handleLowAlgea();
+          break;
+        case HIGH_ALGEA:
+          handleHighAlgea();
+          break;
+        case CLIMB:
+          handleClimb();
+          break;
+        case IDLE:
+        default:
+          break;
+      }
+    } else if (systemState == SystemState.AT_TARGET) {
+      //Do Nothing
     }
 
     // Log Outputs
-    Logger.recordOutput("Pivot/WantedState", wantedState);
-    Logger.recordOutput("Pivot/setpointDegrees", setpointMeters);
+    Logger.recordOutput("Elevator/WantedState", wantedState);
+    Logger.recordOutput("Elevator/setpointDegrees", setpointMeters);
 
   }
 
   public SystemState handleStateTransition() {
     switch (wantedState) {
-      case STOW:
-        return SystemState.STOWING;
-      case INTAKE:
-        return SystemState.INTAKING;
-      case L1:
-        return SystemState.NORMAL_TARGETTING;
-      case L2:  
-        return SystemState.NORMAL_TARGETTING;
-      case L3:
-        return SystemState.NORMAL_TARGETTING;
-      case L4:
-        return SystemState.NORMAL_TARGETTING;
-      case BARGE:
-        return SystemState.NORMAL_TARGETTING;
-      case PROCESSOR:
-        return SystemState.NORMAL_TARGETTING;
-      case LOW_ALGEA:
-        return SystemState.NORMAL_TARGETTING;
-      case HIGH_ALGEA:
-        return SystemState.NORMAL_TARGETTING;
-      case CLIMB:
-        return SystemState.CLIMBING;
       case IDLE:
-      default:
         return SystemState.IS_IDLE;
+      default:
+        // If we are not at the setpoint / goal state, then we are in transition
+        return atSetpoint ? SystemState.AT_TARGET : SystemState.IN_TRANSITION;
     }
   }
 
@@ -212,62 +225,73 @@ public class Elevator extends SubsystemBase {
     return MathUtil.isNear(setpointMeters, inputs.elevatorHeightMeters, ElevatorConstants.elevatorToleranceMeters);
   }
 
-  public void handleStowing(){
-    setSetpointMeters(ElevatorConstants.stowHeight);
-    elevatorIO.setSetpointMeters(setpointMeters);
+  public boolean atSetpoint() {
+    return MathUtil.isNear(
+        setpointMeters, inputs.elevatorHeightMeters, ElevatorConstants.elevatorToleranceMeters);
   }
 
-  public void handleIntaking(){
-    setSetpointMeters(ElevatorConstants.intakeHeight);
-    elevatorIO.setSetpointMeters(setpointMeters);
-  }
-
-  public void handleClimbing(){
-    setSetpointMeters(ElevatorConstants.climbHeight);
-    elevatorIO.setSetpointMeters(setpointMeters);
-  }
+  /*
+   * 
+   * Handle Methods
+   * 
+   */
 
   public void handleIdling(){
     elevatorIO.setVoltage(0.0, 0.0);
   }
 
-  public void handleTargetting() {
-    switch (wantedState) {
-      case L1:
-        setSetpointMeters(ElevatorConstants.L1Height);
-        elevatorIO.setSetpointMeters(setpointMeters);
-        break;
-      case L2:
-        setSetpointMeters(ElevatorConstants.L2Height);
-        elevatorIO.setSetpointMeters(setpointMeters);
-        break;
-      case L3:
-        setSetpointMeters(ElevatorConstants.L3Height);
-        elevatorIO.setSetpointMeters(setpointMeters);
-        break;
-      case L4:
-        setSetpointMeters(ElevatorConstants.L4Height);
-        elevatorIO.setSetpointMeters(setpointMeters);
-        break;
-      case BARGE:
-        setSetpointMeters(ElevatorConstants.bargeHeight);
-        elevatorIO.setSetpointMeters(setpointMeters);
-        break;
-      case PROCESSOR:
-        setSetpointMeters(ElevatorConstants.processorHeight);
-        elevatorIO.setSetpointMeters(setpointMeters);
-        break;
-      case LOW_ALGEA:
-        setSetpointMeters(ElevatorConstants.lowAlgeaHeight);
-        elevatorIO.setSetpointMeters(setpointMeters);
-        break;
-      case HIGH_ALGEA:
-        setSetpointMeters(ElevatorConstants.highAlgeaHeight);
-        elevatorIO.setSetpointMeters(setpointMeters);
-        break;    
-      default:
-        break;
-    }
+  public void handleStow(){
+    setSetpointMeters(ElevatorConstants.stowHeight);
+    elevatorIO.setSetpointMeters(setpointMeters);
   }
 
+  public void handleIntake() {
+    setSetpointMeters(ElevatorConstants.intakeHeight);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleL1() {
+    setSetpointMeters(ElevatorConstants.L1Height);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleL2() {
+    setSetpointMeters(ElevatorConstants.L2Height);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleL3() {
+    setSetpointMeters(ElevatorConstants.L3Height);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleL4() {
+    setSetpointMeters(ElevatorConstants.L4Height);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleBarge() {
+    setSetpointMeters(ElevatorConstants.bargeHeight);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleProcessor() {
+    setSetpointMeters(ElevatorConstants.processorHeight);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleLowAlgea() {
+    setSetpointMeters(ElevatorConstants.lowAlgeaHeight);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleHighAlgea() {
+    setSetpointMeters(ElevatorConstants.highAlgeaHeight);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleClimb() {
+    setSetpointMeters(ElevatorConstants.climbHeight);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
 }
