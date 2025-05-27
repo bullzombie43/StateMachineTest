@@ -70,6 +70,7 @@ public class Elevator extends SubsystemBase {
 
   private WantedState wantedState = WantedState.STOW;
   private SystemState systemState = SystemState.STOWING;
+  private WantedState prevWantedState = WantedState.STOW;
   private double setpointMeters = 0.0;
 
   public Elevator(ElevatorIO io) {
@@ -149,6 +150,68 @@ public class Elevator extends SubsystemBase {
 
   }
 
+  public SystemState handleStateTransition() {
+    switch (wantedState) {
+      case STOW:
+        return SystemState.STOWING;
+      case INTAKE:
+        return SystemState.INTAKING;
+      case L1:
+        return SystemState.NORMAL_TARGETTING;
+      case L2:  
+        return SystemState.NORMAL_TARGETTING;
+      case L3:
+        return SystemState.NORMAL_TARGETTING;
+      case L4:
+        return SystemState.NORMAL_TARGETTING;
+      case BARGE:
+        return SystemState.NORMAL_TARGETTING;
+      case PROCESSOR:
+        return SystemState.NORMAL_TARGETTING;
+      case LOW_ALGEA:
+        return SystemState.NORMAL_TARGETTING;
+      case HIGH_ALGEA:
+        return SystemState.NORMAL_TARGETTING;
+      case CLIMB:
+        return SystemState.CLIMBING;
+      case IDLE:
+      default:
+        return SystemState.IS_IDLE;
+    }
+  }
+
+  /*Exposed Methods for setting and getting state and setpoint */
+  public void setWantedState(WantedState newWantedState) {
+    this.prevWantedState = this.wantedState;
+    this.wantedState = newWantedState;
+  }
+
+  public void setSetpointMeters(double targetHeightMeters) {
+    double clampedMeters =
+        MathUtil.clamp(targetHeightMeters, reverseSoftLimitMeters, forwardSoftLimitMeters);
+    this.setpointMeters = clampedMeters;
+  }
+
+  public WantedState getWantedState() {
+    return wantedState;
+  }
+
+  public SystemState getSystemState() {
+    return systemState;
+  }
+
+  public double getSetpointMeters() {
+    return setpointMeters;
+  }
+
+  public double getCurrentPositionMeters(){
+    return inputs.elevatorHeightMeters;
+  }
+
+  public boolean elevatorAtSetpoint(){
+    return MathUtil.isNear(setpointMeters, inputs.elevatorHeightMeters, ElevatorConstants.elevatorToleranceMeters);
+  }
+
   public void handleStowing(){
     setSetpointMeters(ElevatorConstants.stowHeight);
     elevatorIO.setSetpointMeters(setpointMeters);
@@ -205,67 +268,6 @@ public class Elevator extends SubsystemBase {
       default:
         break;
     }
-  }
-
-  public SystemState handleStateTransition() {
-    switch (wantedState) {
-      case STOW:
-        return SystemState.STOWING;
-      case INTAKE:
-        return SystemState.INTAKING;
-      case L1:
-        return SystemState.NORMAL_TARGETTING;
-      case L2:  
-        return SystemState.NORMAL_TARGETTING;
-      case L3:
-        return SystemState.NORMAL_TARGETTING;
-      case L4:
-        return SystemState.NORMAL_TARGETTING;
-      case BARGE:
-        return SystemState.NORMAL_TARGETTING;
-      case PROCESSOR:
-        return SystemState.NORMAL_TARGETTING;
-      case LOW_ALGEA:
-        return SystemState.NORMAL_TARGETTING;
-      case HIGH_ALGEA:
-        return SystemState.NORMAL_TARGETTING;
-      case CLIMB:
-        return SystemState.CLIMBING;
-      case IDLE:
-      default:
-        return SystemState.IS_IDLE;
-    }
-  }
-
-  /*Exposed Methods for setting and getting state and setpoint */
-  public void setWantedState(WantedState wantedState) {
-    this.wantedState = wantedState;
-  }
-
-  public void setSetpointMeters(double targetHeightMeters) {
-    double clampedMeters =
-        MathUtil.clamp(targetHeightMeters, reverseSoftLimitMeters, forwardSoftLimitMeters);
-    this.setpointMeters = clampedMeters;
-  }
-
-  public WantedState getWantedState() {
-    return wantedState;
-  }
-
-  public SystemState getSystemState() {
-    return systemState;
-  }
-
-  public double getSetpointMeters() {
-    return setpointMeters;
-  }
-
-  public double getCurrentPositionMeters(){
-    return inputs.elevatorHeightMeters;
-  }
-
-  public boolean elevatorAtSetpoint(){
-    return MathUtil.isNear(setpointMeters, inputs.elevatorHeightMeters, ElevatorConstants.elevatorToleranceMeters);
   }
 
 }
