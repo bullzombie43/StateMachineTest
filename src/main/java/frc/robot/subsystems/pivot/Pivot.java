@@ -23,16 +23,21 @@ public class Pivot extends SubsystemBase {
     IDLE,
     STOW,
     INTAKE,
-    AT_TARGET,
+    L1,
+    L2,
+    L3,
+    L4,
+    BARGE,
+    PROCESSOR,
+    LOW_ALGEA,
+    HIGH_ALGEA,
     CLIMB
   }
 
   public enum SystemState {
     IS_IDLE,
-    STOWING,
-    INTAKING,
-    MOVING_TO_TARGET,
-    CLIMBING
+    IN_TRANSITION,
+    AT_TARGET
   }
 
   private static final LoggedTunableNumber kP =

@@ -13,7 +13,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.util.LoggedTunableNumber;
 
 public class Elevator extends SubsystemBase {
@@ -119,7 +118,7 @@ public class Elevator extends SubsystemBase {
     /* 
      * State Machine Logic
     */
-    
+
     // Update the intended SystemState based on the desired WantedState
     SystemState newState = handleStateTransition();
     if (newState != systemState) {
