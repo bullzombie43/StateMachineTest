@@ -7,13 +7,12 @@ package frc.robot.subsystems.elevator;
 import static frc.robot.subsystems.elevator.ElevatorConstants.forwardSoftLimitMeters;
 import static frc.robot.subsystems.elevator.ElevatorConstants.reverseSoftLimitMeters;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
   public enum WantedState {
@@ -76,29 +75,29 @@ public class Elevator extends SubsystemBase {
   public Elevator(ElevatorIO io) {
     this.elevatorIO = io;
     elevatorIO.setGains(kP.get(), kA.get(), kD.get(), kS.get(), kV.get(), kA.get(), kG.get());
-    elevatorIO.setProfileConstraints(
-        maxVeloRotPerSecTunable.get(), maxAccelRotPerSecTunable.get());
+    elevatorIO.setProfileConstraints(maxVeloRotPerSecTunable.get(), maxAccelRotPerSecTunable.get());
   }
 
   @Override
   public void periodic() {
-    //Process Inputs
+    // Process Inputs
     elevatorIO.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
 
-    //Update if we are at the setpoint each loop so behavior is consistent within each loop
+    // Update if we are at the setpoint each loop so behavior is consistent within each loop
     atSetpoint = atSetpoint();
     Logger.recordOutput("Elevator/atSetpoint", atSetpoint);
 
-    //Set Alerts
+    // Set Alerts
     leftMotorDisconnected.set(inputs.leftMotorConnected);
     rightMotorDisconnected.set(inputs.rightMotorConnected);
 
-    //Update Gains and Constraints
+    // Update Gains and Constraints
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () ->
-            elevatorIO.setGains(kP.get(), kA.get(), kD.get(), kS.get(), kV.get(), kA.get(), kG.get()),
+            elevatorIO.setGains(
+                kP.get(), kA.get(), kD.get(), kS.get(), kV.get(), kA.get(), kG.get()),
         kP,
         kI,
         kD,
@@ -115,9 +114,9 @@ public class Elevator extends SubsystemBase {
         maxVeloRotPerSecTunable,
         maxAccelRotPerSecTunable);
 
-    /* 
+    /*
      * State Machine Logic
-    */
+     */
 
     // Update the intended SystemState based on the desired WantedState
     SystemState newState = handleStateTransition();
@@ -132,7 +131,7 @@ public class Elevator extends SubsystemBase {
     }
 
     // Control the motors based on the system state
-    if(systemState == SystemState.IS_IDLE) {
+    if (systemState == SystemState.IS_IDLE) {
       handleIdling();
     } else if (systemState == SystemState.IN_TRANSITION) {
       switch (wantedState) {
@@ -147,7 +146,7 @@ public class Elevator extends SubsystemBase {
         case L2:
           handleL2();
           break;
-        case L3: 
+        case L3:
           handleL3();
           break;
         case L4:
@@ -173,13 +172,12 @@ public class Elevator extends SubsystemBase {
           break;
       }
     } else {
-      //Do Nothing
+      // Do Nothing
     }
 
     // Log Outputs
     Logger.recordOutput("Elevator/WantedState", wantedState);
     Logger.recordOutput("Elevator/setpointDegrees", setpointMeters);
-
   }
 
   public SystemState handleStateTransition() {
@@ -216,12 +214,13 @@ public class Elevator extends SubsystemBase {
     return setpointMeters;
   }
 
-  public double getCurrentPositionMeters(){
+  public double getCurrentPositionMeters() {
     return inputs.elevatorHeightMeters;
   }
 
-  public boolean elevatorAtSetpoint(){
-    return MathUtil.isNear(setpointMeters, inputs.elevatorHeightMeters, ElevatorConstants.elevatorToleranceMeters);
+  public boolean elevatorAtSetpoint() {
+    return MathUtil.isNear(
+        setpointMeters, inputs.elevatorHeightMeters, ElevatorConstants.elevatorToleranceMeters);
   }
 
   public boolean atSetpoint() {
@@ -230,16 +229,16 @@ public class Elevator extends SubsystemBase {
   }
 
   /*
-   * 
+   *
    * Handle Methods
-   * 
+   *
    */
 
-  public void handleIdling(){
+  public void handleIdling() {
     elevatorIO.setVoltage(0.0, 0.0);
   }
 
-  public void handleStow(){
+  public void handleStow() {
     setSetpointMeters(ElevatorConstants.stowHeight);
     elevatorIO.setSetpointMeters(setpointMeters);
   }

@@ -50,6 +50,9 @@ public class ElevatorConstants {
   public static final double lowAlgeaHeight = 0.0;
   public static final double highAlgeaHeight = 0.0;
 
-  //Tolerance
+  // Tolerance
   public static final double elevatorToleranceMeters = 0.02;
+
+  // Simulation Values
+  public static final double carriageMassKg = 1.0;
 }

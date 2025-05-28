@@ -5,17 +5,13 @@
 package frc.robot.subsystems.pivot;
 
 import static frc.robot.subsystems.pivot.PivotConstants.acceptablePitchErrorDegrees;
-import static frc.robot.subsystems.pivot.PivotConstants.climbDegrees;
 import static frc.robot.subsystems.pivot.PivotConstants.forwardSoftLimitDegrees;
-import static frc.robot.subsystems.pivot.PivotConstants.intakeDegrees;
 import static frc.robot.subsystems.pivot.PivotConstants.reverseSoftLimitDegrees;
-import static frc.robot.subsystems.pivot.PivotConstants.stowDegrees;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
@@ -89,7 +85,7 @@ public class Pivot extends SubsystemBase {
     pivotIO.updateInputs(inputs);
     Logger.processInputs("Pivot", inputs);
 
-    //Update if we are at the setpoint each loop so behavior is consistent within each loop
+    // Update if we are at the setpoint each loop so behavior is consistent within each loop
     atSetpoint = pivotAtSetpoint();
     Logger.recordOutput("Pivot/atSetpoint", atSetpoint);
 
@@ -120,7 +116,7 @@ public class Pivot extends SubsystemBase {
 
     /*
      * State Machine Logic
-    */
+     */
 
     // Update the intended SystemState based on the desired WantedState
     SystemState newState = handleStateTransition();
@@ -135,7 +131,7 @@ public class Pivot extends SubsystemBase {
     }
 
     // Control the motors based on the system state
-    if(systemState == SystemState.IS_IDLE){
+    if (systemState == SystemState.IS_IDLE) {
       handleIdling();
     } else if (systemState == SystemState.IN_TRANSITION) {
       switch (wantedState) {
@@ -150,7 +146,7 @@ public class Pivot extends SubsystemBase {
         case L2:
           handleL2();
           break;
-        case L3: 
+        case L3:
           handleL3();
           break;
         case L4:
@@ -174,9 +170,9 @@ public class Pivot extends SubsystemBase {
         case IDLE:
         default:
           break;
-    }
+      }
     } else {
-      //DO Nothing
+      // DO Nothing
     }
 
     // Log Outputs
@@ -228,16 +224,16 @@ public class Pivot extends SubsystemBase {
   }
 
   /*
-   * 
+   *
    * Handle Methods
-   * 
+   *
    */
 
-  public void handleIdling(){
+  public void handleIdling() {
     pivotIO.setVoltage(0.0);
   }
 
-  public void handleStow(){
+  public void handleStow() {
     setSetpointDegrees(PivotConstants.stowDegrees);
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
