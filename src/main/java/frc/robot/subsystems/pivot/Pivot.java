@@ -14,6 +14,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.util.LoggedTunableNumber;
@@ -32,13 +34,15 @@ public class Pivot extends SubsystemBase {
     PROCESSOR,
     LOW_ALGEA,
     HIGH_ALGEA,
-    CLIMB
+    CLIMB,
+    VOLTAGE
   }
 
   public enum SystemState {
     IS_IDLE,
     IN_TRANSITION,
-    AT_TARGET
+    AT_TARGET,
+    VOLTAGE
   }
 
   private static final LoggedTunableNumber kP =
@@ -137,7 +141,9 @@ public class Pivot extends SubsystemBase {
     // Control the motors based on the system state
     if (systemState == SystemState.IS_IDLE) {
       handleIdling();
-    } else if (systemState == SystemState.IN_TRANSITION) {
+    } else if (systemState == SystemState.VOLTAGE) {
+      // Just here so we don't seek a setpoint when trying to control a voltage
+    } else {
       switch (wantedState) {
         case STOW:
           handleStow();
@@ -175,13 +181,12 @@ public class Pivot extends SubsystemBase {
         default:
           break;
       }
-    } else {
-      // DO Nothing
     }
 
     // Log Outputs
     Logger.recordOutput("Pivot/WantedState", wantedState);
     Logger.recordOutput("Pivot/setpointDegrees", setpointDegrees);
+    Logger.recordOutput("Pivot/CurrentPositionDegrees", getCurrentPositionDegrees());
 
     // Visualize pivot as pose3d
     // Set the Rotation  of the pivot in the component poses
@@ -190,13 +195,15 @@ public class Pivot extends SubsystemBase {
             PivotConstants.pivotOffsetX,
             PivotConstants.pivotOffsetY,
             Robot.componentPoses[3].getZ(),
-            new Rotation3d(0, Units.degreesToRadians(-45), 0));
+            new Rotation3d(0, Units.degreesToRadians(getCurrentPositionDegrees()), 0));
   }
 
   public SystemState handleStateTransition() {
     switch (wantedState) {
       case IDLE:
         return SystemState.IS_IDLE;
+      case VOLTAGE:
+        return SystemState.VOLTAGE;
       default:
         // If we are not at the setpoint / goal state, then we are in transition
         return atSetpoint ? SystemState.AT_TARGET : SystemState.IN_TRANSITION;
@@ -204,13 +211,12 @@ public class Pivot extends SubsystemBase {
   }
 
   /*Exposed Methods for setting and getting state and setpoint */
-  public void setWantedState(WantedState wantedState) {
+  public void setWantedStateFunc(WantedState wantedState) {
     this.wantedState = wantedState;
   }
 
-  public void setWantedState(WantedState wantedState, double setpointDegrees) {
-    this.wantedState = wantedState;
-    setSetpointDegrees(setpointDegrees);
+  public Command setWantedState(WantedState wantedState) {
+    return Commands.runOnce(() -> setWantedStateFunc(wantedState), this);
   }
 
   public void setSetpointDegrees(double angleDegrees) {
@@ -234,6 +240,15 @@ public class Pivot extends SubsystemBase {
 
   public double getCurrentPositionDegrees() {
     return inputs.pivotPositionDegrees;
+  }
+
+  public Command setVoltage(double voltage) {
+    return Commands.runOnce(
+        () -> {
+          setWantedStateFunc(WantedState.VOLTAGE);
+          pivotIO.setVoltage(voltage);
+        },
+        this);
   }
 
   /*

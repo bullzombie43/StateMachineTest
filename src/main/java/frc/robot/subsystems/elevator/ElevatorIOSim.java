@@ -66,11 +66,13 @@ public class ElevatorIOSim extends ElevatorIOPhoenix6 {
     double rotorPosition = Elevator.metersToRotations(simPositionMeters);
     leftMotorSimState.setRawRotorPosition(rotorPosition * ElevatorConstants.elevatorGearRatio);
     rightMotorSimState.setRawRotorPosition(rotorPosition * ElevatorConstants.elevatorGearRatio);
-    Logger.recordOutput("Elevator/Sim/RawRotorPosition", rotorPosition * ElevatorConstants.elevatorGearRatio);
+    Logger.recordOutput(
+        "Elevator/Sim/RawRotorPosition", rotorPosition * ElevatorConstants.elevatorGearRatio);
 
     double rotorVelocity = Elevator.metersToRotations(simVelocityMetersPerSecond);
     leftMotorSimState.setRotorVelocity(rotorVelocity * ElevatorConstants.elevatorGearRatio);
     rightMotorSimState.setRotorVelocity(rotorVelocity * ElevatorConstants.elevatorGearRatio);
-    Logger.recordOutput("Elevator/Sim/RawRotorVelocity", rotorVelocity * ElevatorConstants.elevatorGearRatio);
+    Logger.recordOutput(
+        "Elevator/Sim/RawRotorVelocity", rotorVelocity * ElevatorConstants.elevatorGearRatio);
   }
 }

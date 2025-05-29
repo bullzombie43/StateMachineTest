@@ -149,9 +149,10 @@ public class PivotIOPhoenix6 implements PivotIO {
     inputs.pivotVoltage = pivotVoltage.getValueAsDouble();
     inputs.pivotCurrent = pivotCurrent.getValueAsDouble();
     inputs.pivotTemperature = pivotTemperature.getValueAsDouble();
-    inputs.pivotPositionDegrees = rotorPositionDegrees.getValueAsDouble() * DEGREES_PER_ROTATION;
+    inputs.pivotPositionDegrees =
+        rotorPositionDegrees.getValueAsDouble() * DEGREES_PER_MOTOR_ROTATION;
     inputs.pivotVelocityDegreesPerSec =
-        rotorVelocityDegreesPerSec.getValueAsDouble() * DEGREES_PER_ROTATION;
+        rotorVelocityDegreesPerSec.getValueAsDouble() * DEGREES_PER_MOTOR_ROTATION;
 
     // The encoder is direct to the pivot shaft so just multiply by 360 to convert from rotation to
     // degrees

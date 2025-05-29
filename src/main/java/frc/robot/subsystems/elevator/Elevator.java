@@ -327,22 +327,22 @@ public class Elevator extends SubsystemBase {
     boolean travellingUpwards = carriageHeight > previousCarriageHeight;
 
     if (travellingUpwards) {
-        double stageTop = stageHeight + ElevatorConstants.stage1Length;
+      double stageTop = stageHeight + ElevatorConstants.stage1Length;
 
-        if (carriageHeight < stageTop) {
-            // Carriage is moving up the stage — do nothing
-        } else {
-            // Carriage is maxed out — move the stage up
-            stageHeight = carriageHeight - ElevatorConstants.stage1Length;
-        }
+      if (carriageHeight < stageTop) {
+        // Carriage is moving up the stage — do nothing
+      } else {
+        // Carriage is maxed out — move the stage up
+        stageHeight = carriageHeight - ElevatorConstants.stage1Length;
+      }
 
     } else {
-        if (carriageHeight > stageHeight) {
-            // Carriage is riding down the stage — do nothing
-        } else {
-            // Carriage has hit bottom of stage — retract stage
-            stageHeight = carriageHeight;
-        }
+      if (carriageHeight > stageHeight) {
+        // Carriage is riding down the stage — do nothing
+      } else {
+        // Carriage has hit bottom of stage — retract stage
+        stageHeight = carriageHeight;
+      }
     }
 
     previousCarriageHeight = carriageHeight;

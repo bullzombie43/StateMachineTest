@@ -6,6 +6,7 @@ import static frc.robot.subsystems.pivot.PivotConstants.reverseSoftLimitDegrees;
 import static frc.robot.subsystems.pivot.PivotConstants.simArmLength;
 import static frc.robot.subsystems.pivot.PivotConstants.simMOI;
 
+import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Notifier;
@@ -38,6 +39,8 @@ public class PivotIOSim extends PivotIOPhoenix6 {
 
     simNotifier.startPeriodic(
         0.005); // Run Simulation at a faster rate so PID gains perform more reasonably
+
+    pivotMotor.getSimState().Orientation = ChassisReference.Clockwise_Positive;
   }
 
   @Override
@@ -74,11 +77,11 @@ public class PivotIOSim extends PivotIOPhoenix6 {
         "Pivot/Sim/Cancoder Position", pivotEncoder.getPosition().getValueAsDouble());
 
     // Mutate Motor Position and Velocity
-    double rotorPosition = Units.radiansToRotations(simPositionRadians) / PIVOT_GEAR_RATIO;
+    double rotorPosition = Units.radiansToRotations(simPositionRadians) * PIVOT_GEAR_RATIO;
     motorSimState.setRawRotorPosition(rotorPosition);
     Logger.recordOutput("Pivot/Sim/setRawRotorPosition", rotorPosition);
 
-    double rotorVelocity = Units.radiansToRotations(simVelocityRadiansPerSec) / PIVOT_GEAR_RATIO;
+    double rotorVelocity = Units.radiansToRotations(simVelocityRadiansPerSec) * PIVOT_GEAR_RATIO;
     motorSimState.setRotorVelocity(rotorVelocity);
     Logger.recordOutput("Pivot/Sim/setRotorVelocity", rotorVelocity);
   }
