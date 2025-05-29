@@ -9,9 +9,13 @@ import static frc.robot.subsystems.pivot.PivotConstants.forwardSoftLimitDegrees;
 import static frc.robot.subsystems.pivot.PivotConstants.reverseSoftLimitDegrees;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
@@ -178,6 +182,15 @@ public class Pivot extends SubsystemBase {
     // Log Outputs
     Logger.recordOutput("Pivot/WantedState", wantedState);
     Logger.recordOutput("Pivot/setpointDegrees", setpointDegrees);
+
+    // Visualize pivot as pose3d
+    // Set the Rotation  of the pivot in the component poses
+    Robot.componentPoses[3] =
+        new Pose3d(
+            PivotConstants.pivotOffsetX,
+            PivotConstants.pivotOffsetY,
+            Robot.componentPoses[3].getZ(),
+            new Rotation3d(0, Units.degreesToRadians(-45), 0));
   }
 
   public SystemState handleStateTransition() {

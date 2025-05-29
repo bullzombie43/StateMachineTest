@@ -166,9 +166,10 @@ public class ElevatorIOPhoenix6 implements ElevatorIO {
     inputs.rightCurrent = rightMotorCurrent.getValueAsDouble();
     inputs.leftTemperature = leftMotorTemperature.getValueAsDouble();
 
-    inputs.elevatorHeightMeters = rotationsToMeters(elevatorPositionRot.getValueAsDouble());
+    inputs.elevatorHeightMeters =
+        Elevator.rotationsToMeters(elevatorPositionRot.getValueAsDouble());
     inputs.elevatorVelocityMetersPerSec =
-        rotationsToMeters(elevatorVelocityRotPerSec.getValueAsDouble());
+        Elevator.rotationsToMeters(elevatorVelocityRotPerSec.getValueAsDouble());
   }
 
   @Override
@@ -185,22 +186,14 @@ public class ElevatorIOPhoenix6 implements ElevatorIO {
 
   @Override
   public void setSetpointMeters(double setpointInMeters) {
-    double setpointRotations = metersToRotations(setpointInMeters);
+    double setpointRotations = Elevator.metersToRotations(setpointInMeters);
     leftMotor.setControl(motionMagicVoltageRequest.withPosition(setpointRotations));
     rightMotor.setControl(motionMagicVoltageRequest.withPosition(setpointRotations));
   }
 
   @Override
   public void setPositionMeters(double positionMeters) {
-    leftMotor.setPosition(metersToRotations(positionMeters));
-    rightMotor.setPosition(metersToRotations(positionMeters));
-  }
-
-  public double rotationsToMeters(double rotations) {
-    return rotations * ROTATIONS_TO_METERS;
-  }
-
-  public double metersToRotations(double meters) {
-    return meters / ROTATIONS_TO_METERS;
+    leftMotor.setPosition(Elevator.metersToRotations(positionMeters));
+    rightMotor.setPosition(Elevator.metersToRotations(positionMeters));
   }
 }

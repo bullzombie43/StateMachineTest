@@ -16,10 +16,14 @@ package frc.robot;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.pivot.PivotConstants;
 import frc.robot.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -37,6 +41,29 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
+
+  public static Pose3d[] componentPoses =
+      new Pose3d[] {
+        new Pose3d(
+            Units.inchesToMeters(-12.00),
+            0,
+            Units.inchesToMeters(7),
+            new Rotation3d(
+                Units.degreesToRadians(180),
+                Units.degreesToRadians(0),
+                Units.degreesToRadians(180))),
+        new Pose3d(),
+        new Pose3d(),
+        new Pose3d(
+            PivotConstants.pivotOffsetX,
+            PivotConstants.pivotOffsetY,
+            PivotConstants.pivotOffsetZ,
+            new Rotation3d()),
+        new Pose3d(),
+        new Pose3d(),
+        new Pose3d(),
+        new Pose3d()
+      };
 
   public Robot() {
     // Record metadata
@@ -102,15 +129,7 @@ public class Robot extends LoggedRobot {
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
 
-    // Temporarily log a bunch of zero poses for the mechanisms for sim
-    Logger.recordOutput("Poses/0", new Pose3d());
-    Logger.recordOutput("Poses/1", new Pose3d());
-    Logger.recordOutput("Poses/2", new Pose3d());
-    Logger.recordOutput("Poses/3", new Pose3d());
-    Logger.recordOutput("Poses/4", new Pose3d());
-    Logger.recordOutput("Poses/5", new Pose3d());
-    Logger.recordOutput("Poses/6", new Pose3d());
-    Logger.recordOutput("Poses/7", new Pose3d());
+    Logger.recordOutput("Poses/Zero2d", Pose2d.kZero);
   }
 
   /** This function is called periodically during all modes. */
@@ -128,6 +147,9 @@ public class Robot extends LoggedRobot {
 
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
+
+    // TODO: OPTOMIZE BY DISABLING UNLESS ITS SIM OR REPLAY
+    Logger.recordOutput("Poses/Components", componentPoses);
   }
 
   /** This function is called once when the robot is disabled. */

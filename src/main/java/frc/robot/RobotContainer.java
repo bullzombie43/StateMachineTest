@@ -36,6 +36,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.WantedState;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOPhoenix6;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
@@ -110,7 +111,7 @@ public class RobotContainer {
 
         pivot = new Pivot(new PivotIOSim());
         elevator = new Elevator(new ElevatorIOSim());
-        
+
         break;
 
       default:
@@ -191,6 +192,12 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    // Set Elevator to L1 Height when triangle is pressed
+    controller.triangle().onTrue(elevator.setWantedState(WantedState.L1));
+
+    // Set Elevator to Stow Height when square is pressed
+    controller.square().onTrue(elevator.setWantedState(WantedState.STOW));
   }
 
   /**

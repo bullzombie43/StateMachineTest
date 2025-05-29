@@ -8,9 +8,15 @@ import static frc.robot.subsystems.elevator.ElevatorConstants.forwardSoftLimitMe
 import static frc.robot.subsystems.elevator.ElevatorConstants.reverseSoftLimitMeters;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
+import frc.robot.subsystems.pivot.PivotConstants;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
@@ -71,6 +77,11 @@ public class Elevator extends SubsystemBase {
 
   private double setpointMeters = 0.0;
   private boolean atSetpoint = atSetpoint();
+
+  private boolean travellingUpward = true;
+  private double previousCarriageHeight = 0.0;
+  private double carriageHeight = 0.0;
+  private double stageHeight = 0.0;
 
   public Elevator(ElevatorIO io) {
     this.elevatorIO = io;
@@ -133,7 +144,7 @@ public class Elevator extends SubsystemBase {
     // Control the motors based on the system state
     if (systemState == SystemState.IS_IDLE) {
       handleIdling();
-    } else if (systemState == SystemState.IN_TRANSITION) {
+    } else {
       switch (wantedState) {
         case STOW:
           handleStow();
@@ -171,13 +182,16 @@ public class Elevator extends SubsystemBase {
         default:
           break;
       }
-    } else {
-      // Do Nothing
     }
 
     // Log Outputs
     Logger.recordOutput("Elevator/WantedState", wantedState);
-    Logger.recordOutput("Elevator/setpointDegrees", setpointMeters);
+    Logger.recordOutput("Elevator/setpointMeters", setpointMeters);
+    Logger.recordOutput("Elevator/setpointRotations", metersToRotations(setpointMeters));
+    Logger.recordOutput("Elevator/currentHeight", getCurrentPositionMeters());
+
+    // Update the pose3d visualization
+    updateVisualization();
   }
 
   public SystemState handleStateTransition() {
@@ -191,14 +205,14 @@ public class Elevator extends SubsystemBase {
   }
 
   /*Exposed Methods for setting and getting state and setpoint */
-  public void setWantedState(WantedState newWantedState) {
+  private void setWantedStateFunc(WantedState newWantedState) {
     this.prevWantedState = this.wantedState;
     this.wantedState = newWantedState;
   }
 
   public void setSetpointMeters(double targetHeightMeters) {
     double clampedMeters =
-        MathUtil.clamp(targetHeightMeters, reverseSoftLimitMeters, forwardSoftLimitMeters);
+        MathUtil.clamp(targetHeightMeters, forwardSoftLimitMeters, reverseSoftLimitMeters);
     this.setpointMeters = clampedMeters;
   }
 
@@ -216,6 +230,10 @@ public class Elevator extends SubsystemBase {
 
   public double getCurrentPositionMeters() {
     return inputs.elevatorHeightMeters;
+  }
+
+  public double getVerticalVelocity() {
+    return inputs.elevatorVelocityMetersPerSec;
   }
 
   public boolean elevatorAtSetpoint() {
@@ -291,5 +309,70 @@ public class Elevator extends SubsystemBase {
   public void handleClimb() {
     setSetpointMeters(ElevatorConstants.climbHeight);
     elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  /*
+   *
+   * Commands
+   *
+   */
+
+  public Command setWantedState(WantedState newWantedState) {
+    return Commands.runOnce(() -> setWantedStateFunc(newWantedState), this);
+  }
+
+  /*Visualization Stuff */
+  public void updateVisualization() {
+    carriageHeight = getCurrentPositionMeters();
+    boolean travellingUpwards = carriageHeight > previousCarriageHeight;
+
+    if (travellingUpwards) {
+        double stageTop = stageHeight + ElevatorConstants.stage1Length;
+
+        if (carriageHeight < stageTop) {
+            // Carriage is moving up the stage — do nothing
+        } else {
+            // Carriage is maxed out — move the stage up
+            stageHeight = carriageHeight - ElevatorConstants.stage1Length;
+        }
+
+    } else {
+        if (carriageHeight > stageHeight) {
+            // Carriage is riding down the stage — do nothing
+        } else {
+            // Carriage has hit bottom of stage — retract stage
+            stageHeight = carriageHeight;
+        }
+    }
+
+    previousCarriageHeight = carriageHeight;
+
+    Pose3d stage1Pose =
+        new Pose3d(
+            ElevatorConstants.stage1XOffset,
+            ElevatorConstants.stage1YOffset,
+            ElevatorConstants.stage1ZOffset + stageHeight,
+            new Rotation3d());
+
+    Pose3d carriagePose = new Pose3d(0, 0, carriageHeight, new Rotation3d());
+
+    Robot.componentPoses[1] = stage1Pose;
+    Robot.componentPoses[2] = carriagePose;
+
+    // Set the Z position of the pivot in the component poses
+    Robot.componentPoses[3] =
+        new Pose3d(
+            PivotConstants.pivotOffsetX,
+            PivotConstants.pivotOffsetY,
+            PivotConstants.pivotOffsetZ + carriageHeight,
+            Robot.componentPoses[3].getRotation());
+  }
+
+  public static double rotationsToMeters(double rotations) {
+    return rotations * ElevatorConstants.ROTATIONS_TO_METERS;
+  }
+
+  public static double metersToRotations(double meters) {
+    return meters / ElevatorConstants.ROTATIONS_TO_METERS;
   }
 }

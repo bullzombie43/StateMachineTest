@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.pivot;
 
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.util.Gains;
 
@@ -52,4 +53,7 @@ public class PivotConstants {
   /*Simulation Values */
   public static final double simMOI = 1.00; // kg*m^2
   public static final double simArmLength = 0.15; // meters
+  public static final double pivotOffsetX = Units.inchesToMeters(-6.8);
+  public static final double pivotOffsetY = 0;
+  public static final double pivotOffsetZ = Units.inchesToMeters(20.481);
 }
