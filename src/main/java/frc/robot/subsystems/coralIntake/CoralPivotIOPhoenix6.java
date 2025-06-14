@@ -14,7 +14,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -25,119 +24,111 @@ import frc.robot.util.PhoenixUtil;
 
 /** Add your docs here. */
 public class CoralPivotIOPhoenix6 implements CoralPivotIO {
-    protected final TalonFX pivotMotor = new TalonFX(IntakeConstants.coralIntakePivotID, IntakeConstants.coralIntakeCanbus);
+  protected final TalonFX pivotMotor =
+      new TalonFX(IntakeConstants.coralIntakePivotID, IntakeConstants.coralIntakeCanbus);
 
-    private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+  private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-    private final PositionVoltage positionVoltageRequest = 
-        new PositionVoltage(0.0).withEnableFOC(true);
-    
-    private final StatusSignal<Angle> rotorPositionRot;
-    private final StatusSignal<AngularVelocity> rotorVelocityRotPerSec;
-    private final StatusSignal<Voltage> pivotVoltage;
-    private final StatusSignal<Current> pivotCurrent;
-    private final StatusSignal<Temperature> pivotTemperature;
-    
+  private final PositionVoltage positionVoltageRequest =
+      new PositionVoltage(0.0).withEnableFOC(true);
 
-    public CoralPivotIOPhoenix6() {
-        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        motorConfig.CurrentLimits.SupplyCurrentLimit = IntakeConstants.coralPivotSupplyCurrentLimit;
-        motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.StatorCurrentLimit = IntakeConstants.coralPivotStatorCurrentLimit;
-        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        motorConfig.Audio.BeepOnConfig = false;
+  private final StatusSignal<Angle> rotorPositionRot;
+  private final StatusSignal<AngularVelocity> rotorVelocityRotPerSec;
+  private final StatusSignal<Voltage> pivotVoltage;
+  private final StatusSignal<Current> pivotCurrent;
+  private final StatusSignal<Temperature> pivotTemperature;
 
-        motorConfig.Slot0.kP = IntakeConstants.coralPivotGains.kP;
-        motorConfig.Slot0.kI = IntakeConstants.coralPivotGains.kI;
-        motorConfig.Slot0.kD = IntakeConstants.coralPivotGains.kD;
-        motorConfig.Slot0.kS = IntakeConstants.coralPivotGains.kS;
-        motorConfig.Slot0.kV = IntakeConstants.coralPivotGains.kV;
-        motorConfig.Slot0.kA = IntakeConstants.coralPivotGains.kA;
-        motorConfig.Slot0.kG = IntakeConstants.coralPivotGains.kG;
+  public CoralPivotIOPhoenix6() {
+    motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+    motorConfig.CurrentLimits.SupplyCurrentLimit = IntakeConstants.coralPivotSupplyCurrentLimit;
+    motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    motorConfig.CurrentLimits.StatorCurrentLimit = IntakeConstants.coralPivotStatorCurrentLimit;
+    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    motorConfig.Audio.BeepOnConfig = false;
 
-        pivotMotor.getConfigurator().apply(motorConfig);
+    motorConfig.Slot0.kP = IntakeConstants.coralPivotGains.kP;
+    motorConfig.Slot0.kI = IntakeConstants.coralPivotGains.kI;
+    motorConfig.Slot0.kD = IntakeConstants.coralPivotGains.kD;
+    motorConfig.Slot0.kS = IntakeConstants.coralPivotGains.kS;
+    motorConfig.Slot0.kV = IntakeConstants.coralPivotGains.kV;
+    motorConfig.Slot0.kA = IntakeConstants.coralPivotGains.kA;
+    motorConfig.Slot0.kG = IntakeConstants.coralPivotGains.kG;
 
-        rotorPositionRot = pivotMotor.getPosition();
-        rotorVelocityRotPerSec = pivotMotor.getVelocity();
-        pivotVoltage = pivotMotor.getMotorVoltage();
-        pivotCurrent = pivotMotor.getSupplyCurrent();
-        pivotTemperature = pivotMotor.getDeviceTemp();
+    pivotMotor.getConfigurator().apply(motorConfig);
 
-        BaseStatusSignal.setUpdateFrequencyForAll(100, 
-            rotorPositionRot,
-            rotorVelocityRotPerSec,
-            pivotVoltage,
-            pivotCurrent,
-            pivotTemperature
-        );
+    rotorPositionRot = pivotMotor.getPosition();
+    rotorVelocityRotPerSec = pivotMotor.getVelocity();
+    pivotVoltage = pivotMotor.getMotorVoltage();
+    pivotCurrent = pivotMotor.getSupplyCurrent();
+    pivotTemperature = pivotMotor.getDeviceTemp();
 
-        pivotMotor.optimizeBusUtilization();
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        100,
+        rotorPositionRot,
+        rotorVelocityRotPerSec,
+        pivotVoltage,
+        pivotCurrent,
+        pivotTemperature);
 
-        PhoenixUtil.registerSignals(
-            true, 
-            rotorPositionRot,
-            rotorVelocityRotPerSec,
-            pivotVoltage,
-            pivotCurrent,
-            pivotTemperature);
-        
-    }
+    pivotMotor.optimizeBusUtilization();
 
-    @Override
-    public void setGains(
-        double kP, double kI, double kD, double kS, double kA, double kV, double kG) {
-        
-        IntakeConstants.coralPivotGains.updateGains(kP, kI, kD, kS, kV, kA, kG);
-        motorConfig.Slot0.kP = kP;
-        motorConfig.Slot0.kI = kI;
-        motorConfig.Slot0.kD = kD;
-        motorConfig.Slot0.kS = kS;
-        motorConfig.Slot0.kV = kV;
-        motorConfig.Slot0.kA = kA;
-        motorConfig.Slot0.kG = kG;
-        pivotMotor.getConfigurator().apply(motorConfig);
-    }
+    PhoenixUtil.registerSignals(
+        true,
+        rotorPositionRot,
+        rotorVelocityRotPerSec,
+        pivotVoltage,
+        pivotCurrent,
+        pivotTemperature);
+  }
 
-    @Override
-    public void updateInputs(CoralPivotIOInputs inputs){
-        inputs.motorConnected = BaseStatusSignal.isAllGood(
-            rotorPositionRot,
-            rotorVelocityRotPerSec,
-            pivotVoltage,
-            pivotCurrent,
-            pivotTemperature
-        );
+  @Override
+  public void setGains(
+      double kP, double kI, double kD, double kS, double kA, double kV, double kG) {
 
-        inputs.pivotVoltage = pivotVoltage.getValueAsDouble();
-        inputs.pivotCurrent = pivotCurrent.getValueAsDouble();
-        inputs.pivotTemperature = pivotTemperature.getValueAsDouble();
-        inputs.pivotPositionDegrees = rotorPositionRot.getValueAsDouble() * 360;
-        inputs.pivotVelocityDegreesPerSec = rotorVelocityRotPerSec.getValueAsDouble() * 360;
-    }
+    IntakeConstants.coralPivotGains.updateGains(kP, kI, kD, kS, kV, kA, kG);
+    motorConfig.Slot0.kP = kP;
+    motorConfig.Slot0.kI = kI;
+    motorConfig.Slot0.kD = kD;
+    motorConfig.Slot0.kS = kS;
+    motorConfig.Slot0.kV = kV;
+    motorConfig.Slot0.kA = kA;
+    motorConfig.Slot0.kG = kG;
+    pivotMotor.getConfigurator().apply(motorConfig);
+  }
 
-    @Override
-    public void setCurrent(double current) {
-        pivotMotor.setControl(new TorqueCurrentFOC(current));
-    }
+  @Override
+  public void updateInputs(CoralPivotIOInputs inputs) {
+    inputs.motorConnected =
+        BaseStatusSignal.isAllGood(
+            rotorPositionRot, rotorVelocityRotPerSec, pivotVoltage, pivotCurrent, pivotTemperature);
 
-    @Override
-    public void setVoltage(double voltage){
-        pivotMotor.setControl(new VoltageOut(voltage));
-    }
+    inputs.pivotVoltage = pivotVoltage.getValueAsDouble();
+    inputs.pivotCurrent = pivotCurrent.getValueAsDouble();
+    inputs.pivotTemperature = pivotTemperature.getValueAsDouble();
+    inputs.pivotPositionDegrees = rotorPositionRot.getValueAsDouble() * 360;
+    inputs.pivotVelocityDegreesPerSec = rotorVelocityRotPerSec.getValueAsDouble() * 360;
+  }
 
-    @Override
-    public void setSetpointDegrees(double setpointInDegrees){
-        pivotMotor.setControl(
-            positionVoltageRequest.withPosition(
-                Units.degreesToRotations(setpointInDegrees))
-        );
-    }
+  @Override
+  public void setCurrent(double current) {
+    pivotMotor.setControl(new TorqueCurrentFOC(current));
+  }
 
-   @Override
-   public void setPositionDegrees(double position) {
-        pivotMotor.setPosition(Units.degreesToRotations(position));
-    }
-    
+  @Override
+  public void setVoltage(double voltage) {
+    pivotMotor.setControl(new VoltageOut(voltage));
+  }
+
+  @Override
+  public void setSetpointDegrees(double setpointInDegrees) {
+    pivotMotor.setControl(
+        positionVoltageRequest.withPosition(Units.degreesToRotations(setpointInDegrees)));
+  }
+
+  @Override
+  public void setPositionDegrees(double position) {
+    pivotMotor.setPosition(Units.degreesToRotations(position));
+  }
 }

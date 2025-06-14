@@ -93,8 +93,7 @@ public class PivotIOPhoenix6 implements PivotIO {
         pivotCurrent,
         pivotTemperature);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        200, absolutePositionRot, absoluteVelocityRotPerSec);
+    BaseStatusSignal.setUpdateFrequencyForAll(200, absolutePositionRot, absoluteVelocityRotPerSec);
 
     pivotMotor.optimizeBusUtilization();
     pivotEncoder.optimizeBusUtilization();
@@ -137,11 +136,7 @@ public class PivotIOPhoenix6 implements PivotIO {
   public void updateInputs(PivotIOInputs inputs) {
     inputs.motorConnected =
         BaseStatusSignal.isAllGood(
-            rotorPositionRot,
-            rotorVelocityRotPerSec,
-            pivotVoltage,
-            pivotCurrent,
-            pivotTemperature);
+            rotorPositionRot, rotorVelocityRotPerSec, pivotVoltage, pivotCurrent, pivotTemperature);
 
     inputs.encoderConnected =
         BaseStatusSignal.isAllGood(absolutePositionRot, absoluteVelocityRotPerSec);
@@ -149,8 +144,7 @@ public class PivotIOPhoenix6 implements PivotIO {
     inputs.pivotVoltage = pivotVoltage.getValueAsDouble();
     inputs.pivotCurrent = pivotCurrent.getValueAsDouble();
     inputs.pivotTemperature = pivotTemperature.getValueAsDouble();
-    inputs.pivotPositionDegrees =
-        rotorPositionRot.getValueAsDouble() * DEGREES_PER_MOTOR_ROTATION;
+    inputs.pivotPositionDegrees = rotorPositionRot.getValueAsDouble() * DEGREES_PER_MOTOR_ROTATION;
     inputs.pivotVelocityDegreesPerSec =
         rotorVelocityRotPerSec.getValueAsDouble() * DEGREES_PER_MOTOR_ROTATION;
 
