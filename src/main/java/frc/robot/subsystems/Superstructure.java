@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
@@ -263,6 +264,16 @@ public class Superstructure extends SubsystemBase {
 
   private void scoreL3() {
     // Logic to score at level 3
+    elevator.setWantedState(Elevator.WantedState.L3);
+    pivot.setWantedState(Pivot.WantedState.L3);
+
+    //DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT CONTAINER
+
+    //CHECK IF WE ARE IN THE RIGHT POSITION AND ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
+    if(elevator.atSetpoint() && pivot.atSetpoint()) {
+
+      //PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE WILL TURN THEM OFF WHEN THE ARM STOWS    
+    }
   }
 
   private void scoreL4() {

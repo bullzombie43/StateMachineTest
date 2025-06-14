@@ -78,7 +78,7 @@ public class Pivot extends SubsystemBase {
   private WantedState prevWantedState = WantedState.STOW;
 
   private double setpointDegrees = 0.0;
-  private boolean atSetpoint = pivotAtSetpoint();
+  private boolean atSetpoint = atSetpoint();
 
   /** Creates a new Pivot. */
   public Pivot(PivotIO io) {
@@ -94,7 +94,7 @@ public class Pivot extends SubsystemBase {
     Logger.processInputs("Pivot", inputs);
 
     // Update if we are at the setpoint each loop so behavior is consistent within each loop
-    atSetpoint = pivotAtSetpoint();
+    atSetpoint = atSetpoint();
     Logger.recordOutput("Pivot/atSetpoint", atSetpoint);
 
     // Set Alerts
@@ -233,7 +233,7 @@ public class Pivot extends SubsystemBase {
     return systemState;
   }
 
-  public boolean pivotAtSetpoint() {
+  public boolean atSetpoint() {
     return MathUtil.isNear(
         setpointDegrees, inputs.pivotPositionDegrees, acceptablePitchErrorDegrees);
   }
