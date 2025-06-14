@@ -38,13 +38,13 @@ public class PivotIOPhoenix6 implements PivotIO {
   private final MotionMagicVoltage motionMagicVoltageRequest =
       new MotionMagicVoltage(0.0).withEnableFOC(true);
 
-  private final StatusSignal<Angle> rotorPositionDegrees;
-  private final StatusSignal<AngularVelocity> rotorVelocityDegreesPerSec;
+  private final StatusSignal<Angle> rotorPositionRot;
+  private final StatusSignal<AngularVelocity> rotorVelocityRotPerSec;
   private final StatusSignal<Voltage> pivotVoltage;
   private final StatusSignal<Current> pivotCurrent;
   private final StatusSignal<Temperature> pivotTemperature;
-  private final StatusSignal<Angle> absolutePositionDegrees;
-  private final StatusSignal<AngularVelocity> absoluteVelocityDegreesPerSec;
+  private final StatusSignal<Angle> absolutePositionRot;
+  private final StatusSignal<AngularVelocity> absoluteVelocityRotPerSec;
 
   public PivotIOPhoenix6() {
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
@@ -77,37 +77,37 @@ public class PivotIOPhoenix6 implements PivotIO {
     pivotEncoder.getConfigurator().apply(encoderConfig); // Apply Encoder Configuration
 
     // Status Signals
-    rotorPositionDegrees = pivotMotor.getPosition();
-    rotorVelocityDegreesPerSec = pivotMotor.getVelocity();
+    rotorPositionRot = pivotMotor.getPosition();
+    rotorVelocityRotPerSec = pivotMotor.getVelocity();
     pivotVoltage = pivotMotor.getMotorVoltage();
     pivotCurrent = pivotMotor.getSupplyCurrent();
     pivotTemperature = pivotMotor.getDeviceTemp();
-    absolutePositionDegrees = pivotEncoder.getAbsolutePosition();
-    absoluteVelocityDegreesPerSec = pivotEncoder.getVelocity();
+    absolutePositionRot = pivotEncoder.getAbsolutePosition();
+    absoluteVelocityRotPerSec = pivotEncoder.getVelocity();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         100,
-        rotorPositionDegrees,
-        rotorVelocityDegreesPerSec,
+        rotorPositionRot,
+        rotorVelocityRotPerSec,
         pivotVoltage,
         pivotCurrent,
         pivotTemperature);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        200, absolutePositionDegrees, absoluteVelocityDegreesPerSec);
+        200, absolutePositionRot, absoluteVelocityRotPerSec);
 
     pivotMotor.optimizeBusUtilization();
     pivotEncoder.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
         true,
-        rotorPositionDegrees,
-        rotorVelocityDegreesPerSec,
+        rotorPositionRot,
+        rotorVelocityRotPerSec,
         pivotVoltage,
         pivotCurrent,
         pivotTemperature,
-        absolutePositionDegrees,
-        absoluteVelocityDegreesPerSec);
+        absolutePositionRot,
+        absoluteVelocityRotPerSec);
   }
 
   @Override
@@ -137,27 +137,27 @@ public class PivotIOPhoenix6 implements PivotIO {
   public void updateInputs(PivotIOInputs inputs) {
     inputs.motorConnected =
         BaseStatusSignal.isAllGood(
-            rotorPositionDegrees,
-            rotorVelocityDegreesPerSec,
+            rotorPositionRot,
+            rotorVelocityRotPerSec,
             pivotVoltage,
             pivotCurrent,
             pivotTemperature);
 
     inputs.encoderConnected =
-        BaseStatusSignal.isAllGood(absolutePositionDegrees, absoluteVelocityDegreesPerSec);
+        BaseStatusSignal.isAllGood(absolutePositionRot, absoluteVelocityRotPerSec);
 
     inputs.pivotVoltage = pivotVoltage.getValueAsDouble();
     inputs.pivotCurrent = pivotCurrent.getValueAsDouble();
     inputs.pivotTemperature = pivotTemperature.getValueAsDouble();
     inputs.pivotPositionDegrees =
-        rotorPositionDegrees.getValueAsDouble() * DEGREES_PER_MOTOR_ROTATION;
+        rotorPositionRot.getValueAsDouble() * DEGREES_PER_MOTOR_ROTATION;
     inputs.pivotVelocityDegreesPerSec =
-        rotorVelocityDegreesPerSec.getValueAsDouble() * DEGREES_PER_MOTOR_ROTATION;
+        rotorVelocityRotPerSec.getValueAsDouble() * DEGREES_PER_MOTOR_ROTATION;
 
     // The encoder is direct to the pivot shaft so just multiply by 360 to convert from rotation to
     // degrees
-    inputs.absolutePositionDegrees = absolutePositionDegrees.getValueAsDouble() * 360.0;
-    inputs.absoluteVelocityDegreesPerSec = absoluteVelocityDegreesPerSec.getValueAsDouble() * 360.0;
+    inputs.absolutePositionDegrees = absolutePositionRot.getValueAsDouble() * 360.0;
+    inputs.absoluteVelocityDegreesPerSec = absoluteVelocityRotPerSec.getValueAsDouble() * 360.0;
   }
 
   @Override
@@ -177,7 +177,7 @@ public class PivotIOPhoenix6 implements PivotIO {
   }
 
   @Override
-  public void setZeroPosition(double position) {
+  public void setPositionDegrees(double position) {
     pivotMotor.setPosition(degreesToMotorRotations(position));
   }
 

@@ -1,13 +1,18 @@
-package frc.robot.subsystems.pivot;
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package frc.robot.subsystems.coralIntake;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface PivotIO {
+/** Add your docs here. */
+public interface CoralPivotIO {
   default void setSetpointDegrees(double setpointInDegrees) {}
 
   default void setPositionDegrees(double position) {}
 
-  default void updateInputs(PivotIOInputs inputs) {}
+  default void updateInputs(CoralPivotIOInputs inputs) {}
 
   default void setVoltage(double voltage) {}
 
@@ -16,18 +21,13 @@ public interface PivotIO {
   default void setGains(
       double kP, double kI, double kD, double kS, double kA, double kV, double kG) {}
 
-  default void setProfileConstraints(double maxVelocity, double maxAcceleration) {}
-
   @AutoLog
-  class PivotIOInputs {
+  class CoralPivotIOInputs {
     public boolean motorConnected = true;
-    public boolean encoderConnected = true;
     public double pivotVoltage = 0.0;
     public double pivotCurrent = 0.0;
     public double pivotTemperature = 0.0;
     public double pivotPositionDegrees = 0.0;
     public double pivotVelocityDegreesPerSec = 0.0;
-    public double absolutePositionDegrees = 0.0;
-    public double absoluteVelocityDegreesPerSec = 0.0;
   }
 }

@@ -4,14 +4,12 @@
 
 package frc.robot.subsystems;
 
-import org.littletonrobotics.junction.Logger;
-
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.pivot.Pivot;
+import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
   private Elevator elevator;
@@ -66,10 +64,7 @@ public class Superstructure extends SubsystemBase {
   private CurrentSuperState previousSuperState = CurrentSuperState.STOWING_ALL_SYSTEMS;
 
   public Superstructure(
-      Elevator elevator,
-      Pivot pivot,
-      Drive drive,
-      RobotContainer robotContainer) {
+      Elevator elevator, Pivot pivot, Drive drive, RobotContainer robotContainer) {
     this.elevator = elevator;
     this.pivot = pivot;
     this.drivetrain = drive;
@@ -87,7 +82,6 @@ public class Superstructure extends SubsystemBase {
     if (currentSuperState != previousSuperState) {
       Logger.recordOutput("CurrentSuperstate", currentSuperState);
     }
-
   }
 
   public CurrentSuperState handleStateTranstion() {
@@ -148,7 +142,6 @@ public class Superstructure extends SubsystemBase {
       default:
         currentSuperState = CurrentSuperState.STOPPED;
         break;
-
     }
 
     return currentSuperState;
@@ -267,12 +260,14 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedState(Elevator.WantedState.L3);
     pivot.setWantedState(Pivot.WantedState.L3);
 
-    //DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT CONTAINER
+    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT
+    // CONTAINER
 
-    //CHECK IF WE ARE IN THE RIGHT POSITION AND ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
-    if(elevator.atSetpoint() && pivot.atSetpoint()) {
+    // CHECK IF WE ARE IN THE RIGHT POSITION AND ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
+    if (elevator.atSetpoint() && pivot.atSetpoint()) {
 
-      //PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE WILL TURN THEM OFF WHEN THE ARM STOWS    
+      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
+      // WILL TURN THEM OFF WHEN THE ARM STOWS
     }
   }
 
@@ -295,5 +290,4 @@ public class Superstructure extends SubsystemBase {
   private void handleStopped() {
     // Logic to handle stopped state
   }
-
 }

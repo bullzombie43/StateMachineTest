@@ -147,7 +147,8 @@ public class ElevatorIOPhoenix6 implements ElevatorIO {
   public void setProfileConstraints(double maxVelocity, double maxAcceleration) {
     ElevatorConstants.maxAccelerationRotPerSec = maxAcceleration;
     ElevatorConstants.maxVelocityRotPerSec = maxVelocity;
-    rightMotorConfig.MotionMagic.MotionMagicAcceleration = ElevatorConstants.maxAccelerationRotPerSec;
+    rightMotorConfig.MotionMagic.MotionMagicAcceleration =
+        ElevatorConstants.maxAccelerationRotPerSec;
     rightMotorConfig.MotionMagic.MotionMagicCruiseVelocity = ElevatorConstants.maxVelocityRotPerSec;
     leftMotorConfig.MotionMagic = rightMotorConfig.MotionMagic;
     rightMotor.getConfigurator().apply(rightMotorConfig);
