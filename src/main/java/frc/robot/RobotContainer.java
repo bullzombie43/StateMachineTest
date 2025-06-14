@@ -193,10 +193,20 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Set Elevator to L1 Height when triangle is pressed
-    controller.triangle().onTrue(pivot.setWantedState(Pivot.WantedState.L1).alongWith(elevator.setWantedState(Elevator.WantedState.L1)));
+    controller
+        .triangle()
+        .onTrue(
+            pivot
+                .setWantedState(Pivot.WantedState.L1)
+                .alongWith(elevator.setWantedState(Elevator.WantedState.L1)));
 
     // Set Elevator to Stow Height when square is pressed
-    controller.square().onTrue(pivot.setWantedState(Pivot.WantedState.STOW).alongWith(elevator.setWantedState(Elevator.WantedState.STOW)));
+    controller
+        .square()
+        .onTrue(
+            pivot
+                .setWantedState(Pivot.WantedState.STOW)
+                .alongWith(elevator.setWantedState(Elevator.WantedState.STOW)));
   }
 
   /**

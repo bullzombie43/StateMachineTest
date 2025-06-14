@@ -1,8 +1,6 @@
 package frc.robot.subsystems.elevator;
 
 import static frc.robot.subsystems.elevator.ElevatorConstants.*;
-import static frc.robot.subsystems.pivot.PivotConstants.maxAccelerationRotPerSec;
-import static frc.robot.subsystems.pivot.PivotConstants.maxVelocityRotPerSec;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -147,10 +145,10 @@ public class ElevatorIOPhoenix6 implements ElevatorIO {
 
   @Override
   public void setProfileConstraints(double maxVelocity, double maxAcceleration) {
-    maxAccelerationRotPerSec = maxAcceleration;
-    maxVelocityRotPerSec = maxVelocity;
-    rightMotorConfig.MotionMagic.MotionMagicAcceleration = maxAccelerationRotPerSec;
-    rightMotorConfig.MotionMagic.MotionMagicCruiseVelocity = maxVelocityRotPerSec;
+    ElevatorConstants.maxAccelerationRotPerSec = maxAcceleration;
+    ElevatorConstants.maxVelocityRotPerSec = maxVelocity;
+    rightMotorConfig.MotionMagic.MotionMagicAcceleration = ElevatorConstants.maxAccelerationRotPerSec;
+    rightMotorConfig.MotionMagic.MotionMagicCruiseVelocity = ElevatorConstants.maxVelocityRotPerSec;
     leftMotorConfig.MotionMagic = rightMotorConfig.MotionMagic;
     rightMotor.getConfigurator().apply(rightMotorConfig);
     leftMotor.getConfigurator().apply(leftMotorConfig);

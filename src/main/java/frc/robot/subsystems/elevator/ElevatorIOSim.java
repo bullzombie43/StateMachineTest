@@ -31,7 +31,7 @@ public class ElevatorIOSim extends ElevatorIOPhoenix6 {
   public ElevatorIOSim() {
     simNotifier = new Notifier(() -> updateSimState());
     simNotifier.startPeriodic(
-        0.005); // Run Simulation at a faster rate so PID gains perform more reasonably
+        0.01); // Run Simulation at a faster rate so PID gains perform more reasonably
 
     rightMotor.getSimState().Orientation = ChassisReference.Clockwise_Positive;
     leftMotor.getSimState().Orientation = ChassisReference.Clockwise_Positive;
@@ -63,16 +63,17 @@ public class ElevatorIOSim extends ElevatorIOPhoenix6 {
     Logger.recordOutput("Elevator/Sim/SimVelocityMetersPerSecond", simVelocityMetersPerSecond);
 
     // Mutate Motor Position and Velocity
-    double rotorPosition = Elevator.metersToRotations(simPositionMeters);
-    leftMotorSimState.setRawRotorPosition(rotorPosition * ElevatorConstants.elevatorGearRatio);
-    rightMotorSimState.setRawRotorPosition(rotorPosition * ElevatorConstants.elevatorGearRatio);
-    Logger.recordOutput(
-        "Elevator/Sim/RawRotorPosition", rotorPosition * ElevatorConstants.elevatorGearRatio);
+    double rotorPosition =
+        Elevator.metersToRotations(simPositionMeters) * ElevatorConstants.elevatorGearRatio;
+    leftMotorSimState.setRawRotorPosition(rotorPosition);
+    rightMotorSimState.setRawRotorPosition(rotorPosition);
+    Logger.recordOutput("Elevator/Sim/RawRotorPosition", rotorPosition);
 
-    double rotorVelocity = Elevator.metersToRotations(simVelocityMetersPerSecond);
-    leftMotorSimState.setRotorVelocity(rotorVelocity * ElevatorConstants.elevatorGearRatio);
-    rightMotorSimState.setRotorVelocity(rotorVelocity * ElevatorConstants.elevatorGearRatio);
-    Logger.recordOutput(
-        "Elevator/Sim/RawRotorVelocity", rotorVelocity * ElevatorConstants.elevatorGearRatio);
+    double rotorVelocity =
+        Elevator.metersToRotations(simVelocityMetersPerSecond)
+            * ElevatorConstants.elevatorGearRatio;
+    leftMotorSimState.setRotorVelocity(rotorVelocity);
+    rightMotorSimState.setRotorVelocity(rotorVelocity);
+    Logger.recordOutput("Elevator/Sim/RawRotorVelocity", rotorVelocity);
   }
 }
