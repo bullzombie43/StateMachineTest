@@ -213,18 +213,41 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller.triangle().onTrue(algeaIntake.setWantedState(AlgeaIntake.WantedState.INTAKE));
-
-    controller.square().onTrue(algeaIntake.setWantedState(AlgeaIntake.WantedState.STOW));
-
     controller
-        .povLeft()
-        .onTrue(
+        .triangle()
+        .whileTrue(
+            superstructure
+                .setWantedSuperState(Superstructure.WantedSuperState.SCORE_L2)
+                .repeatedly())
+        .onFalse(
             superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
 
     controller
-        .povRight()
-        .onTrue(superstructure.setWantedSuperState(Superstructure.WantedSuperState.INTAKE_GROUND));
+        .square()
+        .whileTrue(
+            superstructure
+                .setWantedSuperState(Superstructure.WantedSuperState.SCORE_L3)
+                .repeatedly())
+        .onFalse(
+            superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
+
+    controller
+        .options()
+        .whileTrue(
+            superstructure
+                .setWantedSuperState(Superstructure.WantedSuperState.SCORE_L4)
+                .repeatedly())
+        .onFalse(
+            superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
+
+    controller
+        .R1()
+        .whileTrue(
+            superstructure
+                .setWantedSuperState(Superstructure.WantedSuperState.INTAKE_GROUND)
+                .repeatedly())
+        .onFalse(
+            superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
   }
 
   /**

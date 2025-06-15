@@ -18,6 +18,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -130,6 +131,7 @@ public class Robot extends LoggedRobot {
     robotContainer = new RobotContainer();
 
     Logger.recordOutput("Poses/Zero2d", Pose2d.kZero);
+    Logger.recordOutput("Poses/Scoring", new Pose2d(11.8, 3.84, Rotation2d.kPi));
   }
 
   /** This function is called periodically during all modes. */

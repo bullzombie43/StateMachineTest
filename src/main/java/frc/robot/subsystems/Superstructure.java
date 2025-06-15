@@ -53,7 +53,7 @@ public class Superstructure extends SubsystemBase {
     SCORING_L4_REMOVE_HIGH_ALGEA,
     REMOVING_HIGH_ALGEA,
     REMOVING_LOW_ALGEA,
-    INTAKING_CORAL_GROUNDL,
+    INTAKING_CORAL_GROUND,
     INTAKING_SUBSTATION,
     STOWING_ALL_SYSTEMS,
     PREPARING_PROCESSOR,
@@ -106,7 +106,7 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = CurrentSuperState.HOMING_ALL_SYSTEMS;
         break;
       case INTAKE_GROUND:
-        currentSuperState = CurrentSuperState.INTAKING_CORAL_GROUNDL;
+        currentSuperState = CurrentSuperState.INTAKING_CORAL_GROUND;
         break;
       case INTAKE_SUBSTATION:
         currentSuperState = CurrentSuperState.INTAKING_SUBSTATION;
@@ -167,7 +167,7 @@ public class Superstructure extends SubsystemBase {
       case INTAKING_ALGEA_GROUND:
         intakeGroundAlgea();
         break;
-      case INTAKING_CORAL_GROUNDL:
+      case INTAKING_CORAL_GROUND:
         intakeGroundCoral();
         break;
       case INTAKING_SUBSTATION:
@@ -271,8 +271,12 @@ public class Superstructure extends SubsystemBase {
     // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT
     // CONTAINER
 
-    // CHECK IF WE ARE IN THE RIGHT POSITION AND ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
+    // CHECK IF ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
     if (elevator.atSetpoint() && pivot.atSetpoint()) {
+      coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
+      algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
+      
+      // CHECK IF WE ARE IN RIGHT POSITION
 
       // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
       // WILL TURN THEM OFF WHEN THE ARM STOWS
@@ -281,6 +285,22 @@ public class Superstructure extends SubsystemBase {
 
   private void scoreL2() {
     // Logic to score at level 2
+    elevator.setWantedStateFunc(Elevator.WantedState.L2);
+    pivot.setWantedStateFunc(Pivot.WantedState.L2);
+
+    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT
+    // CONTAINER
+
+    // CHECK IF ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
+    if (elevator.atSetpoint() && pivot.atSetpoint()) {
+      coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
+      algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
+      
+      // CHECK IF WE ARE IN RIGHT POSITION
+
+      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
+      // WILL TURN THEM OFF WHEN THE ARM STOWS
+    }
   }
 
   private void scoreL3() {
@@ -291,8 +311,12 @@ public class Superstructure extends SubsystemBase {
     // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT
     // CONTAINER
 
-    // CHECK IF WE ARE IN THE RIGHT POSITION AND ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
+    // CHECK IF ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
     if (elevator.atSetpoint() && pivot.atSetpoint()) {
+      coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
+      algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
+      
+      // CHECK IF WE ARE IN RIGHT POSITION
 
       // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
       // WILL TURN THEM OFF WHEN THE ARM STOWS
@@ -301,6 +325,22 @@ public class Superstructure extends SubsystemBase {
 
   private void scoreL4() {
     // Logic to score at level 4
+    elevator.setWantedStateFunc(Elevator.WantedState.L4);
+    pivot.setWantedStateFunc(Pivot.WantedState.L4);
+
+    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT
+    // CONTAINER
+
+    // CHECK IF ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
+    if (elevator.atSetpoint() && pivot.atSetpoint()) {
+      coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
+      algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
+      
+      // CHECK IF WE ARE IN RIGHT POSITION
+
+      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
+      // WILL TURN THEM OFF WHEN THE ARM STOWS
+    }
   }
 
   private void scoreL4RemoveHighAlgea() {
@@ -315,7 +355,9 @@ public class Superstructure extends SubsystemBase {
     // Logic to stow all systems
     elevator.setWantedStateFunc(Elevator.WantedState.STOW);
     pivot.setWantedStateFunc(Pivot.WantedState.STOW);
-    coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
+
+    if (previousSuperState == CurrentSuperState.INTAKING_CORAL_GROUND)
+      coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
 
     if (elevator.atSetpoint() && pivot.atSetpoint()) {
       // If the elevator and pivot are at their stow positions, we can also stow the coral intake
