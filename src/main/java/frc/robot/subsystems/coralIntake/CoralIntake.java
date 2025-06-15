@@ -4,13 +4,12 @@
 
 package frc.robot.subsystems.coralIntake;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 public class CoralIntake extends SubsystemBase {
   public enum WantedState {
@@ -69,12 +68,11 @@ public class CoralIntake extends SubsystemBase {
         pivotKV.get(),
         pivotKA.get(),
         pivotKG.get());
-    
   }
 
   @Override
   public void periodic() {
-    //Process the pivot inputs
+    // Process the pivot inputs
     pivotIO.updateInputs(pivotIOInputs);
     Logger.processInputs("CoralIntake/Pivot", pivotIOInputs);
 
@@ -82,14 +80,21 @@ public class CoralIntake extends SubsystemBase {
     pivotAtSetpoint = atPivotSetpoint();
     Logger.recordOutput("CoralIntake/Pivot/atSetpoint", pivotAtSetpoint);
 
-    //Set Alerts
+    // Set Alerts
     pivotMotorDisconnected.set(!pivotIOInputs.motorConnected);
 
-    //Update Gains
+    // Update Gains
     LoggedTunableNumber.ifChanged(
-      hashCode(), 
-      () ->
-        pivotIO.setGains( pivotKP.get(), pivotKI.get(), pivotKD.get(), pivotKS.get(), pivotKV.get(), pivotKA.get(), pivotKG.get()), 
+        hashCode(),
+        () ->
+            pivotIO.setGains(
+                pivotKP.get(),
+                pivotKI.get(),
+                pivotKD.get(),
+                pivotKS.get(),
+                pivotKV.get(),
+                pivotKA.get(),
+                pivotKG.get()),
         pivotKP,
         pivotKI,
         pivotKD,
@@ -98,29 +103,27 @@ public class CoralIntake extends SubsystemBase {
         pivotKA,
         pivotKG);
 
-    
-
     /*
      * State Machine Logic
      */
 
-    //Update the intended SystemState based on desired WantedState
+    // Update the intended SystemState based on desired WantedState
     SystemState newState = handleStateTransition();
-    if(newState != systemState) {
+    if (newState != systemState) {
       Logger.recordOutput("CoralIntake/SystemState", newState.toString());
       systemState = newState;
     }
 
     // If we're disabled we are forced to IDLE
-    if(DriverStation.isDisabled()) {
+    if (DriverStation.isDisabled()) {
       systemState = SystemState.IS_IDLE;
     }
 
-    //Control Motors Based om the SystemState
-    if(systemState == SystemState.IS_IDLE) {
+    // Control Motors Based om the SystemState
+    if (systemState == SystemState.IS_IDLE) {
       handleIdling();
     } else {
-      switch(wantedState){
+      switch (wantedState) {
         case INTAKE:
           handleIntaking();
           break;
@@ -136,14 +139,14 @@ public class CoralIntake extends SubsystemBase {
       }
     }
 
-    //Log Outputs
+    // Log Outputs
     Logger.recordOutput("CoralIntake/WantedState", wantedState);
 
-    //Visualize the Pivot as a pose3d
+    // Visualize the Pivot as a pose3d
   }
 
   public SystemState handleStateTransition() {
-    switch(wantedState){
+    switch (wantedState) {
       case STOW:
         return SystemState.STOWING;
       case INTAKE:
@@ -160,12 +163,12 @@ public class CoralIntake extends SubsystemBase {
     pivotIO.setVoltage(0.0);
   }
 
-  public void handleStowing(){
+  public void handleStowing() {
     setSetpointDegrees(IntakeConstants.stowDegrees);
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
-  public void handleIntaking(){
+  public void handleIntaking() {
     setSetpointDegrees(IntakeConstants.intakeDegrees);
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
@@ -189,16 +192,19 @@ public class CoralIntake extends SubsystemBase {
 
   public boolean atPivotSetpoint() {
     return MathUtil.isNear(
-        setpointDegrees, pivotIOInputs.pivotPositionDegrees, IntakeConstants.acceptablePitchErrorDegrees );
+        setpointDegrees,
+        pivotIOInputs.pivotPositionDegrees,
+        IntakeConstants.acceptablePitchErrorDegrees);
   }
 
-  public double getCurrentPositionDegrees(){
+  public double getCurrentPositionDegrees() {
     return pivotIOInputs.pivotPositionDegrees;
   }
 
   public void setSetpointDegrees(double angleDegrees) {
     double clampedDegrees =
-        MathUtil.clamp(angleDegrees, IntakeConstants.minAngleDegrees, IntakeConstants.maxAngleDegrees);
+        MathUtil.clamp(
+            angleDegrees, IntakeConstants.minAngleDegrees, IntakeConstants.maxAngleDegrees);
     this.setpointDegrees = clampedDegrees;
   }
 }

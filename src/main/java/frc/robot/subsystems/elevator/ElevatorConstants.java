@@ -42,9 +42,9 @@ public class ElevatorConstants {
   public static final double stowHeight = 0.0;
   public static final double intakeHeight = 0.0;
   public static final double climbHeight = 0.0;
-  public static final double L1Height = 1.0;
+  public static final double L1Height = 0.0;
   public static final double L2Height = 0.0;
-  public static final double L3Height = 0.0;
+  public static final double L3Height = 1.0;
   public static final double L4Height = 0.0;
   public static final double bargeHeight = 0.0;
   public static final double processorHeight = 0.0;

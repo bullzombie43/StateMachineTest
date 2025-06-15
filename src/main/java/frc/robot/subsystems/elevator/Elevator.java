@@ -205,7 +205,7 @@ public class Elevator extends SubsystemBase {
   }
 
   /*Exposed Methods for setting and getting state and setpoint */
-  private void setWantedStateFunc(WantedState newWantedState) {
+  public void setWantedStateFunc(WantedState newWantedState) {
     this.prevWantedState = this.wantedState;
     this.wantedState = newWantedState;
   }

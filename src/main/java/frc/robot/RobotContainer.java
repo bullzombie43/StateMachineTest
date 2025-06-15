@@ -29,6 +29,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.coralIntake.CoralIntake;
+import frc.robot.subsystems.coralIntake.CoralPivotIO;
+import frc.robot.subsystems.coralIntake.CoralPivotIOPhoenix6;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -61,6 +65,9 @@ public class RobotContainer {
   private final Vision vision;
   private final Elevator elevator;
   private final Pivot pivot;
+  private final CoralIntake coralIntake;
+
+  private final Superstructure superstructure;
 
   // Controller
   private final CommandPS4Controller controller = new CommandPS4Controller(0);
@@ -89,6 +96,7 @@ public class RobotContainer {
 
         elevator = new Elevator(new ElevatorIOPhoenix6());
         pivot = new Pivot(new PivotIOPhoenix6());
+        coralIntake = new CoralIntake(new CoralPivotIOPhoenix6());
 
         break;
 
@@ -110,6 +118,7 @@ public class RobotContainer {
 
         pivot = new Pivot(new PivotIOSim());
         elevator = new Elevator(new ElevatorIOSim());
+        coralIntake = new CoralIntake(new CoralPivotIOPhoenix6());
 
         break;
 
@@ -126,9 +135,12 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
         elevator = new Elevator(new ElevatorIO() {});
         pivot = new Pivot(new PivotIO() {});
+        coralIntake = new CoralIntake(new CoralPivotIO() {});
 
         break;
     }
+
+    superstructure = new Superstructure(elevator, pivot, drive, this);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -195,18 +207,12 @@ public class RobotContainer {
     // Set Elevator to L1 Height when triangle is pressed
     controller
         .triangle()
-        .onTrue(
-            pivot
-                .setWantedState(Pivot.WantedState.L1)
-                .alongWith(elevator.setWantedState(Elevator.WantedState.L1)));
+        .onTrue(superstructure.setWantedSuperState(Superstructure.WantedSuperState.SCORE_L3));
 
     // Set Elevator to Stow Height when square is pressed
     controller
         .square()
-        .onTrue(
-            pivot
-                .setWantedState(Pivot.WantedState.STOW)
-                .alongWith(elevator.setWantedState(Elevator.WantedState.STOW)));
+        .onTrue(superstructure.setWantedSuperState(Superstructure.WantedSuperState.SCORE_L1));
   }
 
   /**

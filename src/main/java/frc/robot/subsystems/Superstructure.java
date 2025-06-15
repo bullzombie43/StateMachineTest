@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
@@ -249,6 +250,18 @@ public class Superstructure extends SubsystemBase {
 
   private void scoreL1() {
     // Logic to score at level 1
+    elevator.setWantedStateFunc(Elevator.WantedState.L1);
+    pivot.setWantedStateFunc(Pivot.WantedState.L1);
+
+    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT
+    // CONTAINER
+
+    // CHECK IF WE ARE IN THE RIGHT POSITION AND ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
+    if (elevator.atSetpoint() && pivot.atSetpoint()) {
+
+      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
+      // WILL TURN THEM OFF WHEN THE ARM STOWS
+    }
   }
 
   private void scoreL2() {
@@ -257,8 +270,8 @@ public class Superstructure extends SubsystemBase {
 
   private void scoreL3() {
     // Logic to score at level 3
-    elevator.setWantedState(Elevator.WantedState.L3);
-    pivot.setWantedState(Pivot.WantedState.L3);
+    elevator.setWantedStateFunc(Elevator.WantedState.L3);
+    pivot.setWantedStateFunc(Pivot.WantedState.L3);
 
     // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT
     // CONTAINER
@@ -289,5 +302,13 @@ public class Superstructure extends SubsystemBase {
 
   private void handleStopped() {
     // Logic to handle stopped state
+  }
+
+  private void setWantedSuperStateFunc(WantedSuperState wantedSuperState) {
+    this.wantedSuperState = wantedSuperState;
+  }
+
+  public Command setWantedSuperState(WantedSuperState wantedSuperState) {
+    return runOnce(() -> setWantedSuperStateFunc(wantedSuperState));
   }
 }
