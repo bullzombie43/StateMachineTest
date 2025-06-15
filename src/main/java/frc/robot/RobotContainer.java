@@ -40,6 +40,10 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOPhoenix6;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.intake.AlgeaIntake;
+import frc.robot.subsystems.intake.AlgeaPivotIO;
+import frc.robot.subsystems.intake.AlgeaPivotIOPhoenix6;
+import frc.robot.subsystems.intake.AlgeaPivotIOSim;
 import frc.robot.subsystems.intake.CoralIntake;
 import frc.robot.subsystems.intake.CoralPivotIO;
 import frc.robot.subsystems.intake.CoralPivotIOPhoenix6;
@@ -66,6 +70,7 @@ public class RobotContainer {
   private final Vision vision;
   private final Elevator elevator;
   private final Pivot pivot;
+  private final AlgeaIntake algeaIntake;
   private final CoralIntake coralIntake;
 
   private final Superstructure superstructure;
@@ -98,6 +103,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIOPhoenix6());
         pivot = new Pivot(new PivotIOPhoenix6());
         coralIntake = new CoralIntake(new CoralPivotIOPhoenix6());
+        algeaIntake = new AlgeaIntake(new AlgeaPivotIOPhoenix6());
 
         break;
 
@@ -120,6 +126,7 @@ public class RobotContainer {
         pivot = new Pivot(new PivotIOSim());
         elevator = new Elevator(new ElevatorIOSim());
         coralIntake = new CoralIntake(new CoralPivotIOSim());
+        algeaIntake = new AlgeaIntake(new AlgeaPivotIOSim());
 
         break;
 
@@ -137,11 +144,12 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIO() {});
         pivot = new Pivot(new PivotIO() {});
         coralIntake = new CoralIntake(new CoralPivotIO() {});
+        algeaIntake = new AlgeaIntake(new AlgeaPivotIO() {});
 
         break;
     }
 
-    superstructure = new Superstructure(elevator, pivot, drive, coralIntake, this);
+    superstructure = new Superstructure(elevator, pivot, drive, coralIntake, algeaIntake, this);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -205,13 +213,9 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller
-        .triangle()
-        .onTrue(superstructure.setWantedSuperState(Superstructure.WantedSuperState.SCORE_L3));
+    controller.triangle().onTrue(algeaIntake.setWantedState(AlgeaIntake.WantedState.INTAKE));
 
-    controller
-        .square()
-        .onTrue(superstructure.setWantedSuperState(Superstructure.WantedSuperState.SCORE_L1));
+    controller.square().onTrue(algeaIntake.setWantedState(AlgeaIntake.WantedState.STOW));
 
     controller
         .povLeft()

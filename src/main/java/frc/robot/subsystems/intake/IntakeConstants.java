@@ -37,6 +37,9 @@ public class IntakeConstants {
   public static final double maxAngleDegrees = 90.0;
   public static final double minAngleDegrees = 0.0;
 
-  public static final double stowDegrees = 0.0;
-  public static final double intakeDegrees = 90.0;
+  public static final double coralStowDegrees = 0.0;
+  public static final double coralIntakeDegrees = 90.0;
+
+  public static final double algeaStowDegrees = 0.0;
+  public static final double algeaIntakeDegrees = 20.0;
 }

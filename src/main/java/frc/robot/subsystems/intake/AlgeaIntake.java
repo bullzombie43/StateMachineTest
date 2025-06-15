@@ -17,7 +17,7 @@ import frc.robot.Robot;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
-public class CoralIntake extends SubsystemBase {
+public class AlgeaIntake extends SubsystemBase {
   public enum WantedState {
     IDLE,
     STOW,
@@ -33,28 +33,28 @@ public class CoralIntake extends SubsystemBase {
   }
 
   private static final LoggedTunableNumber pivotKP =
-      new LoggedTunableNumber("CoralIntake/pivot/kP", IntakeConstants.coralPivotGains.kP);
+      new LoggedTunableNumber("AlgeaIntake/pivot/kP", IntakeConstants.algeaPivotGains.kP);
   private static final LoggedTunableNumber pivotKI =
-      new LoggedTunableNumber("CoralIntake/pivot/kI", IntakeConstants.coralPivotGains.kI);
+      new LoggedTunableNumber("AlgeaIntake/pivot/kI", IntakeConstants.algeaPivotGains.kI);
   private static final LoggedTunableNumber pivotKD =
-      new LoggedTunableNumber("CoralIntake/pivot/kD", IntakeConstants.coralPivotGains.kD);
+      new LoggedTunableNumber("AlgeaIntake/pivot/kD", IntakeConstants.algeaPivotGains.kD);
   private static final LoggedTunableNumber pivotKS =
-      new LoggedTunableNumber("CoralIntake/pivot/kS", IntakeConstants.coralPivotGains.kS);
+      new LoggedTunableNumber("AlgeaIntake/pivot/kS", IntakeConstants.algeaPivotGains.kS);
   private static final LoggedTunableNumber pivotKV =
-      new LoggedTunableNumber("CoralIntake/pivot/kV", IntakeConstants.coralPivotGains.kV);
+      new LoggedTunableNumber("AlgeaIntake/pivot/kV", IntakeConstants.algeaPivotGains.kV);
   private static final LoggedTunableNumber pivotKA =
-      new LoggedTunableNumber("CoralIntake/pivot/kA", IntakeConstants.coralPivotGains.kA);
+      new LoggedTunableNumber("AlgeaIntake/pivot/kA", IntakeConstants.algeaPivotGains.kA);
   private static final LoggedTunableNumber pivotKG =
-      new LoggedTunableNumber("CoralIntake/pivot/kG", IntakeConstants.coralPivotGains.kG);
+      new LoggedTunableNumber("AlgeaIntake/pivot/kG", IntakeConstants.algeaPivotGains.kG);
 
   private final Alert pivotMotorDisconnected =
       new Alert(
-          "Coral Intake Pivot Motor Disconnected",
+          "Algea Intake Pivot Motor Disconnected",
           "The pivot motor is not connected.",
           Alert.AlertType.kWarning);
 
-  private final CoralPivotIO pivotIO;
-  private final CoralPivotIOInputsAutoLogged pivotIOInputs = new CoralPivotIOInputsAutoLogged();
+  private final AlgeaPivotIO pivotIO;
+  private final AlgeaPivotIOInputsAutoLogged pivotIOInputs = new AlgeaPivotIOInputsAutoLogged();
 
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IS_IDLE;
@@ -63,8 +63,8 @@ public class CoralIntake extends SubsystemBase {
   private double setpointDegrees = 0.0;
   private boolean pivotAtSetpoint = atPivotSetpoint();
 
-  /** Creates a new CoralIntake. */
-  public CoralIntake(CoralPivotIO pivotIO) {
+  /** Creates a new AlgeaIntake. */
+  public AlgeaIntake(AlgeaPivotIO pivotIO) {
     this.pivotIO = pivotIO;
     this.pivotIO.setGains(
         pivotKP.get(),
@@ -80,11 +80,11 @@ public class CoralIntake extends SubsystemBase {
   public void periodic() {
     // Process the pivot inputs
     pivotIO.updateInputs(pivotIOInputs);
-    Logger.processInputs("CoralIntake/Pivot", pivotIOInputs);
+    Logger.processInputs("AlgeaIntake/Pivot", pivotIOInputs);
 
     // Update if we are at the setpoint each loop so behavior is consistent within each loop
     pivotAtSetpoint = atPivotSetpoint();
-    Logger.recordOutput("CoralIntake/Pivot/atSetpoint", pivotAtSetpoint);
+    Logger.recordOutput("AlgeaIntake/Pivot/atSetpoint", pivotAtSetpoint);
 
     // Set Alerts
     pivotMotorDisconnected.set(!pivotIOInputs.motorConnected);
@@ -116,7 +116,7 @@ public class CoralIntake extends SubsystemBase {
     // Update the intended SystemState based on desired WantedState
     SystemState newState = handleStateTransition();
     if (newState != systemState) {
-      Logger.recordOutput("CoralIntake/SystemState", newState.toString());
+      Logger.recordOutput("AlgeaIntake/SystemState", newState.toString());
       systemState = newState;
     }
 
@@ -146,17 +146,20 @@ public class CoralIntake extends SubsystemBase {
     }
 
     // Log Outputs
-    Logger.recordOutput("CoralIntake/WantedState", wantedState);
-    Logger.recordOutput("CoralIntake/Pivot/setpointDegrees", setpointDegrees);
-    Logger.recordOutput("CoralIntake/Pivot/CurrentPositionDegrees", getCurrentPositionDegrees());
+    Logger.recordOutput("AlgeaIntake/WantedState", wantedState);
+    Logger.recordOutput("AlgeaIntake/Pivot/setpointDegrees", setpointDegrees);
+    Logger.recordOutput("AlgeaIntake/Pivot/CurrentPositionDegrees", getCurrentPositionDegrees());
 
     // Visualize the Pivot as a pose3d
-    Robot.componentPoses[4] =
+    Robot.componentPoses[0] =
         new Pose3d(
-            0.14,
+            Units.inchesToMeters(-12.00),
             0,
-            0.23,
-            new Rotation3d(0, Units.degreesToRadians(getCurrentPositionDegrees()), 0));
+            Units.inchesToMeters(7),
+            new Rotation3d(
+                Units.degreesToRadians(180),
+                Units.degreesToRadians(getCurrentPositionDegrees()),
+                Units.degreesToRadians(180)));
   }
 
   public SystemState handleStateTransition() {
@@ -178,17 +181,17 @@ public class CoralIntake extends SubsystemBase {
   }
 
   public void handleStowing() {
-    setSetpointDegrees(IntakeConstants.coralStowDegrees);
+    setSetpointDegrees(IntakeConstants.algeaStowDegrees);
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
   public void handleIntaking() {
-    setSetpointDegrees(IntakeConstants.coralIntakeDegrees);
+    setSetpointDegrees(IntakeConstants.algeaIntakeDegrees);
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
   public void handleOutNoIntake() {
-    setSetpointDegrees(IntakeConstants.coralIntakeDegrees);
+    setSetpointDegrees(IntakeConstants.algeaIntakeDegrees);
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
 

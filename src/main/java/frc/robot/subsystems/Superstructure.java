@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.intake.AlgeaIntake;
 import frc.robot.subsystems.intake.CoralIntake;
 import frc.robot.subsystems.pivot.Pivot;
 import org.littletonrobotics.junction.Logger;
@@ -17,6 +18,7 @@ public class Superstructure extends SubsystemBase {
   private Elevator elevator;
   private Pivot pivot;
   private CoralIntake coralIntake;
+  private AlgeaIntake algeaIntake;
   private Drive drivetrain;
   private RobotContainer robotContainer;
 
@@ -71,11 +73,13 @@ public class Superstructure extends SubsystemBase {
       Pivot pivot,
       Drive drive,
       CoralIntake coralIntake,
+      AlgeaIntake algeaIntake,
       RobotContainer robotContainer) {
     this.elevator = elevator;
     this.pivot = pivot;
     this.drivetrain = drive;
     this.coralIntake = coralIntake;
+    this.algeaIntake = algeaIntake;
     this.robotContainer = robotContainer;
   }
 
@@ -228,6 +232,7 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedStateFunc(Elevator.WantedState.INTAKE);
     pivot.setWantedStateFunc(Pivot.WantedState.INTAKE);
     coralIntake.setWantedStateFunc(CoralIntake.WantedState.INTAKE);
+    algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.OUT_NO_INTAKE);
   }
 
   private void intakeSubstation() {
@@ -312,11 +317,10 @@ public class Superstructure extends SubsystemBase {
     pivot.setWantedStateFunc(Pivot.WantedState.STOW);
     coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
 
-    System.out.println("Pivot Setpoint: " + pivot.getSetpointDegrees());
-
     if (elevator.atSetpoint() && pivot.atSetpoint()) {
       // If the elevator and pivot are at their stow positions, we can also stow the coral intake
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
+      algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
     }
   }
 
