@@ -6,6 +6,7 @@ package frc.robot.subsystems.coralIntake;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -54,6 +55,9 @@ public class CoralIntake extends SubsystemBase {
   private SystemState systemState = SystemState.IS_IDLE;
   private SystemState prevSystemState = SystemState.IS_IDLE;
 
+  private double setpointDegrees = 0.0;
+  private boolean pivotAtSetpoint = atPivotSetpoint();
+
   /** Creates a new CoralIntake. */
   public CoralIntake(CoralPivotIO pivotIO) {
     this.pivotIO = pivotIO;
@@ -73,6 +77,10 @@ public class CoralIntake extends SubsystemBase {
     //Process the pivot inputs
     pivotIO.updateInputs(pivotIOInputs);
     Logger.processInputs("CoralIntake/Pivot", pivotIOInputs);
+
+    // Update if we are at the setpoint each loop so behavior is consistent within each loop
+    pivotAtSetpoint = atPivotSetpoint();
+    Logger.recordOutput("CoralIntake/Pivot/atSetpoint", pivotAtSetpoint);
 
     //Set Alerts
     pivotMotorDisconnected.set(!pivotIOInputs.motorConnected);
@@ -153,15 +161,18 @@ public class CoralIntake extends SubsystemBase {
   }
 
   public void handleStowing(){
-    //
+    setSetpointDegrees(IntakeConstants.stowDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
   public void handleIntaking(){
-    //
+    setSetpointDegrees(IntakeConstants.intakeDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
   public void handleOutNoIntake() {
-    //
+    setSetpointDegrees(IntakeConstants.intakeDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
   public void setWantedState(WantedState wantedState) {
@@ -174,5 +185,20 @@ public class CoralIntake extends SubsystemBase {
 
   public SystemState getSystemState() {
     return systemState;
+  }
+
+  public boolean atPivotSetpoint() {
+    return MathUtil.isNear(
+        setpointDegrees, pivotIOInputs.pivotPositionDegrees, IntakeConstants.acceptablePitchErrorDegrees );
+  }
+
+  public double getCurrentPositionDegrees(){
+    return pivotIOInputs.pivotPositionDegrees;
+  }
+
+  public void setSetpointDegrees(double angleDegrees) {
+    double clampedDegrees =
+        MathUtil.clamp(angleDegrees, IntakeConstants.minAngleDegrees, IntakeConstants.maxAngleDegrees);
+    this.setpointDegrees = clampedDegrees;
   }
 }

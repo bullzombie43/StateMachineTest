@@ -21,4 +21,12 @@ public class IntakeConstants {
 
   public static final double coralPivotSupplyCurrentLimit = 40.0;
   public static final double coralPivotStatorCurrentLimit = 80.0;
+
+  public static final double acceptablePitchErrorDegrees = 5.0;
+
+  public static final double maxAngleDegrees = 90.0;
+  public static final double minAngleDegrees = 0.0;
+
+  public static final double stowDegrees = 90.0;
+  public static final double intakeDegrees = 0;
 }
