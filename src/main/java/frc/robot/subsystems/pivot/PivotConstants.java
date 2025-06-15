@@ -39,7 +39,7 @@ public class PivotConstants {
 
   /*Setpoints */
   public static final double stowDegrees = 0.0;
-  public static final double intakeDegrees = 0;
+  public static final double intakeDegrees = 180.0;
   public static final double climbDegrees = 0.0;
   public static final double L1Degrees = 0;
   public static final double L2Degrees = 0.0;

@@ -2,12 +2,19 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.coralIntake;
+package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
+import frc.robot.subsystems.coralIntake.CoralPivotIOInputsAutoLogged;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
@@ -141,8 +148,16 @@ public class CoralIntake extends SubsystemBase {
 
     // Log Outputs
     Logger.recordOutput("CoralIntake/WantedState", wantedState);
+    Logger.recordOutput("CoralIntake/Pivot/setpointDegrees", setpointDegrees);
+    Logger.recordOutput("CoralIntake/Pivot/CurrentPositionDegrees", getCurrentPositionDegrees());
 
     // Visualize the Pivot as a pose3d
+    Robot.componentPoses[4] =
+        new Pose3d(
+            0.14,
+            0,
+            0.23,
+            new Rotation3d(0, Units.degreesToRadians(getCurrentPositionDegrees()), 0));
   }
 
   public SystemState handleStateTransition() {
@@ -178,8 +193,12 @@ public class CoralIntake extends SubsystemBase {
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
-  public void setWantedState(WantedState wantedState) {
+  public void setWantedStateFunc(WantedState wantedState) {
     this.wantedState = wantedState;
+  }
+
+  public Command setWantedState(WantedState wantedState) {
+    return Commands.runOnce(() -> setWantedStateFunc(wantedState), this);
   }
 
   public WantedState getWantedState() {

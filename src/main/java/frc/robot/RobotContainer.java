@@ -30,9 +30,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.coralIntake.CoralIntake;
-import frc.robot.subsystems.coralIntake.CoralPivotIO;
-import frc.robot.subsystems.coralIntake.CoralPivotIOPhoenix6;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -43,6 +40,10 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOPhoenix6;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.intake.CoralIntake;
+import frc.robot.subsystems.intake.CoralPivotIO;
+import frc.robot.subsystems.intake.CoralPivotIOPhoenix6;
+import frc.robot.subsystems.intake.CoralPivotIOSim;
 import frc.robot.subsystems.pivot.Pivot;
 import frc.robot.subsystems.pivot.PivotIO;
 import frc.robot.subsystems.pivot.PivotIOPhoenix6;
@@ -118,7 +119,7 @@ public class RobotContainer {
 
         pivot = new Pivot(new PivotIOSim());
         elevator = new Elevator(new ElevatorIOSim());
-        coralIntake = new CoralIntake(new CoralPivotIOPhoenix6());
+        coralIntake = new CoralIntake(new CoralPivotIOSim());
 
         break;
 
@@ -140,7 +141,7 @@ public class RobotContainer {
         break;
     }
 
-    superstructure = new Superstructure(elevator, pivot, drive, this);
+    superstructure = new Superstructure(elevator, pivot, drive, coralIntake, this);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -204,15 +205,22 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Set Elevator to L1 Height when triangle is pressed
     controller
         .triangle()
         .onTrue(superstructure.setWantedSuperState(Superstructure.WantedSuperState.SCORE_L3));
 
-    // Set Elevator to Stow Height when square is pressed
     controller
         .square()
         .onTrue(superstructure.setWantedSuperState(Superstructure.WantedSuperState.SCORE_L1));
+
+    controller
+        .povLeft()
+        .onTrue(
+            superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
+
+    controller
+        .povRight()
+        .onTrue(superstructure.setWantedSuperState(Superstructure.WantedSuperState.INTAKE_GROUND));
   }
 
   /**

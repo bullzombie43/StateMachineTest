@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.coralIntake;
+package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -23,9 +23,9 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.PhoenixUtil;
 
 /** Add your docs here. */
-public class CoralPivotIOPhoenix6 implements CoralPivotIO {
+public class AlgeaPivotIOPhoenix6 implements AlgeaPivotIO {
   protected final TalonFX pivotMotor =
-      new TalonFX(IntakeConstants.coralIntakePivotID, IntakeConstants.coralIntakeCanbus);
+      new TalonFX(IntakeConstants.algeaIntakePivotID, IntakeConstants.algeaIntakeCanbus);
 
   private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
@@ -38,23 +38,23 @@ public class CoralPivotIOPhoenix6 implements CoralPivotIO {
   private final StatusSignal<Current> pivotCurrent;
   private final StatusSignal<Temperature> pivotTemperature;
 
-  public CoralPivotIOPhoenix6() {
+  public AlgeaPivotIOPhoenix6() {
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-    motorConfig.CurrentLimits.SupplyCurrentLimit = IntakeConstants.coralPivotSupplyCurrentLimit;
+    motorConfig.CurrentLimits.SupplyCurrentLimit = IntakeConstants.algeaPivotSupplyCurrentLimit;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    motorConfig.CurrentLimits.StatorCurrentLimit = IntakeConstants.coralPivotStatorCurrentLimit;
+    motorConfig.CurrentLimits.StatorCurrentLimit = IntakeConstants.algeaPivotStatorCurrentLimit;
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfig.Audio.BeepOnConfig = false;
 
-    motorConfig.Slot0.kP = IntakeConstants.coralPivotGains.kP;
-    motorConfig.Slot0.kI = IntakeConstants.coralPivotGains.kI;
-    motorConfig.Slot0.kD = IntakeConstants.coralPivotGains.kD;
-    motorConfig.Slot0.kS = IntakeConstants.coralPivotGains.kS;
-    motorConfig.Slot0.kV = IntakeConstants.coralPivotGains.kV;
-    motorConfig.Slot0.kA = IntakeConstants.coralPivotGains.kA;
-    motorConfig.Slot0.kG = IntakeConstants.coralPivotGains.kG;
+    motorConfig.Slot0.kP = IntakeConstants.algeaPivotGains.kP;
+    motorConfig.Slot0.kI = IntakeConstants.algeaPivotGains.kI;
+    motorConfig.Slot0.kD = IntakeConstants.algeaPivotGains.kD;
+    motorConfig.Slot0.kS = IntakeConstants.algeaPivotGains.kS;
+    motorConfig.Slot0.kV = IntakeConstants.algeaPivotGains.kV;
+    motorConfig.Slot0.kA = IntakeConstants.algeaPivotGains.kA;
+    motorConfig.Slot0.kG = IntakeConstants.algeaPivotGains.kG;
 
     pivotMotor.getConfigurator().apply(motorConfig);
 
@@ -87,7 +87,7 @@ public class CoralPivotIOPhoenix6 implements CoralPivotIO {
   public void setGains(
       double kP, double kI, double kD, double kS, double kA, double kV, double kG) {
 
-    IntakeConstants.coralPivotGains.updateGains(kP, kI, kD, kS, kV, kA, kG);
+    IntakeConstants.algeaPivotGains.updateGains(kP, kI, kD, kS, kV, kA, kG);
     motorConfig.Slot0.kP = kP;
     motorConfig.Slot0.kI = kI;
     motorConfig.Slot0.kD = kD;
@@ -99,7 +99,7 @@ public class CoralPivotIOPhoenix6 implements CoralPivotIO {
   }
 
   @Override
-  public void updateInputs(CoralPivotIOInputs inputs) {
+  public void updateInputs(AlgeaPivotIOInputs inputs) {
     inputs.motorConnected =
         BaseStatusSignal.isAllGood(
             rotorPositionRot, rotorVelocityRotPerSec, pivotVoltage, pivotCurrent, pivotTemperature);

@@ -93,6 +93,8 @@ public class Pivot extends SubsystemBase {
     pivotIO.updateInputs(inputs);
     Logger.processInputs("Pivot", inputs);
 
+    // Update Final Setpoint based on Wanted State
+
     // Update if we are at the setpoint each loop so behavior is consistent within each loop
     atSetpoint = atSetpoint();
     Logger.recordOutput("Pivot/atSetpoint", atSetpoint);
@@ -150,6 +152,7 @@ public class Pivot extends SubsystemBase {
           break;
         case INTAKE:
           handleIntake();
+          break;
         case L1:
           handleL1();
           break;
@@ -213,6 +216,7 @@ public class Pivot extends SubsystemBase {
   /*Exposed Methods for setting and getting state and setpoint */
   public void setWantedStateFunc(WantedState wantedState) {
     this.wantedState = wantedState;
+    updateSetpoint(); // Update Immediately
   }
 
   public Command setWantedState(WantedState wantedState) {
@@ -314,5 +318,51 @@ public class Pivot extends SubsystemBase {
   public void handleClimb() {
     setSetpointDegrees(PivotConstants.climbDegrees);
     pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  private void updateSetpoint() {
+    switch (wantedState) {
+      case BARGE:
+        setSetpointDegrees(PivotConstants.bargeDegrees);
+        break;
+      case CLIMB:
+        setSetpointDegrees(PivotConstants.climbDegrees);
+        break;
+      case HIGH_ALGEA:
+        setSetpointDegrees(PivotConstants.highAlgeaDegrees);
+        break;
+      case INTAKE:
+        setSetpointDegrees(PivotConstants.intakeDegrees);
+        break;
+      case L1:
+        setSetpointDegrees(PivotConstants.L1Degrees);
+        break;
+      case L2:
+        setSetpointDegrees(PivotConstants.L2Degrees);
+        break;
+      case L3:
+        setSetpointDegrees(PivotConstants.L3Degrees);
+        break;
+      case L4:
+        setSetpointDegrees(PivotConstants.L4Degrees);
+        break;
+      case LOW_ALGEA:
+        setSetpointDegrees(PivotConstants.lowAlgeaDegrees);
+        break;
+      case PROCESSOR:
+        setSetpointDegrees(PivotConstants.processorDegrees);
+        break;
+      case STOW:
+        setSetpointDegrees(PivotConstants.stowDegrees);
+        break;
+      case VOLTAGE:
+      case IDLE:
+      default:
+        break;
+    }
+  }
+
+  public double getSetpointDegrees() {
+    return setpointDegrees;
   }
 }
