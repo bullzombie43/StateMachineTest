@@ -26,13 +26,13 @@ public class ElevatorConstants {
   // Gains and Constraints
   public static Gains gains =
       switch (Constants.currentMode) {
-        case SIM -> new Gains(30, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        case SIM -> new Gains(10, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0);
         case REAL -> new Gains(0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         case REPLAY -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
       };
 
-  public static double maxVelocityRotPerSec = 22;
-  public static double maxAccelerationRotPerSec = 22;
+  public static double maxVelocityRotPerSec = Constants.currentMode == Constants.simMode ? 1000 : 22;
+  public static double maxAccelerationRotPerSec = Constants.currentMode == Constants.simMode ? 1000 : 22;
 
   // Soft Limits
   public static final double forwardSoftLimitMeters = 0.0;

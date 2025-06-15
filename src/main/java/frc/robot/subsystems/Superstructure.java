@@ -275,7 +275,7 @@ public class Superstructure extends SubsystemBase {
     if (elevator.atSetpoint() && pivot.atSetpoint()) {
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
-      
+
       // CHECK IF WE ARE IN RIGHT POSITION
 
       // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
@@ -295,7 +295,7 @@ public class Superstructure extends SubsystemBase {
     if (elevator.atSetpoint() && pivot.atSetpoint()) {
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
-      
+
       // CHECK IF WE ARE IN RIGHT POSITION
 
       // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
@@ -315,7 +315,7 @@ public class Superstructure extends SubsystemBase {
     if (elevator.atSetpoint() && pivot.atSetpoint()) {
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
-      
+
       // CHECK IF WE ARE IN RIGHT POSITION
 
       // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
@@ -335,7 +335,7 @@ public class Superstructure extends SubsystemBase {
     if (elevator.atSetpoint() && pivot.atSetpoint()) {
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
-      
+
       // CHECK IF WE ARE IN RIGHT POSITION
 
       // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE

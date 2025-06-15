@@ -41,5 +41,5 @@ public class IntakeConstants {
   public static final double coralIntakeDegrees = 90.0;
 
   public static final double algeaStowDegrees = 0.0;
-  public static final double algeaIntakeDegrees = 20.0;
+  public static final double algeaIntakeDegrees = 45.0;
 }

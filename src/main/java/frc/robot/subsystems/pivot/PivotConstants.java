@@ -29,8 +29,8 @@ public class PivotConstants {
         case REAL -> new Gains(0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         case REPLAY -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
       };
-  public static double maxVelocityRotPerSec = 100;
-  public static double maxAccelerationRotPerSec = 100;
+  public static double maxVelocityRotPerSec = Constants.currentMode == Constants.simMode ? 1000 : 10;
+  public static double maxAccelerationRotPerSec = Constants.currentMode == Constants.simMode ? 1000 : 10;
 
   public static final double forwardSoftLimitDegrees = 180.0;
   public static final double reverseSoftLimitDegrees = -180.0;
@@ -39,7 +39,7 @@ public class PivotConstants {
 
   /*Setpoints */
   public static final double stowDegrees = 0.0;
-  public static final double intakeDegrees = 180.0;
+  public static final double intakeDegrees = -180.0;
   public static final double climbDegrees = 0.0;
   public static final double L1Degrees = 0;
   public static final double L2Degrees = -30.0;
