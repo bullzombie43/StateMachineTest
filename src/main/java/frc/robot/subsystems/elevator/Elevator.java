@@ -95,7 +95,8 @@ public class Elevator extends SubsystemBase {
     elevatorIO.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
 
-    // Update if we are at the setpoint each loop so behavior is consistent within each loop
+    // Update if we are at the setpoint each loop so behavior is consistent within
+    // each loop
     atSetpoint = atSetpoint();
     Logger.recordOutput("Elevator/atSetpoint", atSetpoint);
 
@@ -204,7 +205,7 @@ public class Elevator extends SubsystemBase {
     }
   }
 
-  /*Exposed Methods for setting and getting state and setpoint */
+  /* Exposed Methods for setting and getting state and setpoint */
   public void setWantedStateFunc(WantedState newWantedState) {
     this.prevWantedState = this.wantedState;
     this.wantedState = newWantedState;
@@ -321,7 +322,7 @@ public class Elevator extends SubsystemBase {
     return Commands.runOnce(() -> setWantedStateFunc(newWantedState), this);
   }
 
-  /*Visualization Stuff */
+  /* Visualization Stuff */
   public void updateVisualization() {
     carriageHeight = getCurrentPositionMeters();
     boolean travellingUpwards = carriageHeight > previousCarriageHeight;

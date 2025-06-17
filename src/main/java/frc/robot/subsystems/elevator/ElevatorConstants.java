@@ -31,8 +31,10 @@ public class ElevatorConstants {
         case REPLAY -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
       };
 
-  public static double maxVelocityRotPerSec = Constants.currentMode == Constants.simMode ? 1000 : 22;
-  public static double maxAccelerationRotPerSec = Constants.currentMode == Constants.simMode ? 1000 : 22;
+  public static double maxVelocityRotPerSec =
+      Constants.currentMode == Constants.simMode ? 1000 : 22;
+  public static double maxAccelerationRotPerSec =
+      Constants.currentMode == Constants.simMode ? 1000 : 22;
 
   // Soft Limits
   public static final double forwardSoftLimitMeters = 0.0;

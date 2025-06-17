@@ -67,6 +67,9 @@
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   },
   "[java]": {
-    "editor.defaultFormatter": "redhat.java"
-  }
+    "editor.defaultFormatter": "redhat.java",
+    "editor.insertSpaces": false,
+    "editor.tabSize": 1
+  },
+  "java.format.settings.url": "eclipse-formatter.xml"
 }

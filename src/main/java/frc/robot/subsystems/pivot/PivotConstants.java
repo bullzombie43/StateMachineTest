@@ -29,8 +29,10 @@ public class PivotConstants {
         case REAL -> new Gains(0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         case REPLAY -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
       };
-  public static double maxVelocityRotPerSec = Constants.currentMode == Constants.simMode ? 1000 : 10;
-  public static double maxAccelerationRotPerSec = Constants.currentMode == Constants.simMode ? 1000 : 10;
+  public static double maxVelocityRotPerSec =
+      Constants.currentMode == Constants.simMode ? 1000 : 10;
+  public static double maxAccelerationRotPerSec =
+      Constants.currentMode == Constants.simMode ? 1000 : 10;
 
   public static final double forwardSoftLimitDegrees = 180.0;
   public static final double reverseSoftLimitDegrees = -180.0;
