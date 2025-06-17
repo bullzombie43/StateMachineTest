@@ -11,6 +11,7 @@ import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.endEffector.EndEffector;
 import frc.robot.subsystems.intake.AlgeaIntake;
 import frc.robot.subsystems.intake.CoralIntake;
 import frc.robot.subsystems.intake.IntakeConstants;
@@ -19,10 +20,13 @@ import frc.robot.util.GeomUtil;
 import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
+  public static Pose3d coralPose = new Pose3d();
+
   private Elevator elevator;
   private Pivot pivot;
   private CoralIntake coralIntake;
   private AlgeaIntake algeaIntake;
+  private EndEffector endEffector;
   private Drive drivetrain;
   private RobotContainer robotContainer;
 
@@ -80,12 +84,14 @@ public class Superstructure extends SubsystemBase {
       Drive drive,
       CoralIntake coralIntake,
       AlgeaIntake algeaIntake,
+      EndEffector endEffector,
       RobotContainer robotContainer) {
     this.elevator = elevator;
     this.pivot = pivot;
     this.drivetrain = drive;
     this.coralIntake = coralIntake;
     this.algeaIntake = algeaIntake;
+    this.endEffector = endEffector;
     this.robotContainer = robotContainer;
   }
 
@@ -245,6 +251,8 @@ public class Superstructure extends SubsystemBase {
     pivot.setWantedStateFunc(Pivot.WantedState.INTAKE);
     coralIntake.setWantedStateFunc(CoralIntake.WantedState.INTAKE);
     algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.OUT_NO_INTAKE);
+
+    if (coralIntake.hasCoral()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
   }
 
   private void intakeSubstation() {
@@ -292,6 +300,7 @@ public class Superstructure extends SubsystemBase {
 
       // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
       // WILL TURN THEM OFF WHEN THE ARM STOWS
+      endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
     }
   }
 
@@ -312,6 +321,7 @@ public class Superstructure extends SubsystemBase {
 
       // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
       // WILL TURN THEM OFF WHEN THE ARM STOWS
+      endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
     }
   }
 
@@ -332,6 +342,7 @@ public class Superstructure extends SubsystemBase {
 
       // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
       // WILL TURN THEM OFF WHEN THE ARM STOWS
+      endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
     }
   }
 
@@ -352,6 +363,7 @@ public class Superstructure extends SubsystemBase {
 
       // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
       // WILL TURN THEM OFF WHEN THE ARM STOWS
+      endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
     }
   }
 
@@ -367,6 +379,7 @@ public class Superstructure extends SubsystemBase {
     // Logic to stow all systems
     elevator.setWantedStateFunc(Elevator.WantedState.STOW);
     pivot.setWantedStateFunc(Pivot.WantedState.STOW);
+    endEffector.setWantedStateFunc(EndEffector.WantedState.STOPPED);
 
     if (previousSuperState == CurrentSuperState.INTAKING_CORAL_GROUND)
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
@@ -394,19 +407,28 @@ public class Superstructure extends SubsystemBase {
     return runOnce(() -> setWantedSuperStateFunc(wantedSuperState));
   }
 
+  public WantedSuperState getWantedSuperState() {
+    return wantedSuperState;
+  }
+
+  public CurrentSuperState getCurrentSuperState() {
+    return currentSuperState;
+  }
+
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
     // You can add simulation-specific logic here if needed
 
     if (coralIntake.hasCoral()) {
-      Logger.recordOutput(
-          "Poses/IntakeCoral",
+      coralPose =
           new Pose3d(drivetrain.getPose())
               .transformBy(GeomUtil.pose3dToTransform3d(Robot.componentPoses[3]))
-              .transformBy(IntakeConstants.coralIntakeOffset));
+              .transformBy(IntakeConstants.coralIntakeOffset);
     } else {
-      Logger.recordOutput("Poses/IntakeCoral", Pose3d.kZero);
+      coralPose = Pose3d.kZero;
     }
+
+    Logger.recordOutput("Poses/IntakeCoral", coralPose);
   }
 }

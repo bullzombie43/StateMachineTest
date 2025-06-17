@@ -183,12 +183,14 @@ public class CoralIntakeIOPhoenix6 implements CoralIntakeIO {
 
   @Override
   public void runIntakeForward() {
-    rollerMotor.setControl(velocityVoltageRequest.withVelocity(IntakeConstants.coralRollerForwardSpeed));
+    rollerMotor.setControl(
+        velocityVoltageRequest.withVelocity(IntakeConstants.coralRollerForwardSpeed));
   }
 
   @Override
   public void runIntakeReverse() {
-    rollerMotor.setControl(velocityVoltageRequest.withVelocity(IntakeConstants.coralRollerReverseSpeed));
+    rollerMotor.setControl(
+        velocityVoltageRequest.withVelocity(IntakeConstants.coralRollerReverseSpeed));
   }
 
   @Override

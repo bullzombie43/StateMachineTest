@@ -22,16 +22,23 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.WantedSuperState;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOPhoenix6;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.endEffector.EndEffector;
+import frc.robot.subsystems.endEffector.EndEffectorIO;
+import frc.robot.subsystems.endEffector.EndEffectorIOPhoenix6;
+import frc.robot.subsystems.endEffector.EndEffectorIOSim;
 import frc.robot.subsystems.intake.AlgeaIntake;
 import frc.robot.subsystems.intake.AlgeaPivotIO;
 import frc.robot.subsystems.intake.AlgeaPivotIOPhoenix6;
@@ -65,6 +72,7 @@ public class RobotContainer {
   private final Pivot pivot;
   private final AlgeaIntake algeaIntake;
   private final CoralIntake coralIntake;
+  private final EndEffector endEffector;
 
   private final Superstructure superstructure;
 
@@ -75,6 +83,10 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  // Triggers
+  private final Trigger hasCoral;
+  private final Trigger isIntaking;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -99,6 +111,7 @@ public class RobotContainer {
         pivot = new Pivot(new PivotIOPhoenix6());
         coralIntake = new CoralIntake(new CoralIntakeIOPhoenix6());
         algeaIntake = new AlgeaIntake(new AlgeaPivotIOPhoenix6());
+        endEffector = new EndEffector(new EndEffectorIOPhoenix6());
 
         break;
       case SIM:
@@ -127,6 +140,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIOSim());
         coralIntake = new CoralIntake(new CoralIntakeIOSim(driveSimulation));
         algeaIntake = new AlgeaIntake(new AlgeaPivotIOSim());
+        endEffector = new EndEffector(new EndEffectorIOSim(driveSimulation));
 
         break;
 
@@ -145,11 +159,19 @@ public class RobotContainer {
         pivot = new Pivot(new PivotIO() {});
         coralIntake = new CoralIntake(new CoralIntakeIO() {});
         algeaIntake = new AlgeaIntake(new AlgeaPivotIO() {});
+        endEffector = new EndEffector(new EndEffectorIO() {});
 
         break;
     }
 
-    superstructure = new Superstructure(elevator, pivot, drive, coralIntake, algeaIntake, this);
+    superstructure =
+        new Superstructure(elevator, pivot, drive, coralIntake, algeaIntake, endEffector, this);
+
+    // Set Up Triggers
+    hasCoral = new Trigger(() -> coralIntake.hasCoral());
+    isIntaking =
+        new Trigger(
+            () -> superstructure.getWantedSuperState().equals(WantedSuperState.INTAKE_GROUND));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -188,16 +210,6 @@ public class RobotContainer {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
-
-    // Lock to 0° when A button is held
-    controller
-        .square()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> new Rotation2d()));
 
     // Switch to X pattern when X button is pressed
     controller.cross().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -243,12 +255,11 @@ public class RobotContainer {
 
     controller
         .R1()
-        .whileTrue(
-            superstructure
-                .setWantedSuperState(Superstructure.WantedSuperState.INTAKE_GROUND)
-                .repeatedly())
-        .onFalse(
-            superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
+        .onTrue(
+            new ConditionalCommand(
+                superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND),
+                superstructure.setWantedSuperState(WantedSuperState.STOW_ALL_SYSTEMS),
+                isIntaking.negate()));
 
     controller.share().onTrue(Commands.runOnce(() -> spawnCoral()));
 
@@ -282,6 +293,7 @@ public class RobotContainer {
     if (Constants.currentMode != Constants.Mode.SIM) return;
 
     SimulatedArena.getInstance().simulationPeriodic();
+
     Logger.recordOutput(
         "FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
     Logger.recordOutput(
@@ -295,5 +307,9 @@ public class RobotContainer {
 
     SimulatedArena.getInstance()
         .addGamePiece(new ReefscapeCoralOnField(new Pose2d(14.5, 3, Rotation2d.kZero)));
+  }
+
+  public CoralIntake getCoralIntake() {
+    return coralIntake;
   }
 }

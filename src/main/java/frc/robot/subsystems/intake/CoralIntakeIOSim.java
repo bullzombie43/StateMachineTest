@@ -116,4 +116,9 @@ public class CoralIntakeIOSim implements CoralIntakeIO {
   public boolean hasCoral() {
     return intakeSimulation.getGamePiecesAmount() > 0;
   }
+
+  public void setHasCoral(boolean hasCoral) {
+    if (!hasCoral) intakeSimulation.setGamePiecesCount(0);
+    else intakeSimulation.setGamePiecesCount(1);
+  }
 }

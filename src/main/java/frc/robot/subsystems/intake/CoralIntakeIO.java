@@ -24,6 +24,10 @@ public interface CoralIntakeIO {
 
   default void setPivotCurrent(double current) {}
 
+  default void setHasCoral(boolean hasCoral) {
+    // Only Used in simulation
+  }
+
   default void setPivotGains(
       double kP, double kI, double kD, double kS, double kA, double kV, double kG) {}
 

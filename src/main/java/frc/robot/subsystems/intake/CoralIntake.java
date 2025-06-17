@@ -247,4 +247,9 @@ public class CoralIntake extends SubsystemBase {
   public boolean hasCoral() {
     return intakeIOInputs.hasCoral;
   }
+
+  // ONLY USED FOR SIMULATION
+  public void setHasCoral(boolean hasCoral) {
+    intakeIO.setHasCoral(hasCoral);
+  }
 }
