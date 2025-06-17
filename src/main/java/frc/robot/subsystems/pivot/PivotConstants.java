@@ -10,8 +10,8 @@ import frc.robot.util.Gains;
 
 /** Add your docs here. */
 public class PivotConstants {
-  public static final int pivotMotorId = 1;
-  public static final int pivotEncoderId = 2;
+  public static final int pivotMotorId = 9;
+  public static final int pivotEncoderId = 10;
   public static final String pivotCanbus = "3045 Canivore";
 
   public static final double PIVOT_GEAR_RATIO = (36.0 / 9.0) * (40.0 / 14.0) * (64.0 / 12.0);

@@ -13,7 +13,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -38,9 +37,9 @@ import frc.robot.subsystems.intake.AlgeaPivotIO;
 import frc.robot.subsystems.intake.AlgeaPivotIOPhoenix6;
 import frc.robot.subsystems.intake.AlgeaPivotIOSim;
 import frc.robot.subsystems.intake.CoralIntake;
-import frc.robot.subsystems.intake.CoralPivotIO;
-import frc.robot.subsystems.intake.CoralPivotIOPhoenix6;
-import frc.robot.subsystems.intake.CoralPivotIOSim;
+import frc.robot.subsystems.intake.CoralIntakeIO;
+import frc.robot.subsystems.intake.CoralIntakeIOPhoenix6;
+import frc.robot.subsystems.intake.CoralIntakeIOSim;
 import frc.robot.subsystems.pivot.Pivot;
 import frc.robot.subsystems.pivot.PivotIO;
 import frc.robot.subsystems.pivot.PivotIOPhoenix6;
@@ -48,6 +47,7 @@ import frc.robot.subsystems.pivot.PivotIOSim;
 import frc.robot.subsystems.vision.*;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -97,7 +97,7 @@ public class RobotContainer {
 
         elevator = new Elevator(new ElevatorIOPhoenix6());
         pivot = new Pivot(new PivotIOPhoenix6());
-        coralIntake = new CoralIntake(new CoralPivotIOPhoenix6());
+        coralIntake = new CoralIntake(new CoralIntakeIOPhoenix6());
         algeaIntake = new AlgeaIntake(new AlgeaPivotIOPhoenix6());
 
         break;
@@ -125,7 +125,7 @@ public class RobotContainer {
 
         pivot = new Pivot(new PivotIOSim());
         elevator = new Elevator(new ElevatorIOSim());
-        coralIntake = new CoralIntake(new CoralPivotIOSim());
+        coralIntake = new CoralIntake(new CoralIntakeIOSim(driveSimulation));
         algeaIntake = new AlgeaIntake(new AlgeaPivotIOSim());
 
         break;
@@ -143,7 +143,7 @@ public class RobotContainer {
         vision = new Vision(drive, new VisionIO() {}, new VisionIO() {});
         elevator = new Elevator(new ElevatorIO() {});
         pivot = new Pivot(new PivotIO() {});
-        coralIntake = new CoralIntake(new CoralPivotIO() {});
+        coralIntake = new CoralIntake(new CoralIntakeIO() {});
         algeaIntake = new AlgeaIntake(new AlgeaPivotIO() {});
 
         break;
@@ -249,6 +249,17 @@ public class RobotContainer {
                 .repeatedly())
         .onFalse(
             superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
+
+    controller.share().onTrue(Commands.runOnce(() -> spawnCoral()));
+
+    controller
+        .L1()
+        .whileTrue(
+            superstructure
+                .setWantedSuperState(Superstructure.WantedSuperState.OUTTAKE_CORAL)
+                .repeatedly())
+        .onFalse(
+            superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
   }
 
   /**
@@ -277,5 +288,12 @@ public class RobotContainer {
         "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
     Logger.recordOutput(
         "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+  }
+
+  public void spawnCoral() {
+    if (Constants.currentMode != Constants.Mode.SIM) return;
+
+    SimulatedArena.getInstance()
+        .addGamePiece(new ReefscapeCoralOnField(new Pose2d(14.5, 3, Rotation2d.kZero)));
   }
 }

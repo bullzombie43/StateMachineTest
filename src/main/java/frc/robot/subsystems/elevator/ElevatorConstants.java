@@ -6,8 +6,8 @@ import frc.robot.Constants;
 import frc.robot.util.Gains;
 
 public class ElevatorConstants {
-  public static final int leftMotorId = 3;
-  public static final int rightMotorId = 4;
+  public static final int leftMotorId = 11;
+  public static final int rightMotorId = 12;
   public static final String elevatorCanbus = "3045 Canivore";
 
   // Current Limits

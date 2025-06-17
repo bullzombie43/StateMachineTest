@@ -4,14 +4,18 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.AlgeaIntake;
 import frc.robot.subsystems.intake.CoralIntake;
+import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.pivot.Pivot;
+import frc.robot.util.GeomUtil;
 import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
@@ -40,6 +44,7 @@ public class Superstructure extends SubsystemBase {
     PREPARE_BARGE,
     SCORE_BARGE,
     ALGEA_GROUND_INTAKE,
+    OUTTAKE_CORAL,
     STOPPED
   }
 
@@ -61,6 +66,7 @@ public class Superstructure extends SubsystemBase {
     PREPARING_BARGE,
     SCORING_BARGE,
     INTAKING_ALGEA_GROUND,
+    OUTTAKING_CORAL,
     STOPPED
   }
 
@@ -150,6 +156,9 @@ public class Superstructure extends SubsystemBase {
       case STOW_ALL_SYSTEMS:
         currentSuperState = CurrentSuperState.STOWING_ALL_SYSTEMS;
         break;
+      case OUTTAKE_CORAL:
+        currentSuperState = CurrentSuperState.OUTTAKING_CORAL;
+        break;
       case STOPPED:
       default:
         currentSuperState = CurrentSuperState.STOPPED;
@@ -211,6 +220,9 @@ public class Superstructure extends SubsystemBase {
         break;
       case STOWING_ALL_SYSTEMS:
         stowAllSystems();
+        break;
+      case OUTTAKING_CORAL:
+        outtakeGamePiece();
         break;
       case STOPPED:
       default:
@@ -366,6 +378,10 @@ public class Superstructure extends SubsystemBase {
     }
   }
 
+  private void outtakeGamePiece() {
+    coralIntake.setWantedStateFunc(CoralIntake.WantedState.REVERSING);
+  }
+
   private void handleStopped() {
     // Logic to handle stopped state
   }
@@ -376,5 +392,21 @@ public class Superstructure extends SubsystemBase {
 
   public Command setWantedSuperState(WantedSuperState wantedSuperState) {
     return runOnce(() -> setWantedSuperStateFunc(wantedSuperState));
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    // This method will be called once per scheduler run during simulation
+    // You can add simulation-specific logic here if needed
+
+    if (coralIntake.hasCoral()) {
+      Logger.recordOutput(
+          "Poses/IntakeCoral",
+          new Pose3d(drivetrain.getPose())
+              .transformBy(GeomUtil.pose3dToTransform3d(Robot.componentPoses[3]))
+              .transformBy(IntakeConstants.coralIntakeOffset));
+    } else {
+      Logger.recordOutput("Poses/IntakeCoral", Pose3d.kZero);
+    }
   }
 }

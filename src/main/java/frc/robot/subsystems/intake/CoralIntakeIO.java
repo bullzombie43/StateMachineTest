@@ -7,27 +7,40 @@ package frc.robot.subsystems.intake;
 import org.littletonrobotics.junction.AutoLog;
 
 /** Add your docs here. */
-public interface CoralPivotIO {
+public interface CoralIntakeIO {
+  default void runIntakeForward() {}
+
+  default void runIntakeReverse() {}
+
+  default void stopIntake() {}
+
   default void setSetpointDegrees(double setpointInDegrees) {}
 
   default void setPositionDegrees(double position) {}
 
-  default void updateInputs(CoralPivotIOInputs inputs) {}
+  default void updateInputs(CoralIntakeIOInputs inputs) {}
 
-  default void setVoltage(double voltage) {}
+  default void setPivotVoltage(double voltage) {}
 
-  default void setCurrent(double current) {}
+  default void setPivotCurrent(double current) {}
 
-  default void setGains(
+  default void setPivotGains(
       double kP, double kI, double kD, double kS, double kA, double kV, double kG) {}
 
   @AutoLog
-  class CoralPivotIOInputs {
-    public boolean motorConnected = true;
+  class CoralIntakeIOInputs {
+    public boolean pivotMotorConnected = true;
     public double pivotVoltage = 0.0;
     public double pivotCurrent = 0.0;
     public double pivotTemperature = 0.0;
     public double pivotPositionDegrees = 0.0;
     public double pivotVelocityDegreesPerSec = 0.0;
+
+    public boolean rollerMotorConnected = true;
+    public double rollerVoltage = 0.0;
+    public double rollerCurrent = 0.0;
+    public double rollerTemperature = 0.0;
+    public double rollerVelocityRPS = 0.0;
+    public boolean hasCoral = false; // Indicates if the Coral intake is present
   }
 }

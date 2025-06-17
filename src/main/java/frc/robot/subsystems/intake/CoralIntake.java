@@ -22,6 +22,7 @@ public class CoralIntake extends SubsystemBase {
     IDLE,
     STOW,
     INTAKE,
+    REVERSING,
     OUT_NO_INTAKE
   }
 
@@ -29,6 +30,7 @@ public class CoralIntake extends SubsystemBase {
     IS_IDLE,
     STOWING,
     INTAKING,
+    REVERSING,
     OUT_NO_INTAKE
   }
 
@@ -53,8 +55,8 @@ public class CoralIntake extends SubsystemBase {
           "The pivot motor is not connected.",
           Alert.AlertType.kWarning);
 
-  private final CoralPivotIO pivotIO;
-  private final CoralPivotIOInputsAutoLogged pivotIOInputs = new CoralPivotIOInputsAutoLogged();
+  private final CoralIntakeIO intakeIO;
+  private final CoralIntakeIOInputsAutoLogged intakeIOInputs = new CoralIntakeIOInputsAutoLogged();
 
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IS_IDLE;
@@ -64,9 +66,9 @@ public class CoralIntake extends SubsystemBase {
   private boolean pivotAtSetpoint = atPivotSetpoint();
 
   /** Creates a new CoralIntake. */
-  public CoralIntake(CoralPivotIO pivotIO) {
-    this.pivotIO = pivotIO;
-    this.pivotIO.setGains(
+  public CoralIntake(CoralIntakeIO pivotIO) {
+    this.intakeIO = pivotIO;
+    this.intakeIO.setPivotGains(
         pivotKP.get(),
         pivotKI.get(),
         pivotKD.get(),
@@ -79,21 +81,22 @@ public class CoralIntake extends SubsystemBase {
   @Override
   public void periodic() {
     // Process the pivot inputs
-    pivotIO.updateInputs(pivotIOInputs);
-    Logger.processInputs("CoralIntake/Pivot", pivotIOInputs);
+    intakeIO.updateInputs(intakeIOInputs);
+    Logger.processInputs("CoralIntake/Pivot", intakeIOInputs);
 
-    // Update if we are at the setpoint each loop so behavior is consistent within each loop
+    // Update if we are at the setpoint each loop so behavior is consistent within
+    // each loop
     pivotAtSetpoint = atPivotSetpoint();
     Logger.recordOutput("CoralIntake/Pivot/atSetpoint", pivotAtSetpoint);
 
     // Set Alerts
-    pivotMotorDisconnected.set(!pivotIOInputs.motorConnected);
+    pivotMotorDisconnected.set(!intakeIOInputs.pivotMotorConnected);
 
     // Update Gains
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () ->
-            pivotIO.setGains(
+            intakeIO.setPivotGains(
                 pivotKP.get(),
                 pivotKI.get(),
                 pivotKD.get(),
@@ -139,6 +142,9 @@ public class CoralIntake extends SubsystemBase {
         case STOW:
           handleStowing();
           break;
+        case REVERSING:
+          handlReversing();
+          break;
         case IDLE:
         default:
           break;
@@ -167,6 +173,8 @@ public class CoralIntake extends SubsystemBase {
         return SystemState.INTAKING;
       case OUT_NO_INTAKE:
         return SystemState.OUT_NO_INTAKE;
+      case REVERSING:
+        return SystemState.REVERSING;
       case IDLE:
       default:
         return SystemState.IS_IDLE;
@@ -174,22 +182,32 @@ public class CoralIntake extends SubsystemBase {
   }
 
   public void handleIdling() {
-    pivotIO.setVoltage(0.0);
+    intakeIO.setPivotVoltage(0.0);
+    intakeIO.stopIntake();
+  }
+
+  public void handlReversing() {
+    setSetpointDegrees(IntakeConstants.coralIntakeDegrees);
+    intakeIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.runIntakeReverse();
   }
 
   public void handleStowing() {
     setSetpointDegrees(IntakeConstants.coralStowDegrees);
-    pivotIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.stopIntake();
   }
 
   public void handleIntaking() {
     setSetpointDegrees(IntakeConstants.coralIntakeDegrees);
-    pivotIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.runIntakeForward();
   }
 
   public void handleOutNoIntake() {
     setSetpointDegrees(IntakeConstants.coralIntakeDegrees);
-    pivotIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.stopIntake();
   }
 
   public void setWantedStateFunc(WantedState wantedState) {
@@ -211,12 +229,12 @@ public class CoralIntake extends SubsystemBase {
   public boolean atPivotSetpoint() {
     return MathUtil.isNear(
         setpointDegrees,
-        pivotIOInputs.pivotPositionDegrees,
+        intakeIOInputs.pivotPositionDegrees,
         IntakeConstants.acceptablePitchErrorDegrees);
   }
 
   public double getCurrentPositionDegrees() {
-    return pivotIOInputs.pivotPositionDegrees;
+    return intakeIOInputs.pivotPositionDegrees;
   }
 
   public void setSetpointDegrees(double angleDegrees) {
@@ -224,5 +242,9 @@ public class CoralIntake extends SubsystemBase {
         MathUtil.clamp(
             angleDegrees, IntakeConstants.minAngleDegrees, IntakeConstants.maxAngleDegrees);
     this.setpointDegrees = clampedDegrees;
+  }
+
+  public boolean hasCoral() {
+    return intakeIOInputs.hasCoral;
   }
 }
