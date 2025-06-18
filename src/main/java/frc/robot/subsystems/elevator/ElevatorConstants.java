@@ -43,6 +43,7 @@ public class ElevatorConstants {
   // Setpoints
   public static final double stowHeight = 0.0;
   public static final double intakeHeight = 0.0;
+  public static final double outtakeHeight = 0.0;
   public static final double climbHeight = 0.0;
   public static final double L1Height = 0.0;
   public static final double L2Height = 0.2;
@@ -52,6 +53,8 @@ public class ElevatorConstants {
   public static final double processorHeight = 0.0;
   public static final double lowAlgeaHeight = 0.0;
   public static final double highAlgeaHeight = 0.0;
+  public static final double algeaIntakeHeight = 0.0;
+  public static final double algeaOuttakeHeight = 0.0;
 
   // Tolerance
   public static final double elevatorToleranceMeters = 0.02;

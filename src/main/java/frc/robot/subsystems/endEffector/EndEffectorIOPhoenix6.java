@@ -106,12 +106,12 @@ public class EndEffectorIOPhoenix6 implements EndEffectorIO {
   }
 
   @Override
-  public void runEndEffectorForward() {
+  public void outtakeCoral() {
     motor.setControl(velocityVoltageRequest.withVelocity(EndEffectorConstants.forwardSpeed));
   }
 
   @Override
-  public void runEndEffectorReverse() {
+  public void intakeCoral() {
     motor.setControl(velocityVoltageRequest.withVelocity(EndEffectorConstants.reverseSpeed));
   }
 

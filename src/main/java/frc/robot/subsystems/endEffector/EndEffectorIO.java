@@ -8,9 +8,9 @@ import org.littletonrobotics.junction.AutoLog;
 
 /** Add your docs here. */
 public interface EndEffectorIO {
-  default void runEndEffectorForward() {}
+  default void outtakeCoral() {}
 
-  default void runEndEffectorReverse() {}
+  default void intakeCoral() {}
 
   default void stopEndEffector() {}
 

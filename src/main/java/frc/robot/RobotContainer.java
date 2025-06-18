@@ -18,6 +18,7 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -40,9 +41,9 @@ import frc.robot.subsystems.endEffector.EndEffectorIO;
 import frc.robot.subsystems.endEffector.EndEffectorIOPhoenix6;
 import frc.robot.subsystems.endEffector.EndEffectorIOSim;
 import frc.robot.subsystems.intake.AlgeaIntake;
-import frc.robot.subsystems.intake.AlgeaPivotIO;
-import frc.robot.subsystems.intake.AlgeaPivotIOPhoenix6;
-import frc.robot.subsystems.intake.AlgeaPivotIOSim;
+import frc.robot.subsystems.intake.AlgeaIntakeIO;
+import frc.robot.subsystems.intake.AlgeaIntakeIOPhoenix6;
+import frc.robot.subsystems.intake.AlgeaIntakeIOSim;
 import frc.robot.subsystems.intake.CoralIntake;
 import frc.robot.subsystems.intake.CoralIntakeIO;
 import frc.robot.subsystems.intake.CoralIntakeIOPhoenix6;
@@ -54,7 +55,7 @@ import frc.robot.subsystems.pivot.PivotIOSim;
 import frc.robot.subsystems.vision.*;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnField;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -86,7 +87,8 @@ public class RobotContainer {
 
   // Triggers
   private final Trigger hasCoral;
-  private final Trigger isIntaking;
+  private final Trigger isIntakingCoral;
+  private final Trigger isIntakingAlgea;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -110,7 +112,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIOPhoenix6());
         pivot = new Pivot(new PivotIOPhoenix6());
         coralIntake = new CoralIntake(new CoralIntakeIOPhoenix6());
-        algeaIntake = new AlgeaIntake(new AlgeaPivotIOPhoenix6());
+        algeaIntake = new AlgeaIntake(new AlgeaIntakeIOPhoenix6());
         endEffector = new EndEffector(new EndEffectorIOPhoenix6());
 
         break;
@@ -139,7 +141,7 @@ public class RobotContainer {
         pivot = new Pivot(new PivotIOSim());
         elevator = new Elevator(new ElevatorIOSim());
         coralIntake = new CoralIntake(new CoralIntakeIOSim(driveSimulation));
-        algeaIntake = new AlgeaIntake(new AlgeaPivotIOSim());
+        algeaIntake = new AlgeaIntake(new AlgeaIntakeIOSim(driveSimulation));
         endEffector = new EndEffector(new EndEffectorIOSim(driveSimulation));
 
         break;
@@ -158,7 +160,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIO() {});
         pivot = new Pivot(new PivotIO() {});
         coralIntake = new CoralIntake(new CoralIntakeIO() {});
-        algeaIntake = new AlgeaIntake(new AlgeaPivotIO() {});
+        algeaIntake = new AlgeaIntake(new AlgeaIntakeIO() {});
         endEffector = new EndEffector(new EndEffectorIO() {});
 
         break;
@@ -169,9 +171,13 @@ public class RobotContainer {
 
     // Set Up Triggers
     hasCoral = new Trigger(() -> coralIntake.hasCoral());
-    isIntaking =
+    isIntakingCoral =
         new Trigger(
             () -> superstructure.getWantedSuperState().equals(WantedSuperState.INTAKE_GROUND));
+    isIntakingAlgea =
+        new Trigger(
+            () ->
+                superstructure.getWantedSuperState().equals(WantedSuperState.ALGEA_GROUND_INTAKE));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -259,7 +265,7 @@ public class RobotContainer {
             new ConditionalCommand(
                 superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND),
                 superstructure.setWantedSuperState(WantedSuperState.STOW_ALL_SYSTEMS),
-                isIntaking.negate()));
+                isIntakingCoral.negate()));
 
     controller.share().onTrue(Commands.runOnce(() -> spawnCoral()));
 
@@ -267,10 +273,21 @@ public class RobotContainer {
         .L1()
         .whileTrue(
             superstructure
-                .setWantedSuperState(Superstructure.WantedSuperState.OUTTAKE_CORAL)
-                .repeatedly())
-        .onFalse(
-            superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
+                .setWantedSuperState(Superstructure.WantedSuperState.OUTTAKE_CORAL));
+
+    controller
+        .R2()
+        .onTrue(
+            new ConditionalCommand(
+                superstructure.setWantedSuperState(WantedSuperState.ALGEA_GROUND_INTAKE),
+                superstructure.setWantedSuperState(WantedSuperState.STOW_ALL_SYSTEMS),
+                isIntakingAlgea.negate()));
+
+    controller
+        .L2()
+        .onTrue(
+            superstructure
+                .setWantedSuperState(Superstructure.WantedSuperState.OUTTAKE_ALGEA));
   }
 
   /**
@@ -305,8 +322,10 @@ public class RobotContainer {
   public void spawnCoral() {
     if (Constants.currentMode != Constants.Mode.SIM) return;
 
+    // SimulatedArena.getInstance()
+    //     .addGamePiece(new ReefscapeCoralOnField(new Pose2d(14.5, 3, Rotation2d.kZero)));
     SimulatedArena.getInstance()
-        .addGamePiece(new ReefscapeCoralOnField(new Pose2d(14.5, 3, Rotation2d.kZero)));
+        .addGamePiece(new ReefscapeAlgaeOnField(new Translation2d(14.5, 3)));
   }
 
   public CoralIntake getCoralIntake() {

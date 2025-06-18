@@ -25,6 +25,7 @@ public class Elevator extends SubsystemBase {
     IDLE,
     STOW,
     INTAKE,
+    ALGEA_INTAKE,
     L1,
     L2,
     L3,
@@ -33,7 +34,9 @@ public class Elevator extends SubsystemBase {
     PROCESSOR,
     LOW_ALGEA,
     HIGH_ALGEA,
-    CLIMB
+    CLIMB,
+    AlGEA_OUTTAKE,
+    CORAL_OUTTAKE
   }
 
   public enum SystemState {
@@ -152,6 +155,10 @@ public class Elevator extends SubsystemBase {
           break;
         case INTAKE:
           handleIntake();
+          break;
+        case ALGEA_INTAKE:
+          handleAlgeaIntake();
+          break;
         case L1:
           handleL1();
           break;
@@ -178,6 +185,12 @@ public class Elevator extends SubsystemBase {
           break;
         case CLIMB:
           handleClimb();
+          break;
+        case AlGEA_OUTTAKE:
+          handleAlgeaOuttake();
+          break;
+        case CORAL_OUTTAKE:
+          handleCoralOuttake();
           break;
         case IDLE:
         default:
@@ -309,6 +322,21 @@ public class Elevator extends SubsystemBase {
 
   public void handleClimb() {
     setSetpointMeters(ElevatorConstants.climbHeight);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleAlgeaIntake() {
+    setSetpointMeters(ElevatorConstants.algeaIntakeHeight);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleAlgeaOuttake() {
+    setSetpointMeters(ElevatorConstants.algeaOuttakeHeight);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handleCoralOuttake() {
+    setSetpointMeters(ElevatorConstants.outtakeHeight);
     elevatorIO.setSetpointMeters(setpointMeters);
   }
 

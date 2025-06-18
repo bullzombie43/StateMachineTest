@@ -56,7 +56,7 @@ public class EndEffectorIOSim implements EndEffectorIO {
   }
 
   @Override
-  public void runEndEffectorForward() {
+  public void outtakeCoral() {
     velocityRPS = EndEffectorConstants.forwardSpeed; // Set the velocity to forward speed
 
     if (Robot.robotContainer.getCoralIntake().hasCoral()) {
@@ -85,7 +85,7 @@ public class EndEffectorIOSim implements EndEffectorIO {
   }
 
   @Override
-  public void runEndEffectorReverse() {
+  public void intakeCoral() {
     velocityRPS = EndEffectorConstants.reverseSpeed; // Set the velocity to reverse speed
   }
 

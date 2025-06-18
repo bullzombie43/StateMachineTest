@@ -22,14 +22,16 @@ public class AlgeaIntake extends SubsystemBase {
     IDLE,
     STOW,
     INTAKE,
-    OUT_NO_INTAKE
+    OUT_NO_INTAKE,
+    OUTTAKE
   }
 
   public enum SystemState {
     IS_IDLE,
     STOWING,
     INTAKING,
-    OUT_NO_INTAKE
+    OUT_NO_INTAKE,
+    OUTTAKING
   }
 
   private static final LoggedTunableNumber pivotKP =
@@ -53,8 +55,8 @@ public class AlgeaIntake extends SubsystemBase {
           "The pivot motor is not connected.",
           Alert.AlertType.kWarning);
 
-  private final AlgeaPivotIO pivotIO;
-  private final AlgeaPivotIOInputsAutoLogged pivotIOInputs = new AlgeaPivotIOInputsAutoLogged();
+  private final AlgeaIntakeIO intakeIO;
+  private final AlgeaIntakeIOInputsAutoLogged intakeIOInputs = new AlgeaIntakeIOInputsAutoLogged();
 
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IS_IDLE;
@@ -64,9 +66,9 @@ public class AlgeaIntake extends SubsystemBase {
   private boolean pivotAtSetpoint = atPivotSetpoint();
 
   /** Creates a new AlgeaIntake. */
-  public AlgeaIntake(AlgeaPivotIO pivotIO) {
-    this.pivotIO = pivotIO;
-    this.pivotIO.setGains(
+  public AlgeaIntake(AlgeaIntakeIO pivotIO) {
+    this.intakeIO = pivotIO;
+    this.intakeIO.setGains(
         pivotKP.get(),
         pivotKI.get(),
         pivotKD.get(),
@@ -79,21 +81,22 @@ public class AlgeaIntake extends SubsystemBase {
   @Override
   public void periodic() {
     // Process the pivot inputs
-    pivotIO.updateInputs(pivotIOInputs);
-    Logger.processInputs("AlgeaIntake/Pivot", pivotIOInputs);
+    intakeIO.updateInputs(intakeIOInputs);
+    Logger.processInputs("AlgeaIntake/Pivot", intakeIOInputs);
 
-    // Update if we are at the setpoint each loop so behavior is consistent within each loop
+    // Update if we are at the setpoint each loop so behavior is consistent within
+    // each loop
     pivotAtSetpoint = atPivotSetpoint();
     Logger.recordOutput("AlgeaIntake/Pivot/atSetpoint", pivotAtSetpoint);
 
     // Set Alerts
-    pivotMotorDisconnected.set(!pivotIOInputs.motorConnected);
+    pivotMotorDisconnected.set(!intakeIOInputs.motorConnected);
 
     // Update Gains
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () ->
-            pivotIO.setGains(
+            intakeIO.setGains(
                 pivotKP.get(),
                 pivotKI.get(),
                 pivotKD.get(),
@@ -139,6 +142,9 @@ public class AlgeaIntake extends SubsystemBase {
         case STOW:
           handleStowing();
           break;
+        case OUTTAKE:
+          handleOuttaking();
+          break;
         case IDLE:
         default:
           break;
@@ -170,6 +176,8 @@ public class AlgeaIntake extends SubsystemBase {
         return SystemState.INTAKING;
       case OUT_NO_INTAKE:
         return SystemState.OUT_NO_INTAKE;
+      case OUTTAKE:
+        return SystemState.OUTTAKING;
       case IDLE:
       default:
         return SystemState.IS_IDLE;
@@ -177,22 +185,32 @@ public class AlgeaIntake extends SubsystemBase {
   }
 
   public void handleIdling() {
-    pivotIO.setVoltage(0.0);
+    intakeIO.setVoltage(0.0);
+    intakeIO.stopRoller();
   }
 
   public void handleStowing() {
     setSetpointDegrees(IntakeConstants.algeaStowDegrees);
-    pivotIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.stopRoller();
   }
 
   public void handleIntaking() {
     setSetpointDegrees(IntakeConstants.algeaIntakeDegrees);
-    pivotIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.runRollerForward();
   }
 
   public void handleOutNoIntake() {
     setSetpointDegrees(IntakeConstants.algeaIntakeDegrees);
-    pivotIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.stopRoller();
+  }
+
+  public void handleOuttaking() {
+    setSetpointDegrees(IntakeConstants.algeaIntakeDegrees);
+    intakeIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.runRollerReverse();
   }
 
   public void setWantedStateFunc(WantedState wantedState) {
@@ -214,12 +232,12 @@ public class AlgeaIntake extends SubsystemBase {
   public boolean atPivotSetpoint() {
     return MathUtil.isNear(
         setpointDegrees,
-        pivotIOInputs.pivotPositionDegrees,
+        intakeIOInputs.pivotPositionDegrees,
         IntakeConstants.acceptablePitchErrorDegrees);
   }
 
   public double getCurrentPositionDegrees() {
-    return pivotIOInputs.pivotPositionDegrees;
+    return intakeIOInputs.pivotPositionDegrees;
   }
 
   public void setSetpointDegrees(double angleDegrees) {
@@ -227,5 +245,9 @@ public class AlgeaIntake extends SubsystemBase {
         MathUtil.clamp(
             angleDegrees, IntakeConstants.minAngleDegrees, IntakeConstants.maxAngleDegrees);
     this.setpointDegrees = clampedDegrees;
+  }
+
+  public boolean hasAlgea() {
+    return intakeIOInputs.hasAlgea;
   }
 }

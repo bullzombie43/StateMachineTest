@@ -7,12 +7,12 @@ package frc.robot.subsystems.intake;
 import org.littletonrobotics.junction.AutoLog;
 
 /** Add your docs here. */
-public interface AlgeaPivotIO {
+public interface AlgeaIntakeIO {
   default void setSetpointDegrees(double setpointInDegrees) {}
 
   default void setPositionDegrees(double position) {}
 
-  default void updateInputs(AlgeaPivotIOInputs inputs) {}
+  default void updateInputs(AlgeaIntakeIOInputs inputs) {}
 
   default void setVoltage(double voltage) {}
 
@@ -21,13 +21,26 @@ public interface AlgeaPivotIO {
   default void setGains(
       double kP, double kI, double kD, double kS, double kA, double kV, double kG) {}
 
+  default void runRollerForward() {}
+
+  default void runRollerReverse() {}
+
+  default void stopRoller() {}
+
   @AutoLog
-  class AlgeaPivotIOInputs {
+  class AlgeaIntakeIOInputs {
     public boolean motorConnected = true;
     public double pivotVoltage = 0.0;
     public double pivotCurrent = 0.0;
     public double pivotTemperature = 0.0;
     public double pivotPositionDegrees = 0.0;
     public double pivotVelocityDegreesPerSec = 0.0;
+
+    public boolean rollerMotorConnected = true;
+    public double rollerVoltage = 0.0;
+    public double rollerCurrent = 0.0;
+    public double rollerTemperature = 0.0;
+    public double rollerVelocityRPS = 0.0;
+    public boolean hasAlgea = false;
   }
 }

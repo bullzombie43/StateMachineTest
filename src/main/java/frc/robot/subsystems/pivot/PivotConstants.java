@@ -51,6 +51,9 @@ public class PivotConstants {
   public static final double processorDegrees = 0.0;
   public static final double lowAlgeaDegrees = 0.0;
   public static final double highAlgeaDegrees = 0.0;
+  public static final double algeaIntakeDegrees = -180.0;
+  public static final double algeaOuttakeDegrees = -180.0;
+  public static final double coralOuttakeDegrees = -180.0;
 
   /*Simulation Values */
   public static final double simMOI = 0.5; // kg*m^2

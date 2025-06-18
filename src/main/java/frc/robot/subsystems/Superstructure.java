@@ -21,6 +21,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
   public static Pose3d coralPose = new Pose3d();
+  public static Pose3d algeaPose = new Pose3d();
 
   private Elevator elevator;
   private Pivot pivot;
@@ -49,6 +50,7 @@ public class Superstructure extends SubsystemBase {
     SCORE_BARGE,
     ALGEA_GROUND_INTAKE,
     OUTTAKE_CORAL,
+    OUTTAKE_ALGEA,
     STOPPED
   }
 
@@ -71,6 +73,7 @@ public class Superstructure extends SubsystemBase {
     SCORING_BARGE,
     INTAKING_ALGEA_GROUND,
     OUTTAKING_CORAL,
+    OUTTAKING_ALGEA,
     STOPPED
   }
 
@@ -165,6 +168,9 @@ public class Superstructure extends SubsystemBase {
       case OUTTAKE_CORAL:
         currentSuperState = CurrentSuperState.OUTTAKING_CORAL;
         break;
+      case OUTTAKE_ALGEA:
+        currentSuperState = CurrentSuperState.OUTTAKING_ALGEA;
+        break;
       case STOPPED:
       default:
         currentSuperState = CurrentSuperState.STOPPED;
@@ -228,7 +234,10 @@ public class Superstructure extends SubsystemBase {
         stowAllSystems();
         break;
       case OUTTAKING_CORAL:
-        outtakeGamePiece();
+        outtakeCoral();
+        break;
+      case OUTTAKING_ALGEA:
+        outtakeAlgea();
         break;
       case STOPPED:
       default:
@@ -243,14 +252,28 @@ public class Superstructure extends SubsystemBase {
 
   private void intakeGroundAlgea() {
     // Logic to intake ground algae
+    elevator.setWantedStateFunc(Elevator.WantedState.ALGEA_INTAKE);
+    pivot.setWantedStateFunc(Pivot.WantedState.ALGEA_INTAKE);
+    coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
+    algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.OUT_NO_INTAKE);
+
+    if (pivot.atSetpoint() && elevator.atSetpoint()) {
+      algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.INTAKE);
+    }
+
+    if (algeaIntake.hasAlgea()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
   }
 
   private void intakeGroundCoral() {
     // Logic to intake ground coral
     elevator.setWantedStateFunc(Elevator.WantedState.INTAKE);
     pivot.setWantedStateFunc(Pivot.WantedState.INTAKE);
-    coralIntake.setWantedStateFunc(CoralIntake.WantedState.INTAKE);
+    coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
     algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.OUT_NO_INTAKE);
+
+    if (pivot.atSetpoint() && elevator.atSetpoint()) {
+      coralIntake.setWantedStateFunc(CoralIntake.WantedState.INTAKE);
+    }
 
     if (coralIntake.hasCoral()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
   }
@@ -288,7 +311,8 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedStateFunc(Elevator.WantedState.L1);
     pivot.setWantedStateFunc(Pivot.WantedState.L1);
 
-    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT
+    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND
+    // DEFINED IN ROBOT
     // CONTAINER
 
     // CHECK IF ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
@@ -298,7 +322,8 @@ public class Superstructure extends SubsystemBase {
 
       // CHECK IF WE ARE IN RIGHT POSITION
 
-      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
+      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A
+      // DIFFERENT STATE
       // WILL TURN THEM OFF WHEN THE ARM STOWS
       endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
     }
@@ -309,7 +334,8 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedStateFunc(Elevator.WantedState.L2);
     pivot.setWantedStateFunc(Pivot.WantedState.L2);
 
-    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT
+    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND
+    // DEFINED IN ROBOT
     // CONTAINER
 
     // CHECK IF ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
@@ -319,7 +345,8 @@ public class Superstructure extends SubsystemBase {
 
       // CHECK IF WE ARE IN RIGHT POSITION
 
-      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
+      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A
+      // DIFFERENT STATE
       // WILL TURN THEM OFF WHEN THE ARM STOWS
       endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
     }
@@ -330,7 +357,8 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedStateFunc(Elevator.WantedState.L3);
     pivot.setWantedStateFunc(Pivot.WantedState.L3);
 
-    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT
+    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND
+    // DEFINED IN ROBOT
     // CONTAINER
 
     // CHECK IF ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
@@ -340,7 +368,8 @@ public class Superstructure extends SubsystemBase {
 
       // CHECK IF WE ARE IN RIGHT POSITION
 
-      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
+      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A
+      // DIFFERENT STATE
       // WILL TURN THEM OFF WHEN THE ARM STOWS
       endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
     }
@@ -351,7 +380,8 @@ public class Superstructure extends SubsystemBase {
     elevator.setWantedStateFunc(Elevator.WantedState.L4);
     pivot.setWantedStateFunc(Pivot.WantedState.L4);
 
-    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND DEFINED IN ROBOT
+    // DRIVING TO POSE IS DONE OUTSIDE OF SUPERSTRUCTURE AS A PARRALLEL COMMAND
+    // DEFINED IN ROBOT
     // CONTAINER
 
     // CHECK IF ELEVATOR AND PIVOT ARE AT THE RIGHT HEIGHT
@@ -361,7 +391,8 @@ public class Superstructure extends SubsystemBase {
 
       // CHECK IF WE ARE IN RIGHT POSITION
 
-      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A DIFFERENT STATE
+      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A
+      // DIFFERENT STATE
       // WILL TURN THEM OFF WHEN THE ARM STOWS
       endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
     }
@@ -385,14 +416,33 @@ public class Superstructure extends SubsystemBase {
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
 
     if (elevator.atSetpoint() && pivot.atSetpoint()) {
-      // If the elevator and pivot are at their stow positions, we can also stow the coral intake
+      // If the elevator and pivot are at their stow positions, we can also stow the
+      // coral intake
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
     }
   }
 
-  private void outtakeGamePiece() {
-    coralIntake.setWantedStateFunc(CoralIntake.WantedState.REVERSING);
+  private void outtakeCoral() {
+    elevator.setWantedStateFunc(Elevator.WantedState.AlGEA_OUTTAKE);
+    pivot.setWantedStateFunc(Pivot.WantedState.AlGEA_OUTTAKE);
+
+    if (pivot.atSetpoint() && elevator.atSetpoint()) {
+      coralIntake.setWantedStateFunc(CoralIntake.WantedState.REVERSING);
+    }
+
+    if(!coralIntake.hasCoral()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
+  }
+
+  private void outtakeAlgea() {
+    elevator.setWantedStateFunc(Elevator.WantedState.AlGEA_OUTTAKE);
+    pivot.setWantedStateFunc(Pivot.WantedState.AlGEA_OUTTAKE);
+
+    if (pivot.atSetpoint() && elevator.atSetpoint()) {
+      algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.OUTTAKE);
+    }
+
+    if(!algeaIntake.hasAlgea()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
   }
 
   private void handleStopped() {
@@ -429,6 +479,16 @@ public class Superstructure extends SubsystemBase {
       coralPose = Pose3d.kZero;
     }
 
+    if (algeaIntake.hasAlgea()) {
+      algeaPose =
+          new Pose3d(drivetrain.getPose())
+              .transformBy(GeomUtil.pose3dToTransform3d(Robot.componentPoses[3]))
+              .transformBy(IntakeConstants.algeaIntakeOffset);
+    } else {
+      algeaPose = Pose3d.kZero;
+    }
+
     Logger.recordOutput("Poses/IntakeCoral", coralPose);
+    Logger.recordOutput("Poses/IntakeAlgea", algeaPose);
   }
 }

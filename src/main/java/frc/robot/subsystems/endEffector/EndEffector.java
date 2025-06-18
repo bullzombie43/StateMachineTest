@@ -100,11 +100,11 @@ public class EndEffector extends SubsystemBase {
   }
 
   public void handleIntaking() {
-    endEffectorIO.runEndEffectorReverse();
+    endEffectorIO.intakeCoral();
   }
 
   public void handleOuttaking() {
-    endEffectorIO.runEndEffectorForward();
+    endEffectorIO.outtakeCoral();
   }
 
   public void handleStopping() {

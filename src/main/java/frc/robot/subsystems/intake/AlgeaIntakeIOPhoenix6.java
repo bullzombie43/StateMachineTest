@@ -9,6 +9,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -23,11 +24,15 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.PhoenixUtil;
 
 /** Add your docs here. */
-public class AlgeaPivotIOPhoenix6 implements AlgeaPivotIO {
+public class AlgeaIntakeIOPhoenix6 implements AlgeaIntakeIO {
   protected final TalonFX pivotMotor =
       new TalonFX(IntakeConstants.algeaIntakePivotID, IntakeConstants.algeaIntakeCanbus);
 
+  protected final TalonFX rollerMotor =
+      new TalonFX(IntakeConstants.algeaIntakeRollerID, IntakeConstants.algeaIntakeCanbus);
+
   private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+  private final TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
 
   private final PositionVoltage positionVoltageRequest =
       new PositionVoltage(0.0).withEnableFOC(true);
@@ -38,7 +43,12 @@ public class AlgeaPivotIOPhoenix6 implements AlgeaPivotIO {
   private final StatusSignal<Current> pivotCurrent;
   private final StatusSignal<Temperature> pivotTemperature;
 
-  public AlgeaPivotIOPhoenix6() {
+  private final StatusSignal<Voltage> rollerVoltage;
+  private final StatusSignal<Current> rollerCurrent;
+  private final StatusSignal<Temperature> rollerTemperature;
+  private final StatusSignal<AngularVelocity> rollerVelocityRPS;
+
+  public AlgeaIntakeIOPhoenix6() {
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
     motorConfig.CurrentLimits.SupplyCurrentLimit = IntakeConstants.algeaPivotSupplyCurrentLimit;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -81,6 +91,35 @@ public class AlgeaPivotIOPhoenix6 implements AlgeaPivotIO {
         pivotVoltage,
         pivotCurrent,
         pivotTemperature);
+
+    rollerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+    rollerConfig.CurrentLimits.SupplyCurrentLimit = IntakeConstants.algeaRollerSupplyCurrentLimit;
+    rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    rollerConfig.CurrentLimits.StatorCurrentLimit = IntakeConstants.algeaRollerStatorCurrentLimit;
+    rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    rollerConfig.Slot0.kP = IntakeConstants.algeaRollerGains.kP;
+    rollerConfig.Slot0.kI = IntakeConstants.algeaRollerGains.kI;
+    rollerConfig.Slot0.kD = IntakeConstants.algeaRollerGains.kD;
+    rollerConfig.Slot0.kS = IntakeConstants.algeaRollerGains.kS;
+    rollerConfig.Slot0.kV = IntakeConstants.algeaRollerGains.kV;
+    rollerConfig.Slot0.kA = IntakeConstants.algeaRollerGains.kA;
+    rollerConfig.Slot0.kG = IntakeConstants.algeaRollerGains.kG;
+
+    rollerMotor.getConfigurator().apply(rollerConfig);
+
+    rollerVoltage = rollerMotor.getMotorVoltage();
+    rollerCurrent = rollerMotor.getSupplyCurrent();
+    rollerTemperature = rollerMotor.getDeviceTemp();
+    rollerVelocityRPS = rollerMotor.getVelocity();
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        100, rollerVoltage, rollerCurrent, rollerTemperature, rollerVelocityRPS);
+
+    PhoenixUtil.registerSignals(
+        true, rollerVoltage, rollerCurrent, rollerTemperature, rollerVelocityRPS);
   }
 
   @Override
@@ -99,7 +138,7 @@ public class AlgeaPivotIOPhoenix6 implements AlgeaPivotIO {
   }
 
   @Override
-  public void updateInputs(AlgeaPivotIOInputs inputs) {
+  public void updateInputs(AlgeaIntakeIOInputs inputs) {
     inputs.motorConnected =
         BaseStatusSignal.isAllGood(
             rotorPositionRot, rotorVelocityRotPerSec, pivotVoltage, pivotCurrent, pivotTemperature);
@@ -109,6 +148,15 @@ public class AlgeaPivotIOPhoenix6 implements AlgeaPivotIO {
     inputs.pivotTemperature = pivotTemperature.getValueAsDouble();
     inputs.pivotPositionDegrees = rotorPositionRot.getValueAsDouble() * 360;
     inputs.pivotVelocityDegreesPerSec = rotorVelocityRotPerSec.getValueAsDouble() * 360;
+
+    inputs.rollerMotorConnected =
+        BaseStatusSignal.isAllGood(
+            rollerVoltage, rollerCurrent, rollerTemperature, rollerVelocityRPS);
+    inputs.rollerVoltage = rollerVoltage.getValueAsDouble();
+    inputs.rollerCurrent = rollerCurrent.getValueAsDouble();
+    inputs.rollerTemperature = rollerTemperature.getValueAsDouble();
+    inputs.rollerVelocityRPS = rollerVelocityRPS.getValueAsDouble();
+    inputs.hasAlgea = hasAlgea();
   }
 
   @Override
@@ -130,5 +178,26 @@ public class AlgeaPivotIOPhoenix6 implements AlgeaPivotIO {
   @Override
   public void setPositionDegrees(double position) {
     pivotMotor.setPosition(Units.degreesToRotations(position));
+  }
+
+  @Override
+  public void runRollerForward() {
+    rollerMotor.setControl(
+        new VelocityVoltage(IntakeConstants.algeaRollerForwardSpeed).withEnableFOC(true));
+  }
+
+  @Override
+  public void runRollerReverse() {
+    rollerMotor.setControl(
+        new VelocityVoltage(IntakeConstants.algeaRollerReverseSpeed).withEnableFOC(true));
+  }
+
+  @Override
+  public void stopRoller() {
+    rollerMotor.stopMotor();
+  }
+
+  public boolean hasAlgea() {
+    return false; // Implement Later
   }
 }

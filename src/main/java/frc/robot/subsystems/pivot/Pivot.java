@@ -26,6 +26,7 @@ public class Pivot extends SubsystemBase {
     IDLE,
     STOW,
     INTAKE,
+    ALGEA_INTAKE,
     L1,
     L2,
     L3,
@@ -35,6 +36,8 @@ public class Pivot extends SubsystemBase {
     LOW_ALGEA,
     HIGH_ALGEA,
     CLIMB,
+    AlGEA_OUTTAKE,
+    CORAL_OUTTAKE,
     VOLTAGE
   }
 
@@ -153,6 +156,9 @@ public class Pivot extends SubsystemBase {
         case INTAKE:
           handleIntake();
           break;
+        case ALGEA_INTAKE:
+          handleAlgeaIntake();
+          break;
         case L1:
           handleL1();
           break;
@@ -179,6 +185,12 @@ public class Pivot extends SubsystemBase {
           break;
         case CLIMB:
           handleClimb();
+          break;
+        case AlGEA_OUTTAKE:
+          handleAlgeaOuttake();
+          break;
+        case CORAL_OUTTAKE:
+          handleCoralOuttake();
           break;
         case IDLE:
         default:
@@ -320,6 +332,21 @@ public class Pivot extends SubsystemBase {
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
+  public void handleAlgeaIntake() {
+    setSetpointDegrees(PivotConstants.algeaIntakeDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleAlgeaOuttake() {
+    setSetpointDegrees(PivotConstants.algeaOuttakeDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleCoralOuttake() {
+    setSetpointDegrees(PivotConstants.coralOuttakeDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
   private void updateSetpoint() {
     switch (wantedState) {
       case BARGE:
@@ -333,6 +360,9 @@ public class Pivot extends SubsystemBase {
         break;
       case INTAKE:
         setSetpointDegrees(PivotConstants.intakeDegrees);
+        break;
+      case ALGEA_INTAKE:
+        setSetpointDegrees(PivotConstants.algeaIntakeDegrees);
         break;
       case L1:
         setSetpointDegrees(PivotConstants.L1Degrees);
@@ -354,6 +384,12 @@ public class Pivot extends SubsystemBase {
         break;
       case STOW:
         setSetpointDegrees(PivotConstants.stowDegrees);
+        break;
+      case AlGEA_OUTTAKE:
+        setSetpointDegrees(PivotConstants.algeaOuttakeDegrees);
+        break;
+      case CORAL_OUTTAKE:
+        setSetpointDegrees(PivotConstants.coralOuttakeDegrees);
         break;
       case VOLTAGE:
       case IDLE:
