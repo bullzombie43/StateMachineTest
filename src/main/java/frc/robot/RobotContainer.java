@@ -56,6 +56,7 @@ import frc.robot.subsystems.vision.*;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnField;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -267,13 +268,13 @@ public class RobotContainer {
                 superstructure.setWantedSuperState(WantedSuperState.STOW_ALL_SYSTEMS),
                 isIntakingCoral.negate()));
 
-    controller.share().onTrue(Commands.runOnce(() -> spawnCoral()));
+    controller.povUp().onTrue(Commands.runOnce(() -> spawnCoral()));
+    controller.povDown().onTrue(Commands.runOnce(() -> spawnAlgea()));
 
     controller
         .L1()
         .whileTrue(
-            superstructure
-                .setWantedSuperState(Superstructure.WantedSuperState.OUTTAKE_CORAL));
+            superstructure.setWantedSuperState(Superstructure.WantedSuperState.OUTTAKE_CORAL));
 
     controller
         .R2()
@@ -285,9 +286,7 @@ public class RobotContainer {
 
     controller
         .L2()
-        .onTrue(
-            superstructure
-                .setWantedSuperState(Superstructure.WantedSuperState.OUTTAKE_ALGEA));
+        .onTrue(superstructure.setWantedSuperState(Superstructure.WantedSuperState.OUTTAKE_ALGEA));
   }
 
   /**
@@ -322,13 +321,22 @@ public class RobotContainer {
   public void spawnCoral() {
     if (Constants.currentMode != Constants.Mode.SIM) return;
 
-    // SimulatedArena.getInstance()
-    //     .addGamePiece(new ReefscapeCoralOnField(new Pose2d(14.5, 3, Rotation2d.kZero)));
+    SimulatedArena.getInstance()
+        .addGamePiece(new ReefscapeCoralOnField(new Pose2d(14.5, 3, Rotation2d.kZero)));
+  }
+
+  public void spawnAlgea() {
+    if (Constants.currentMode != Constants.Mode.SIM) return;
+
     SimulatedArena.getInstance()
         .addGamePiece(new ReefscapeAlgaeOnField(new Translation2d(14.5, 3)));
   }
 
   public CoralIntake getCoralIntake() {
     return coralIntake;
+  }
+
+  public AlgeaIntake getAlgeaIntake() {
+    return algeaIntake;
   }
 }

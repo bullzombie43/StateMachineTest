@@ -14,6 +14,10 @@ public interface EndEffectorIO {
 
   default void stopEndEffector() {}
 
+  default void intakeAlgea() {}
+
+  default void outtakeAlgea() {}
+
   default void setGains(
       double kP, double kI, double kD, double kS, double kA, double kV, double kG) {}
 

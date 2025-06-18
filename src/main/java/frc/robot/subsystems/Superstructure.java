@@ -431,7 +431,7 @@ public class Superstructure extends SubsystemBase {
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.REVERSING);
     }
 
-    if(!coralIntake.hasCoral()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
+    if (!coralIntake.hasCoral()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
   }
 
   private void outtakeAlgea() {
@@ -442,7 +442,7 @@ public class Superstructure extends SubsystemBase {
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.OUTTAKE);
     }
 
-    if(!algeaIntake.hasAlgea()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
+    if (!algeaIntake.hasAlgea()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
   }
 
   private void handleStopped() {

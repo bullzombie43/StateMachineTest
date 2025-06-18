@@ -57,7 +57,7 @@ public class EndEffectorIOSim implements EndEffectorIO {
 
   @Override
   public void outtakeCoral() {
-    velocityRPS = EndEffectorConstants.forwardSpeed; // Set the velocity to forward speed
+    velocityRPS = EndEffectorConstants.coralOuttakeVel; // Set the velocity to forward speed
 
     if (Robot.robotContainer.getCoralIntake().hasCoral()) {
       SimulatedArena.getInstance()
@@ -74,10 +74,10 @@ public class EndEffectorIOSim implements EndEffectorIO {
                   MetersPerSecond.of(2),
                   Degrees.of(
                       Robot.componentPoses[3]
-                              .transformBy(IntakeConstants.coralIntakeOffset)
-                              .getRotation()
-                              .getMeasureY()
-                              .in(Degrees)
+                          .transformBy(IntakeConstants.coralIntakeOffset)
+                          .getRotation()
+                          .getMeasureY()
+                          .in(Degrees)
                           - 90)));
 
       Robot.robotContainer.getCoralIntake().setHasCoral(hasCoral);
@@ -86,7 +86,17 @@ public class EndEffectorIOSim implements EndEffectorIO {
 
   @Override
   public void intakeCoral() {
-    velocityRPS = EndEffectorConstants.reverseSpeed; // Set the velocity to reverse speed
+    velocityRPS = EndEffectorConstants.coralIntakeVel; // Set the velocity to reverse speed
+  }
+
+  @Override
+  public void intakeAlgea() {
+    velocityRPS = EndEffectorConstants.algeaIntakeVel; // Set the velocity to algea intake speed
+  }
+
+  @Override
+  public void outtakeAlgea() {
+    velocityRPS = EndEffectorConstants.algeaIntakeVel; // Set the velocity to algea intake speed
   }
 
   @Override
