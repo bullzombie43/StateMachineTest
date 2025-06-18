@@ -74,10 +74,10 @@ public class EndEffectorIOSim implements EndEffectorIO {
                   MetersPerSecond.of(2),
                   Degrees.of(
                       Robot.componentPoses[3]
-                          .transformBy(IntakeConstants.coralIntakeOffset)
-                          .getRotation()
-                          .getMeasureY()
-                          .in(Degrees)
+                              .transformBy(IntakeConstants.coralIntakeOffset)
+                              .getRotation()
+                              .getMeasureY()
+                              .in(Degrees)
                           - 90)));
 
       Robot.robotContainer.getCoralIntake().setHasCoral(hasCoral);

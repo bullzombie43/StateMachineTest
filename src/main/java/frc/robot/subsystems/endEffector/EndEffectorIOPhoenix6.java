@@ -22,12 +22,13 @@ import frc.robot.util.PhoenixUtil;
 
 /** Add your docs here. */
 public class EndEffectorIOPhoenix6 implements EndEffectorIO {
-  protected final TalonFX motor = new TalonFX(EndEffectorConstants.endEffectorMotorID,
-      EndEffectorConstants.endEffectorCanbus);
+  protected final TalonFX motor =
+      new TalonFX(EndEffectorConstants.endEffectorMotorID, EndEffectorConstants.endEffectorCanbus);
 
   private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-  private final VelocityVoltage velocityVoltageRequest = new VelocityVoltage(0.0).withEnableFOC(true);
+  private final VelocityVoltage velocityVoltageRequest =
+      new VelocityVoltage(0.0).withEnableFOC(true);
 
   private final StatusSignal<Voltage> motorVoltage;
   private final StatusSignal<Current> motorCurrent;
@@ -36,10 +37,12 @@ public class EndEffectorIOPhoenix6 implements EndEffectorIO {
 
   public EndEffectorIOPhoenix6() {
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-    motorConfig.CurrentLimits.SupplyCurrentLimit = EndEffectorConstants.endEffectorSupplyCurrentLimit;
+    motorConfig.CurrentLimits.SupplyCurrentLimit =
+        EndEffectorConstants.endEffectorSupplyCurrentLimit;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    motorConfig.CurrentLimits.StatorCurrentLimit = EndEffectorConstants.endEffectorStatorCurrentLimit;
+    motorConfig.CurrentLimits.StatorCurrentLimit =
+        EndEffectorConstants.endEffectorStatorCurrentLimit;
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfig.Audio.BeepOnConfig = false;

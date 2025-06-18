@@ -12,11 +12,12 @@ public class EndEffectorConstants {
   public static final int endEffectorMotorID = 17;
   public static final String endEffectorCanbus = "3045 Canivore";
 
-  public static Gains gains = switch (Constants.currentMode) {
-    case SIM -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    case REAL -> new Gains(0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    case REPLAY -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  };
+  public static Gains gains =
+      switch (Constants.currentMode) {
+        case SIM -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        case REAL -> new Gains(0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        case REPLAY -> new Gains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+      };
 
   public static final double endEffectorSupplyCurrentLimit = 40.0;
   public static final double endEffectorStatorCurrentLimit = 80.0;
