@@ -24,10 +24,12 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.DriveToPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.WantedSuperState;
@@ -54,6 +56,7 @@ import frc.robot.subsystems.pivot.PivotIOPhoenix6;
 import frc.robot.subsystems.pivot.PivotIOSim;
 import frc.robot.subsystems.vision.*;
 import frc.robot.util.MirroringUtil;
+import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnField;
@@ -323,6 +326,13 @@ public class RobotContainer {
     controller.povLeft().onTrue(Commands.runOnce(() -> setCoralScoringHeight(2)));
     controller.povRight().onTrue(Commands.runOnce(() -> setCoralScoringHeight(3)));
     controller.povUp().onTrue(Commands.runOnce(() -> setCoralScoringHeight(4)));
+
+    controller
+        .options()
+        .onTrue(
+            new DeferredCommand(
+                () -> new DriveToPose(drive, () -> new Pose2d(3.0, 3.0, Rotation2d.kCW_90deg)),
+                Set.of(drive)));
   }
 
   /**
@@ -406,5 +416,27 @@ public class RobotContainer {
             return superstructure.setWantedSuperState(WantedSuperState.SCORE_L4);
           }
         });
+  }
+
+  public Pose2d getRandomPose() {
+    int randomIndex = (int) (Math.random() * 3);
+    Pose2d randomPose;
+    switch (randomIndex) {
+      case 0:
+        randomPose = new Pose2d(1.0, 1.0, new Rotation2d());
+        break;
+      case 1:
+        randomPose = new Pose2d(2.0, 2.0, new Rotation2d(Math.PI / 2));
+        break;
+      case 2:
+        randomPose = new Pose2d(3.0, 3.0, new Rotation2d(Math.PI));
+        break;
+      default:
+        randomPose = new Pose2d(); // Default pose in case of unexpected behavior
+        break;
+    }
+
+    Logger.recordOutput("Poses/RandomPose", randomPose);
+    return randomPose;
   }
 }
