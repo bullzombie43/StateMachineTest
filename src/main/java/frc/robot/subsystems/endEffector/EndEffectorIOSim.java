@@ -9,13 +9,16 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 
+import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.Robot;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.intake.IntakeConstants;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnFly;
+import org.ironmaple.simulation.gamepieces.GamePieceProjectile;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnField;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
+import org.ironmaple.utils.FieldMirroringUtils;
 
 /** Add your docs here. */
 public class EndEffectorIOSim implements EndEffectorIO {
@@ -111,24 +114,31 @@ public class EndEffectorIOSim implements EndEffectorIO {
     if (Robot.robotContainer.getAlgeaIntake().hasAlgea()) {
       SimulatedArena.getInstance()
           .addGamePieceProjectile(
-              new ReefscapeAlgaeOnFly(
-                  drivetrainSimulation.getSimulatedDriveTrainPose().getTranslation(),
-                  Robot.componentPoses[3]
-                      .transformBy(IntakeConstants.algeaIntakeOffset)
-                      .getTranslation()
-                      .toTranslation2d(),
-                  drivetrainSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
-                  drivetrainSimulation.getSimulatedDriveTrainPose().getRotation(),
-                  Meters.of(
+              new GamePieceProjectile(
+                      ReefscapeAlgaeOnField.REEFSCAPE_ALGAE_INFO,
+                      drivetrainSimulation.getSimulatedDriveTrainPose().getTranslation(),
                       Robot.componentPoses[3]
                           .transformBy(IntakeConstants.algeaIntakeOffset)
-                          .getZ()),
-                  MetersPerSecond.of(2.0),
-                  Radians.of(
-                      -Robot.componentPoses[3]
-                          .transformBy(IntakeConstants.algeaIntakeOffset)
-                          .getRotation()
-                          .getY())));
+                          .getTranslation()
+                          .toTranslation2d(),
+                      drivetrainSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
+                      drivetrainSimulation.getSimulatedDriveTrainPose().getRotation(),
+                      Meters.of(
+                          Robot.componentPoses[3]
+                              .transformBy(IntakeConstants.algeaIntakeOffset)
+                              .getZ()),
+                      MetersPerSecond.of(2.0),
+                      Radians.of(
+                          -Robot.componentPoses[3]
+                              .transformBy(IntakeConstants.algeaIntakeOffset)
+                              .getRotation()
+                              .getY()))
+                  .withTargetPosition(
+                      () ->
+                          FieldMirroringUtils.toCurrentAllianceTranslation(
+                              new Translation3d(8.785, 6.146, 2.1)))
+                  .withTargetTolerance(new Translation3d(0.8, 3, 0.1))
+                  .withHitTargetCallBack(() -> Robot.addAlgeaToNet()));
 
       Robot.robotContainer.getAlgeaIntake().setHasAlgea(false);
     }

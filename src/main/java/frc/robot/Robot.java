@@ -136,6 +136,8 @@ public class Robot extends LoggedRobot {
 
     Logger.recordOutput("Poses/Zero2d", Pose2d.kZero);
     Logger.recordOutput("Poses/Scoring", new Pose2d(11.8, 3.84, Rotation2d.kPi));
+    Logger.recordOutput(
+        "Poses/AlgeaNet", MirroringUtil.flipToCurrentAlliance(Constants.algeaPoses));
   }
 
   /** This function is called periodically during all modes. */
@@ -191,9 +193,6 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-
-    Logger.recordOutput("Poses/AlgeaNet", MirroringUtil.flipToCurrentAlliance(Constants.netAlgeaPoses));
-
   }
 
   /** This function is called periodically during operator control. */
@@ -213,10 +212,7 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {
-    Logger.recordOutput("Poses/AlgeaNet", MirroringUtil.flipToCurrentAlliance(Constants.netAlgeaPoses));
-    ReefscapeAlgaeOnFly.setHitNetCallBack(() -> addAlgeaToNet());
-  }
+  public void simulationInit() {}
 
   /** This function is called periodically whilst in simulation. */
   @Override
@@ -224,10 +220,11 @@ public class Robot extends LoggedRobot {
     robotContainer.updateSimulation();
   }
 
-  public void addAlgeaToNet() {
+  public static void addAlgeaToNet() {
     algeaInNet++;
 
-    System.out.println("added one");
+    System.out.println("hit net");
+
 
     Constants.algeaPoses[algeaInNet - 1] =
         MirroringUtil.flipToCurrentAlliance(Constants.netAlgeaPoses[algeaInNet - 1]);
