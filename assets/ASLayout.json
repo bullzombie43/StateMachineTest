@@ -120,6 +120,15 @@
                     "options": {
                       "variant": "Coral"
                     }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Poses/AlgeaNet",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Algae"
+                    }
                   }
                 ],
                 "game": "2025 Field (Welded)",

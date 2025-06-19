@@ -27,7 +27,6 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.pivot.PivotConstants;
 import frc.robot.util.MirroringUtil;
 import frc.robot.util.PhoenixUtil;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnFly;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -224,7 +223,6 @@ public class Robot extends LoggedRobot {
     algeaInNet++;
 
     System.out.println("hit net");
-
 
     Constants.algeaPoses[algeaInNet - 1] =
         MirroringUtil.flipToCurrentAlliance(Constants.netAlgeaPoses[algeaInNet - 1]);

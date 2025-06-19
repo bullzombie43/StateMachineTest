@@ -53,6 +53,7 @@ import frc.robot.subsystems.pivot.PivotIO;
 import frc.robot.subsystems.pivot.PivotIOPhoenix6;
 import frc.robot.subsystems.pivot.PivotIOSim;
 import frc.robot.subsystems.vision.*;
+import frc.robot.util.MirroringUtil;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnField;
@@ -263,6 +264,13 @@ public class RobotContainer {
                 superstructure.setWantedSuperState(Superstructure.WantedSuperState.SCORE_PROCESSOR),
                 preparedProcesser.negate()));
 
+    preparedProcesser.whileTrue(
+        DriveCommands.joystickDriveAtAngle(
+            drive,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> MirroringUtil.flipToCurrentAlliance(Rotation2d.kCCW_90deg)));
+
     controller
         .L1()
         .and(algeaMode)
@@ -271,6 +279,13 @@ public class RobotContainer {
                 superstructure.setWantedSuperState(Superstructure.WantedSuperState.PREPARE_BARGE),
                 superstructure.setWantedSuperState(Superstructure.WantedSuperState.SCORE_BARGE),
                 preparedBarge.negate()));
+
+    preparedBarge.whileTrue(
+        DriveCommands.joystickDriveAtAngle(
+            drive,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> MirroringUtil.flipToCurrentAlliance(Rotation2d.kZero)));
 
     controller
         .R2()
@@ -343,14 +358,18 @@ public class RobotContainer {
     if (Constants.currentMode != Constants.Mode.SIM) return;
 
     SimulatedArena.getInstance()
-        .addGamePiece(new ReefscapeCoralOnField(new Pose2d(14.5, 3, Rotation2d.kZero)));
+        .addGamePiece(
+            new ReefscapeCoralOnField(
+                MirroringUtil.flipToCurrentAlliance(new Pose2d(3.5, 5, Rotation2d.kZero))));
   }
 
   public void spawnAlgea() {
     if (Constants.currentMode != Constants.Mode.SIM) return;
 
     SimulatedArena.getInstance()
-        .addGamePiece(new ReefscapeAlgaeOnField(new Translation2d(14.5, 3)));
+        .addGamePiece(
+            new ReefscapeAlgaeOnField(
+                MirroringUtil.flipToCurrentAlliance(new Translation2d(3.5, 5))));
   }
 
   public CoralIntake getCoralIntake() {
