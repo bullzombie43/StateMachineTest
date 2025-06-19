@@ -114,6 +114,7 @@ public class AlgeaIntakeIOSim implements AlgeaIntakeIO {
     return intakeSimulation.getGamePiecesAmount() > 0;
   }
 
+  @Override
   public void setHasAlgea(boolean hasAlgea) {
     if (!hasAlgea) intakeSimulation.setGamePiecesCount(0);
     else intakeSimulation.setGamePiecesCount(1);

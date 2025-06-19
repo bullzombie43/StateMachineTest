@@ -13,6 +13,7 @@ public class EndEffector extends SubsystemBase {
     IDLE,
     STOPPED,
     OUTTAKE,
+    SHOOT_ALGEA,
     INTAKE
   }
 
@@ -20,6 +21,7 @@ public class EndEffector extends SubsystemBase {
     IS_IDLE,
     STOPPING,
     OUTTAKING,
+    SHOOTING_ALGEA,
     INTAKING
   }
 
@@ -71,6 +73,9 @@ public class EndEffector extends SubsystemBase {
         case STOPPED:
           handleStopping();
           break;
+        case SHOOT_ALGEA:
+          handleShootAlgea();
+          break;
         case IDLE:
           handleIdling();
           break;
@@ -89,6 +94,8 @@ public class EndEffector extends SubsystemBase {
         return SystemState.OUTTAKING;
       case INTAKE:
         return SystemState.INTAKING;
+      case SHOOT_ALGEA:
+        return SystemState.SHOOTING_ALGEA;
       case IDLE:
       default:
         return SystemState.IS_IDLE;
@@ -111,6 +118,10 @@ public class EndEffector extends SubsystemBase {
     endEffectorIO.stopEndEffector();
   }
 
+  public void handleShootAlgea() {
+    endEffectorIO.shootAlgea();
+  }
+
   public void setWantedStateFunc(WantedState wantedState) {
     this.wantedState = wantedState;
   }
@@ -125,5 +136,9 @@ public class EndEffector extends SubsystemBase {
 
   public boolean hasCoral() {
     return endEffectorIOInputs.hasCoral;
+  }
+
+  public boolean hasAlgea() {
+    return endEffectorIOInputs.hasAlgea;
   }
 }

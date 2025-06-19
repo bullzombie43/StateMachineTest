@@ -31,6 +31,7 @@ public class Pivot extends SubsystemBase {
     L2,
     L3,
     L4,
+    PREPARE_BARGE,
     BARGE,
     PROCESSOR,
     LOW_ALGEA,
@@ -170,6 +171,9 @@ public class Pivot extends SubsystemBase {
           break;
         case L4:
           handleL4();
+          break;
+        case PREPARE_BARGE:
+          handlePrepareBarge();
           break;
         case BARGE:
           handleBarge();
@@ -312,6 +316,11 @@ public class Pivot extends SubsystemBase {
     pivotIO.setSetpointDegrees(setpointDegrees);
   }
 
+  public void handlePrepareBarge() {
+    setSetpointDegrees(PivotConstants.prepareBargeDegrees);
+    pivotIO.setSetpointDegrees(setpointDegrees);
+  }
+
   public void handleProcessor() {
     setSetpointDegrees(PivotConstants.processorDegrees);
     pivotIO.setSetpointDegrees(setpointDegrees);
@@ -349,6 +358,9 @@ public class Pivot extends SubsystemBase {
 
   private void updateSetpoint() {
     switch (wantedState) {
+      case PREPARE_BARGE:
+        setSetpointDegrees(PivotConstants.prepareBargeDegrees);
+        break;
       case BARGE:
         setSetpointDegrees(PivotConstants.bargeDegrees);
         break;

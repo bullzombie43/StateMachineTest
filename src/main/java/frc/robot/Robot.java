@@ -25,7 +25,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.pivot.PivotConstants;
+import frc.robot.util.MirroringUtil;
 import frc.robot.util.PhoenixUtil;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnFly;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -42,6 +44,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   public static RobotContainer robotContainer;
+
+  public static int algeaInNet = 0;
 
   public static Pose3d[] componentPoses =
       new Pose3d[] {
@@ -187,6 +191,9 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    Logger.recordOutput("Poses/AlgeaNet", MirroringUtil.flipToCurrentAlliance(Constants.netAlgeaPoses));
+
   }
 
   /** This function is called periodically during operator control. */
@@ -206,11 +213,25 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+    Logger.recordOutput("Poses/AlgeaNet", MirroringUtil.flipToCurrentAlliance(Constants.netAlgeaPoses));
+    ReefscapeAlgaeOnFly.setHitNetCallBack(() -> addAlgeaToNet());
+  }
 
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {
     robotContainer.updateSimulation();
+  }
+
+  public void addAlgeaToNet() {
+    algeaInNet++;
+
+    System.out.println("added one");
+
+    Constants.algeaPoses[algeaInNet - 1] =
+        MirroringUtil.flipToCurrentAlliance(Constants.netAlgeaPoses[algeaInNet - 1]);
+
+    Logger.recordOutput("Poses/AlgeaNet", Constants.algeaPoses);
   }
 }

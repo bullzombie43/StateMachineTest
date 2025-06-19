@@ -282,12 +282,36 @@ public class Superstructure extends SubsystemBase {
     // Logic to intake from substation
   }
 
-  private void prepareBarge() {
-    // Logic to prepare the barge
-  }
-
   private void prepareProcessor() {
     // Logic to prepare the processor
+    coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
+    algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.OUT_NO_INTAKE);
+    elevator.setWantedStateFunc(Elevator.WantedState.PROCESSOR);
+    pivot.setWantedStateFunc(Pivot.WantedState.PROCESSOR);
+
+    if (elevator.atSetpoint() && pivot.atSetpoint()) {
+      coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
+      algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.PREPARE_PROCESSOR);
+    }
+  }
+
+  private void scoreProcessor() {
+    // Logic to score using the processor
+    algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.PROCESSOR);
+
+    if (!algeaIntake.hasAlgea()) {
+      algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.OUT_NO_INTAKE);
+      coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
+
+      if (algeaIntake.atPivotSetpoint() && coralIntake.atPivotSetpoint()) {
+        elevator.setWantedStateFunc(Elevator.WantedState.STOW);
+        pivot.setWantedStateFunc(Pivot.WantedState.STOW);
+
+        if (elevator.atSetpoint() && pivot.atSetpoint()) {
+          setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
+        }
+      }
+    }
   }
 
   private void removeHighAlgea() {
@@ -296,14 +320,28 @@ public class Superstructure extends SubsystemBase {
 
   private void removeLowAlgea() {
     // Logic to remove low algae
+
   }
 
-  private void scoreProcessor() {
-    // Logic to score using the processor
+  private void prepareBarge() {
+    // Logic to prepare the barge
+    coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
+    algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
+    elevator.setWantedStateFunc(Elevator.WantedState.BARGE);
+    pivot.setWantedStateFunc(Pivot.WantedState.BARGE);
+
+    // Lock Rotation
   }
 
   private void scoreBarge() {
     // Logic to score using the barge
+    elevator.setWantedStateFunc(Elevator.WantedState.BARGE);
+    pivot.setWantedStateFunc(Pivot.WantedState.BARGE);
+    endEffector.setWantedStateFunc(EndEffector.WantedState.SHOOT_ALGEA);
+
+    if (!endEffector.hasAlgea()) {
+      setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
+    }
   }
 
   private void scoreL1() {

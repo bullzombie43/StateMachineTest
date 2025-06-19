@@ -93,6 +93,7 @@ public class EndEffectorIOPhoenix6 implements EndEffectorIO {
     inputs.endEffectorTemperature = motorTemperature.getValueAsDouble();
     inputs.endEffectorVelocityRPS = motorVelocityRPS.getValueAsDouble();
     inputs.hasCoral = hasCoral();
+    inputs.hasAlgea = hasAlgea();
   }
 
   @Override
@@ -130,7 +131,17 @@ public class EndEffectorIOPhoenix6 implements EndEffectorIO {
     motor.setControl(velocityVoltageRequest.withVelocity(EndEffectorConstants.algeaOuttakeVel));
   }
 
+  @Override
+  public void shootAlgea() {
+    motor.setControl(velocityVoltageRequest.withVelocity(EndEffectorConstants.algeaShootVel));
+  }
+
   public boolean hasCoral() {
+    // Implement with canRange later
+    return false;
+  }
+
+  public boolean hasAlgea() {
     // Implement with canRange later
     return false;
   }

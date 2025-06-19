@@ -205,7 +205,7 @@ public class CoralIntake extends SubsystemBase {
   }
 
   public void handleOutNoIntake() {
-    setSetpointDegrees(IntakeConstants.coralIntakeDegrees);
+    setSetpointDegrees(IntakeConstants.coralOutNoIntakeDegrees);
     intakeIO.setSetpointDegrees(setpointDegrees);
     intakeIO.stopIntake();
   }

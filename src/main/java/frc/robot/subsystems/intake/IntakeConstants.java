@@ -59,9 +59,11 @@ public class IntakeConstants {
 
   public static final double coralStowDegrees = 0.0;
   public static final double coralIntakeDegrees = 90.0;
+  public static final double coralOutNoIntakeDegrees = 45.0;
 
   public static final double algeaStowDegrees = 0.0;
   public static final double algeaIntakeDegrees = 45.0;
+  public static final double processorDegrees = 0.0;
 
   public static final double coralRollerForwardSpeed = 10.0; // Rotations Per Second
   public static final double coralRollerReverseSpeed = -10.0; // Rotations Per Second

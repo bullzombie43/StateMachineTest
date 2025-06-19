@@ -38,7 +38,7 @@ public class ElevatorConstants {
 
   // Soft Limits
   public static final double forwardSoftLimitMeters = 0.0;
-  public static final double reverseSoftLimitMeters = 2.0;
+  public static final double reverseSoftLimitMeters = 1.75;
 
   // Setpoints
   public static final double stowHeight = 0.0;
@@ -49,7 +49,8 @@ public class ElevatorConstants {
   public static final double L2Height = 0.2;
   public static final double L3Height = 0.6;
   public static final double L4Height = 1.45;
-  public static final double bargeHeight = 0.0;
+  public static final double prepareBargeHeight = 0.7;
+  public static final double bargeHeight = 1.75;
   public static final double processorHeight = 0.0;
   public static final double lowAlgeaHeight = 0.0;
   public static final double highAlgeaHeight = 0.0;

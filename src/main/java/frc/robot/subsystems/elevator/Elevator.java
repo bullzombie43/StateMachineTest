@@ -30,6 +30,7 @@ public class Elevator extends SubsystemBase {
     L2,
     L3,
     L4,
+    PREPARE_BARGE,
     BARGE,
     PROCESSOR,
     LOW_ALGEA,
@@ -171,6 +172,9 @@ public class Elevator extends SubsystemBase {
         case L4:
           handleL4();
           break;
+        case PREPARE_BARGE:
+          handlePrepareBarge();
+          break;
         case BARGE:
           handleBarge();
           break;
@@ -297,6 +301,11 @@ public class Elevator extends SubsystemBase {
 
   public void handleL4() {
     setSetpointMeters(ElevatorConstants.L4Height);
+    elevatorIO.setSetpointMeters(setpointMeters);
+  }
+
+  public void handlePrepareBarge() {
+    setSetpointMeters(ElevatorConstants.prepareBargeHeight);
     elevatorIO.setSetpointMeters(setpointMeters);
   }
 

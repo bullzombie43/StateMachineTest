@@ -7,12 +7,14 @@ package frc.robot.subsystems.endEffector;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 
 import frc.robot.Robot;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.intake.IntakeConstants;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnFly;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
 
 /** Add your docs here. */
@@ -20,11 +22,13 @@ public class EndEffectorIOSim implements EndEffectorIO {
   private final AbstractDriveTrainSimulation drivetrainSimulation;
   private double velocityRPS;
   private boolean hasCoral;
+  private boolean hasAlgea;
 
   public EndEffectorIOSim(AbstractDriveTrainSimulation driveTrainSimulation) {
     this.drivetrainSimulation = driveTrainSimulation;
     this.velocityRPS = 0.0;
     this.hasCoral = false;
+    this.hasAlgea = false;
   }
 
   @Override
@@ -36,6 +40,7 @@ public class EndEffectorIOSim implements EndEffectorIO {
     inputs.endEffectorVelocityRPS = velocityRPS; // Simulated velocity
     inputs.endEffectorMotorConnected = true; // Assume motor is connected in simulation
     inputs.hasCoral = hasCoral; // Set the hasCoral flag
+    inputs.hasAlgea = hasAlgea; // Set the hasAlgea flag
   }
 
   @Override
@@ -96,7 +101,37 @@ public class EndEffectorIOSim implements EndEffectorIO {
 
   @Override
   public void outtakeAlgea() {
-    velocityRPS = EndEffectorConstants.algeaIntakeVel; // Set the velocity to algea intake speed
+    velocityRPS = EndEffectorConstants.algeaOuttakeVel; // Set the velocity to algea intake speed
+  }
+
+  @Override
+  public void shootAlgea() {
+    velocityRPS = EndEffectorConstants.algeaShootVel;
+
+    if (Robot.robotContainer.getAlgeaIntake().hasAlgea()) {
+      SimulatedArena.getInstance()
+          .addGamePieceProjectile(
+              new ReefscapeAlgaeOnFly(
+                  drivetrainSimulation.getSimulatedDriveTrainPose().getTranslation(),
+                  Robot.componentPoses[3]
+                      .transformBy(IntakeConstants.algeaIntakeOffset)
+                      .getTranslation()
+                      .toTranslation2d(),
+                  drivetrainSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
+                  drivetrainSimulation.getSimulatedDriveTrainPose().getRotation(),
+                  Meters.of(
+                      Robot.componentPoses[3]
+                          .transformBy(IntakeConstants.algeaIntakeOffset)
+                          .getZ()),
+                  MetersPerSecond.of(2.0),
+                  Radians.of(
+                      -Robot.componentPoses[3]
+                          .transformBy(IntakeConstants.algeaIntakeOffset)
+                          .getRotation()
+                          .getY())));
+
+      Robot.robotContainer.getAlgeaIntake().setHasAlgea(false);
+    }
   }
 
   @Override

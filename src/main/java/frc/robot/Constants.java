@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -41,4 +43,30 @@ public final class Constants {
   public static void disableHAL() {
     disableHAL = true;
   }
+
+  public static Pose3d[] algeaPoses =
+      new Pose3d[] {
+        new Pose3d(),
+        new Pose3d(),
+        new Pose3d(),
+        new Pose3d(),
+        new Pose3d(),
+        new Pose3d(),
+        new Pose3d(),
+        new Pose3d(),
+        new Pose3d(),
+      };
+
+  public static Pose3d[] netAlgeaPoses =
+      new Pose3d[] {
+        new Pose3d(8.785, 6.146 - 1.6, 2.1, Rotation3d.kZero),
+        new Pose3d(8.785, 6.146 - 1.2, 2.1, Rotation3d.kZero),
+        new Pose3d(8.785, 6.146 - 0.8, 2.1, Rotation3d.kZero),
+        new Pose3d(8.785, 6.146 - 0.4, 2.1, Rotation3d.kZero),
+        new Pose3d(8.785, 6.146, 2.1, Rotation3d.kZero),
+        new Pose3d(8.785, 6.146 + 0.4, 2.1, Rotation3d.kZero),
+        new Pose3d(8.785, 6.146 + 0.8, 2.1, Rotation3d.kZero),
+        new Pose3d(8.785, 6.146 + 1.2, 2.1, Rotation3d.kZero),
+        new Pose3d(8.785, 6.146 + 1.6, 2.1, Rotation3d.kZero),
+      };
 }

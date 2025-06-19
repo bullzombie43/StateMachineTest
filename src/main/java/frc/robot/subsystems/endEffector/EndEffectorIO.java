@@ -18,6 +18,8 @@ public interface EndEffectorIO {
 
   default void outtakeAlgea() {}
 
+  default void shootAlgea() {}
+
   default void setGains(
       double kP, double kI, double kD, double kS, double kA, double kV, double kG) {}
 
@@ -36,5 +38,6 @@ public interface EndEffectorIO {
     public double endEffectorVelocityRPS = 0.0;
 
     public boolean hasCoral = false; // Indicates if the Coral end effector is present
+    public boolean hasAlgea = false; // Indicates if the Algea end effector is present
   }
 }

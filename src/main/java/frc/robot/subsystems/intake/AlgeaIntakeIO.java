@@ -27,6 +27,10 @@ public interface AlgeaIntakeIO {
 
   default void stopRoller() {}
 
+  default void setHasAlgea(boolean hasAlgea) {
+    // Only Used in simulation
+  }
+
   @AutoLog
   class AlgeaIntakeIOInputs {
     public boolean motorConnected = true;

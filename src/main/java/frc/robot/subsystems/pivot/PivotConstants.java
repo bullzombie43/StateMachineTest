@@ -47,8 +47,9 @@ public class PivotConstants {
   public static final double L2Degrees = -30.0;
   public static final double L3Degrees = -30.0;
   public static final double L4Degrees = -65.0;
-  public static final double bargeDegrees = 0.0;
-  public static final double processorDegrees = 0.0;
+  public static final double prepareBargeDegrees = -45.0;
+  public static final double bargeDegrees = -45;
+  public static final double processorDegrees = -180.0;
   public static final double lowAlgeaDegrees = 0.0;
   public static final double highAlgeaDegrees = 0.0;
   public static final double algeaIntakeDegrees = -180.0;

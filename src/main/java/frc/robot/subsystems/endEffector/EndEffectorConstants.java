@@ -26,4 +26,5 @@ public class EndEffectorConstants {
   public static final double coralIntakeVel = -10.0; // Rotations Per Second
   public static final double algeaOuttakeVel = 10.0;
   public static final double algeaIntakeVel = -10.0;
+  public static final double algeaShootVel = 30.0;
 }

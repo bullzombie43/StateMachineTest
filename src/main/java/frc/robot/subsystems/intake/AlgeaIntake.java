@@ -23,7 +23,9 @@ public class AlgeaIntake extends SubsystemBase {
     STOW,
     INTAKE,
     OUT_NO_INTAKE,
-    OUTTAKE
+    OUTTAKE,
+    PREPARE_PROCESSOR,
+    PROCESSOR
   }
 
   public enum SystemState {
@@ -31,7 +33,9 @@ public class AlgeaIntake extends SubsystemBase {
     STOWING,
     INTAKING,
     OUT_NO_INTAKE,
-    OUTTAKING
+    OUTTAKING,
+    PREPARE_PROCESSOR,
+    PROCESSING
   }
 
   private static final LoggedTunableNumber pivotKP =
@@ -145,6 +149,12 @@ public class AlgeaIntake extends SubsystemBase {
         case OUTTAKE:
           handleOuttaking();
           break;
+        case PREPARE_PROCESSOR:
+          handlePrepareProcessor();
+          break;
+        case PROCESSOR:
+          handleProcessing();
+          break;
         case IDLE:
         default:
           break;
@@ -178,6 +188,10 @@ public class AlgeaIntake extends SubsystemBase {
         return SystemState.OUT_NO_INTAKE;
       case OUTTAKE:
         return SystemState.OUTTAKING;
+      case PREPARE_PROCESSOR:
+        return SystemState.PREPARE_PROCESSOR;
+      case PROCESSOR:
+        return SystemState.PROCESSING;
       case IDLE:
       default:
         return SystemState.IS_IDLE;
@@ -209,6 +223,17 @@ public class AlgeaIntake extends SubsystemBase {
 
   public void handleOuttaking() {
     setSetpointDegrees(IntakeConstants.algeaIntakeDegrees);
+    intakeIO.setSetpointDegrees(setpointDegrees);
+    intakeIO.runRollerReverse();
+  }
+
+  public void handlePrepareProcessor() {
+    setSetpointDegrees(IntakeConstants.processorDegrees);
+    intakeIO.setSetpointDegrees(setpointDegrees);
+  }
+
+  public void handleProcessing() {
+    setSetpointDegrees(IntakeConstants.processorDegrees);
     intakeIO.setSetpointDegrees(setpointDegrees);
     intakeIO.runRollerReverse();
   }
@@ -249,5 +274,9 @@ public class AlgeaIntake extends SubsystemBase {
 
   public boolean hasAlgea() {
     return intakeIOInputs.hasAlgea;
+  }
+
+  public void setHasAlgea(boolean hasAlgea) {
+    intakeIO.setHasAlgea(hasAlgea);
   }
 }

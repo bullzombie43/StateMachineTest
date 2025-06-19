@@ -67,6 +67,9 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  private boolean isAlgea = false;
+  private int coralScoringHeight = 1;
+
   // Subsystems
   private final Drive drive;
   private final Vision vision;
@@ -90,6 +93,9 @@ public class RobotContainer {
   private final Trigger hasCoral;
   private final Trigger isIntakingCoral;
   private final Trigger isIntakingAlgea;
+  private final Trigger algeaMode;
+  private final Trigger preparedProcesser;
+  private final Trigger preparedBarge;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -179,6 +185,13 @@ public class RobotContainer {
         new Trigger(
             () ->
                 superstructure.getWantedSuperState().equals(WantedSuperState.ALGEA_GROUND_INTAKE));
+    algeaMode = new Trigger(() -> isAlgea);
+    preparedProcesser =
+        new Trigger(
+            () -> superstructure.getWantedSuperState().equals(WantedSuperState.PREPARE_PROCESSOR));
+    preparedBarge =
+        new Trigger(
+            () -> superstructure.getWantedSuperState().equals(WantedSuperState.PREPARE_BARGE));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -234,59 +247,67 @@ public class RobotContainer {
     controller.circle().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true));
 
     controller
-        .triangle()
-        .whileTrue(
-            superstructure
-                .setWantedSuperState(Superstructure.WantedSuperState.SCORE_L2)
-                .repeatedly())
-        .onFalse(
-            superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
-
-    controller
-        .square()
-        .whileTrue(
-            superstructure
-                .setWantedSuperState(Superstructure.WantedSuperState.SCORE_L3)
-                .repeatedly())
-        .onFalse(
-            superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
-
-    controller
-        .options()
-        .whileTrue(
-            superstructure
-                .setWantedSuperState(Superstructure.WantedSuperState.SCORE_L4)
-                .repeatedly())
+        .R1()
+        .and(algeaMode.negate())
+        .onTrue(scoreCoral())
         .onFalse(
             superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
 
     controller
         .R1()
+        .and(algeaMode)
+        .onTrue(
+            new ConditionalCommand(
+                superstructure.setWantedSuperState(
+                    Superstructure.WantedSuperState.PREPARE_PROCESSOR),
+                superstructure.setWantedSuperState(Superstructure.WantedSuperState.SCORE_PROCESSOR),
+                preparedProcesser.negate()));
+
+    controller
+        .L1()
+        .and(algeaMode)
+        .onTrue(
+            new ConditionalCommand(
+                superstructure.setWantedSuperState(Superstructure.WantedSuperState.PREPARE_BARGE),
+                superstructure.setWantedSuperState(Superstructure.WantedSuperState.SCORE_BARGE),
+                preparedBarge.negate()));
+
+    controller
+        .R2()
+        .and(algeaMode.negate())
         .onTrue(
             new ConditionalCommand(
                 superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND),
                 superstructure.setWantedSuperState(WantedSuperState.STOW_ALL_SYSTEMS),
                 isIntakingCoral.negate()));
-
-    controller.povUp().onTrue(Commands.runOnce(() -> spawnCoral()));
-    controller.povDown().onTrue(Commands.runOnce(() -> spawnAlgea()));
-
-    controller
-        .L1()
-        .whileTrue(
-            superstructure.setWantedSuperState(Superstructure.WantedSuperState.OUTTAKE_CORAL));
-
     controller
         .R2()
+        .and(algeaMode)
         .onTrue(
             new ConditionalCommand(
                 superstructure.setWantedSuperState(WantedSuperState.ALGEA_GROUND_INTAKE),
                 superstructure.setWantedSuperState(WantedSuperState.STOW_ALL_SYSTEMS),
                 isIntakingAlgea.negate()));
 
+    controller.share().and(algeaMode).onTrue(Commands.runOnce(() -> spawnAlgea()));
+    controller.share().and(algeaMode.negate()).onTrue(Commands.runOnce(() -> spawnCoral()));
+
     controller
-        .L2()
+        .R3()
+        .and(algeaMode.negate())
+        .onTrue(superstructure.setWantedSuperState(Superstructure.WantedSuperState.OUTTAKE_CORAL));
+
+    controller
+        .R3()
+        .and(algeaMode)
         .onTrue(superstructure.setWantedSuperState(Superstructure.WantedSuperState.OUTTAKE_ALGEA));
+
+    controller.L3().onTrue(Commands.runOnce(() -> toggleAlgeaMode()));
+
+    controller.povDown().onTrue(Commands.runOnce(() -> setCoralScoringHeight(1)));
+    controller.povLeft().onTrue(Commands.runOnce(() -> setCoralScoringHeight(2)));
+    controller.povRight().onTrue(Commands.runOnce(() -> setCoralScoringHeight(3)));
+    controller.povUp().onTrue(Commands.runOnce(() -> setCoralScoringHeight(4)));
   }
 
   /**
@@ -338,5 +359,33 @@ public class RobotContainer {
 
   public AlgeaIntake getAlgeaIntake() {
     return algeaIntake;
+  }
+
+  public void setAlgeaMode(boolean isAlgea) {
+    this.isAlgea = isAlgea;
+  }
+
+  public void toggleAlgeaMode() {
+    isAlgea = !isAlgea;
+    Logger.recordOutput("RobotContainer/isAlgea", isAlgea);
+  }
+
+  public void setCoralScoringHeight(int height) {
+    this.coralScoringHeight = height;
+  }
+
+  public Command scoreCoral() {
+    return superstructure.defer(
+        () -> {
+          if (coralScoringHeight == 1) {
+            return superstructure.setWantedSuperState(WantedSuperState.SCORE_L1);
+          } else if (coralScoringHeight == 2) {
+            return superstructure.setWantedSuperState(WantedSuperState.SCORE_L2);
+          } else if (coralScoringHeight == 3) {
+            return superstructure.setWantedSuperState(WantedSuperState.SCORE_L3);
+          } else {
+            return superstructure.setWantedSuperState(WantedSuperState.SCORE_L4);
+          }
+        });
   }
 }
