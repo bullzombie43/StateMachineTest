@@ -262,8 +262,7 @@ public class Superstructure extends SubsystemBase {
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.INTAKE);
     }
 
-    if (algeaIntake.hasAlgea())
-      setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
+    if (algeaIntake.hasAlgea()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
   }
 
   private void intakeGroundCoral() {
@@ -278,8 +277,7 @@ public class Superstructure extends SubsystemBase {
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.INTAKE);
     }
 
-    if (coralIntake.hasCoral())
-      setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
+    if (coralIntake.hasCoral()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
   }
 
   private void intakeSubstation() {
@@ -489,8 +487,7 @@ public class Superstructure extends SubsystemBase {
 
       if (algeaIntake.hasAlgea())
         coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
-      else
-        coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
+      else coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
     }
   }
@@ -503,8 +500,7 @@ public class Superstructure extends SubsystemBase {
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.REVERSING);
     }
 
-    if (!coralIntake.hasCoral())
-      setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
+    if (!coralIntake.hasCoral()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
   }
 
   private void outtakeAlgea() {
@@ -515,8 +511,7 @@ public class Superstructure extends SubsystemBase {
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.OUTTAKE);
     }
 
-    if (!algeaIntake.hasAlgea())
-      setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
+    if (!algeaIntake.hasAlgea()) setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
   }
 
   private void handleStopped() {
@@ -545,17 +540,19 @@ public class Superstructure extends SubsystemBase {
     // You can add simulation-specific logic here if needed
 
     if (coralIntake.hasCoral()) {
-      coralPose = new Pose3d(drivetrain.getPose())
-          .transformBy(GeomUtil.pose3dToTransform3d(Robot.componentPoses[3]))
-          .transformBy(IntakeConstants.coralIntakeOffset);
+      coralPose =
+          new Pose3d(drivetrain.getPose())
+              .transformBy(GeomUtil.pose3dToTransform3d(Robot.componentPoses[3]))
+              .transformBy(IntakeConstants.coralIntakeOffset);
     } else {
       coralPose = Pose3d.kZero;
     }
 
     if (algeaIntake.hasAlgea()) {
-      algeaPose = new Pose3d(drivetrain.getPose())
-          .transformBy(GeomUtil.pose3dToTransform3d(Robot.componentPoses[3]))
-          .transformBy(IntakeConstants.algeaIntakeOffset);
+      algeaPose =
+          new Pose3d(drivetrain.getPose())
+              .transformBy(GeomUtil.pose3dToTransform3d(Robot.componentPoses[3]))
+              .transformBy(IntakeConstants.algeaIntakeOffset);
     } else {
       algeaPose = Pose3d.kZero;
     }
@@ -564,25 +561,25 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Poses/IntakeAlgea", algeaPose);
 
     if ((currentSuperState == CurrentSuperState.REMOVING_HIGH_ALGEA
-        || currentSuperState == CurrentSuperState.REMOVING_LOW_ALGEA)
+            || currentSuperState == CurrentSuperState.REMOVING_LOW_ALGEA)
         && GeomUtil.isNearPose(robotContainer.targetPose, drivetrain.getPose(), 0.075)
         && elevator.atSetpoint()
         && pivot.atSetpoint()
         && !algeaIntake.hasAlgea()) {
 
-      algeaIntake.setHasAlgea(true);
-
       int closestPoseIndex = 0;
-      double closestDistance = Constants.reefAlgeaPoses[0]
-          .getTranslation()
-          .toTranslation2d()
-          .getDistance(drivetrain.getPose().getTranslation());
+      double closestDistance =
+          Constants.reefAlgeaPoses[0]
+              .getTranslation()
+              .toTranslation2d()
+              .getDistance(drivetrain.getPose().getTranslation());
 
       for (int i = 0; i < Constants.reefAlgeaPoses.length; i++) {
-        double distance = Constants.reefAlgeaPoses[i]
-            .getTranslation()
-            .toTranslation2d()
-            .getDistance(drivetrain.getPose().getTranslation());
+        double distance =
+            Constants.reefAlgeaPoses[i]
+                .getTranslation()
+                .toTranslation2d()
+                .getDistance(drivetrain.getPose().getTranslation());
 
         if (distance < closestDistance) {
           closestDistance = distance;
@@ -591,6 +588,7 @@ public class Superstructure extends SubsystemBase {
       }
 
       if (closestDistance < 1.0) {
+        algeaIntake.setHasAlgea(true);
         Constants.reefAlgeaPoses[closestPoseIndex] = Pose3d.kZero;
         Logger.recordOutput("Poses/ReefAlgea", Constants.reefAlgeaPoses);
       }
