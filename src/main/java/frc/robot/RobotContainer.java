@@ -69,9 +69,12 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
@@ -107,25 +110,27 @@ public class RobotContainer {
   private final Trigger preparedBarge;
   private final Trigger coralPoleMode;
   private final Trigger coralTroughMode;
+  private final Trigger isRemovingAlgea;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        drive =
-            new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOTalonFXReal(TunerConstants.FrontLeft),
-                new ModuleIOTalonFXReal(TunerConstants.FrontRight),
-                new ModuleIOTalonFXReal(TunerConstants.BackLeft),
-                new ModuleIOTalonFXReal(TunerConstants.BackRight),
-                (pose) -> {});
-        this.vision =
-            new Vision(
-                drive,
-                new VisionIOLimelight(VisionConstants.camera0Name, drive::getRotation),
-                new VisionIOLimelight(VisionConstants.camera1Name, drive::getRotation));
+        drive = new Drive(
+            new GyroIOPigeon2(),
+            new ModuleIOTalonFXReal(TunerConstants.FrontLeft),
+            new ModuleIOTalonFXReal(TunerConstants.FrontRight),
+            new ModuleIOTalonFXReal(TunerConstants.BackLeft),
+            new ModuleIOTalonFXReal(TunerConstants.BackRight),
+            (pose) -> {
+            });
+        this.vision = new Vision(
+            drive,
+            new VisionIOLimelight(VisionConstants.camera0Name, drive::getRotation),
+            new VisionIOLimelight(VisionConstants.camera1Name, drive::getRotation));
 
         elevator = new Elevator(new ElevatorIOPhoenix6());
         pivot = new Pivot(new PivotIOPhoenix6());
@@ -137,24 +142,21 @@ public class RobotContainer {
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
 
-        driveSimulation =
-            new SwerveDriveSimulation(Drive.mapleSimConfig, new Pose2d(3, 3, new Rotation2d()));
+        driveSimulation = new SwerveDriveSimulation(Drive.mapleSimConfig, new Pose2d(3, 3, new Rotation2d()));
         SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
-        drive =
-            new Drive(
-                new GyroIOSim(driveSimulation.getGyroSimulation()),
-                new ModuleIOTalonFXSim(TunerConstants.FrontLeft, driveSimulation.getModules()[0]),
-                new ModuleIOTalonFXSim(TunerConstants.FrontRight, driveSimulation.getModules()[1]),
-                new ModuleIOTalonFXSim(TunerConstants.BackLeft, driveSimulation.getModules()[2]),
-                new ModuleIOTalonFXSim(TunerConstants.BackRight, driveSimulation.getModules()[3]),
-                driveSimulation::setSimulationWorldPose);
-        vision =
-            new Vision(
-                drive,
-                new VisionIOPhotonVisionSim(
-                    camera0Name, robotToCamera0, driveSimulation::getSimulatedDriveTrainPose),
-                new VisionIOPhotonVisionSim(
-                    camera1Name, robotToCamera1, driveSimulation::getSimulatedDriveTrainPose));
+        drive = new Drive(
+            new GyroIOSim(driveSimulation.getGyroSimulation()),
+            new ModuleIOTalonFXSim(TunerConstants.FrontLeft, driveSimulation.getModules()[0]),
+            new ModuleIOTalonFXSim(TunerConstants.FrontRight, driveSimulation.getModules()[1]),
+            new ModuleIOTalonFXSim(TunerConstants.BackLeft, driveSimulation.getModules()[2]),
+            new ModuleIOTalonFXSim(TunerConstants.BackRight, driveSimulation.getModules()[3]),
+            driveSimulation::setSimulationWorldPose);
+        vision = new Vision(
+            drive,
+            new VisionIOPhotonVisionSim(
+                camera0Name, robotToCamera0, driveSimulation::getSimulatedDriveTrainPose),
+            new VisionIOPhotonVisionSim(
+                camera1Name, robotToCamera1, driveSimulation::getSimulatedDriveTrainPose));
 
         pivot = new Pivot(new PivotIOSim());
         elevator = new Elevator(new ElevatorIOSim());
@@ -166,47 +168,57 @@ public class RobotContainer {
 
       default:
         // Replayed robot, disable IO implementations
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                (pose) -> {});
-        vision = new Vision(drive, new VisionIO() {}, new VisionIO() {});
-        elevator = new Elevator(new ElevatorIO() {});
-        pivot = new Pivot(new PivotIO() {});
-        coralIntake = new CoralIntake(new CoralIntakeIO() {});
-        algeaIntake = new AlgeaIntake(new AlgeaIntakeIO() {});
-        endEffector = new EndEffector(new EndEffectorIO() {});
+        drive = new Drive(
+            new GyroIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            },
+            (pose) -> {
+            });
+        vision = new Vision(drive, new VisionIO() {
+        }, new VisionIO() {
+        });
+        elevator = new Elevator(new ElevatorIO() {
+        });
+        pivot = new Pivot(new PivotIO() {
+        });
+        coralIntake = new CoralIntake(new CoralIntakeIO() {
+        });
+        algeaIntake = new AlgeaIntake(new AlgeaIntakeIO() {
+        });
+        endEffector = new EndEffector(new EndEffectorIO() {
+        });
 
         break;
     }
 
-    superstructure =
-        new Superstructure(elevator, pivot, drive, coralIntake, algeaIntake, endEffector, this);
+    superstructure = new Superstructure(elevator, pivot, drive, coralIntake, algeaIntake, endEffector, this);
 
     // Set Up Triggers
     hasCoral = new Trigger(() -> coralIntake.hasCoral());
-    isIntakingCoral =
-        new Trigger(
-            () -> superstructure.getWantedSuperState().equals(WantedSuperState.INTAKE_GROUND));
-    isIntakingAlgea =
-        new Trigger(
-            () ->
-                superstructure.getWantedSuperState().equals(WantedSuperState.ALGEA_GROUND_INTAKE));
+    isIntakingCoral = new Trigger(
+        () -> superstructure.getWantedSuperState().equals(WantedSuperState.INTAKE_GROUND));
+    isIntakingAlgea = new Trigger(
+        () -> superstructure.getWantedSuperState().equals(WantedSuperState.ALGEA_GROUND_INTAKE));
     algeaMode = new Trigger(() -> isAlgea);
-    preparedProcesser =
-        new Trigger(
-            () -> superstructure.getWantedSuperState().equals(WantedSuperState.PREPARE_PROCESSOR));
-    preparedBarge =
-        new Trigger(
-            () -> superstructure.getWantedSuperState().equals(WantedSuperState.PREPARE_BARGE));
-    coralPoleMode =
-        new Trigger(
-            () -> coralScoringHeight == 2 || coralScoringHeight == 3 || coralScoringHeight == 4);
+    preparedProcesser = new Trigger(
+        () -> superstructure.getWantedSuperState().equals(WantedSuperState.PREPARE_PROCESSOR));
+    preparedBarge = new Trigger(
+        () -> superstructure.getWantedSuperState().equals(WantedSuperState.PREPARE_BARGE));
+    coralPoleMode = new Trigger(
+        () -> coralScoringHeight == 2 || coralScoringHeight == 3 || coralScoringHeight == 4);
     coralTroughMode = new Trigger(() -> coralScoringHeight == 1);
+    isRemovingAlgea = new Trigger(
+        () -> superstructure.getWantedSuperState().equals(WantedSuperState.REMOVE_HIGH_ALGEA)
+            || superstructure
+                .getWantedSuperState()
+                .equals(WantedSuperState.REMOVE_LOW_ALGEA));
 
     // Initialize AutoFactory
     AutoFactory.getInstance(this, DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue));
@@ -244,9 +256,11 @@ public class RobotContainer {
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be created by
+   * Use this method to define your button->command mappings. Buttons can be
+   * created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
+   * it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
@@ -262,14 +276,12 @@ public class RobotContainer {
     controller.cross().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro / odometry
-    final Runnable resetGyro =
-        Constants.currentMode == Constants.Mode.SIM
-            ? () -> drive.setPose(driveSimulation.getSimulatedDriveTrainPose()) // reset odometry to
-            // actual robot pose
-            // during simulation
-            : () ->
-                drive.setPose(
-                    new Pose2d(drive.getPose().getTranslation(), new Rotation2d())); // zero
+    final Runnable resetGyro = Constants.currentMode == Constants.Mode.SIM
+        ? () -> drive.setPose(driveSimulation.getSimulatedDriveTrainPose()) // reset odometry to
+        // actual robot pose
+        // during simulation
+        : () -> drive.setPose(
+            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())); // zero
     // gyro
     controller.circle().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true));
 
@@ -338,6 +350,14 @@ public class RobotContainer {
                 superstructure.setWantedSuperState(WantedSuperState.ALGEA_GROUND_INTAKE),
                 superstructure.setWantedSuperState(WantedSuperState.STOW_ALL_SYSTEMS),
                 isIntakingAlgea.negate()));
+    controller
+        .L2()
+        .and(algeaMode)
+        .onTrue(
+            new ConditionalCommand(
+                removeAlgeaCommand(),
+                superstructure.setWantedSuperState(WantedSuperState.STOW_ALL_SYSTEMS),
+                isRemovingAlgea.negate()));
 
     controller.share().and(algeaMode).onTrue(Commands.runOnce(() -> spawnAlgea()));
     controller.share().and(algeaMode.negate()).onTrue(Commands.runOnce(() -> spawnCoral()));
@@ -377,14 +397,16 @@ public class RobotContainer {
   }
 
   public void resetSimulationField() {
-    if (Constants.currentMode != Constants.Mode.SIM) return;
+    if (Constants.currentMode != Constants.Mode.SIM)
+      return;
 
     driveSimulation.setSimulationWorldPose(new Pose2d(3, 3, new Rotation2d()));
     SimulatedArena.getInstance().resetFieldForAuto();
   }
 
   public void updateSimulation() {
-    if (Constants.currentMode != Constants.Mode.SIM) return;
+    if (Constants.currentMode != Constants.Mode.SIM)
+      return;
 
     SimulatedArena.getInstance().simulationPeriodic();
 
@@ -397,7 +419,8 @@ public class RobotContainer {
   }
 
   public void spawnCoral() {
-    if (Constants.currentMode != Constants.Mode.SIM) return;
+    if (Constants.currentMode != Constants.Mode.SIM)
+      return;
 
     SimulatedArena.getInstance()
         .addGamePiece(
@@ -406,7 +429,8 @@ public class RobotContainer {
   }
 
   public void spawnAlgea() {
-    if (Constants.currentMode != Constants.Mode.SIM) return;
+    if (Constants.currentMode != Constants.Mode.SIM)
+      return;
 
     SimulatedArena.getInstance()
         .addGamePiece(
@@ -448,22 +472,51 @@ public class RobotContainer {
         });
   }
 
+  public Command removeAlgeaCommand() {
+    return Commands.defer(
+        () -> {
+          Pose2d closestAlgeaPose = MirroringUtil.flipToCurrentAlliance(Constants.removeAlgeaPoses[0]);
+          double closestDistance = drive.getPose().getTranslation().getDistance(closestAlgeaPose.getTranslation());
+          int closestIndex = 0;
+
+          for (int i = 0; i < Constants.removeAlgeaPoses.length; i++) {
+            Pose2d pose = MirroringUtil.flipToCurrentAlliance(Constants.removeAlgeaPoses[i]);
+            double distance = drive.getPose().getTranslation().getDistance(pose.getTranslation());
+            if (distance < closestDistance) {
+              closestAlgeaPose = pose;
+              closestDistance = distance;
+              closestIndex = i;
+            }
+          }
+
+          Pose2d finalClosestAlgeaPose = closestAlgeaPose;
+
+          Superstructure.WantedSuperState wantedState = (closestIndex % 2 == 0)
+              ? Superstructure.WantedSuperState.REMOVE_HIGH_ALGEA
+              : Superstructure.WantedSuperState.REMOVE_LOW_ALGEA;
+
+          return (superstructure
+              .setWantedSuperState(wantedState)
+              .alongWith(new DriveToPose(drive, () -> finalClosestAlgeaPose))
+              .until(algeaIntake::hasAlgea));
+        },
+        Set.of(superstructure, drive));
+  }
+
   public Command scoreCoralTrough() {
     return superstructure.setWantedSuperState(WantedSuperState.SCORE_L1);
   }
 
   public Pose2d getClosestLeftPole() {
-    List<Pose2d> poseList =
-        AutoBuilder.shouldFlip()
-            ? AutoScoreConstants.flippedLeftScorePoses
-            : AutoScoreConstants.leftScorePoses;
+    List<Pose2d> poseList = AutoBuilder.shouldFlip()
+        ? AutoScoreConstants.flippedLeftScorePoses
+        : AutoScoreConstants.leftScorePoses;
 
     Pose2d closest = poseList.get(0);
     int closestNum = 0;
 
     for (int i = 1; i < poseList.size(); i++) {
-      double currentDiff =
-          Math.abs(poseList.get(i).getRotation().minus(drive.getRotation()).getRadians());
+      double currentDiff = Math.abs(poseList.get(i).getRotation().minus(drive.getRotation()).getRadians());
       double closestDiff = Math.abs(closest.getRotation().minus(drive.getRotation()).getRadians());
 
       if (currentDiff < closestDiff) {
@@ -472,25 +525,22 @@ public class RobotContainer {
       }
     }
 
-    targetPose =
-        MirroringUtil.flipToCurrentAlliance(AutoScoreConstants.leftScorePoses.get(closestNum));
+    targetPose = MirroringUtil.flipToCurrentAlliance(AutoScoreConstants.leftScorePoses.get(closestNum));
     Logger.recordOutput("Poses/TargetPose", targetPose);
 
     return MirroringUtil.flipToCurrentAlliance(AutoScoreConstants.leftScorePoses.get(closestNum));
   }
 
   public Pose2d getClosestRightPole() {
-    List<Pose2d> poseList =
-        AutoBuilder.shouldFlip()
-            ? AutoScoreConstants.flippedRightScorePoses
-            : AutoScoreConstants.rightScorePoses;
+    List<Pose2d> poseList = AutoBuilder.shouldFlip()
+        ? AutoScoreConstants.flippedRightScorePoses
+        : AutoScoreConstants.rightScorePoses;
 
     Pose2d closest = poseList.get(0);
     int closestNum = 0;
 
     for (int i = 1; i < poseList.size(); i++) {
-      double currentDiff =
-          Math.abs(poseList.get(i).getRotation().minus(drive.getRotation()).getRadians());
+      double currentDiff = Math.abs(poseList.get(i).getRotation().minus(drive.getRotation()).getRadians());
       double closestDiff = Math.abs(closest.getRotation().minus(drive.getRotation()).getRadians());
 
       if (currentDiff < closestDiff) {
@@ -499,8 +549,7 @@ public class RobotContainer {
       }
     }
 
-    targetPose =
-        MirroringUtil.flipToCurrentAlliance(AutoScoreConstants.rightScorePoses.get(closestNum));
+    targetPose = MirroringUtil.flipToCurrentAlliance(AutoScoreConstants.rightScorePoses.get(closestNum));
     Logger.recordOutput("Poses/TargetPose", targetPose);
 
     return MirroringUtil.flipToCurrentAlliance(AutoScoreConstants.rightScorePoses.get(closestNum));

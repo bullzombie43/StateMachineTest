@@ -51,8 +51,8 @@ public class PivotConstants {
   public static double prepareBargeDegrees = -45.0;
   public static double bargeDegrees = -45;
   public static double processorDegrees = -180.0;
-  public static double lowAlgeaDegrees = 0.0;
-  public static double highAlgeaDegrees = 0.0;
+  public static double lowAlgeaDegrees = -180.0;
+  public static double highAlgeaDegrees = -180.0;
   public static double algeaIntakeDegrees = -180.0;
   public static double algeaOuttakeDegrees = -180.0;
   public static double coralOuttakeDegrees = -180.0;
@@ -77,6 +77,10 @@ public class PivotConstants {
       new LoggedTunableNumber("Pivot/BargeDegrees", bargeDegrees);
   public static final LoggedTunableNumber processorHeightTunable =
       new LoggedTunableNumber("Pivot/ProcessorDegrees", processorDegrees);
+  public static final LoggedTunableNumber lowAlgeaHeightTunable =
+      new LoggedTunableNumber("Pivot/LowAlgeaDegrees", lowAlgeaDegrees);
+  public static final LoggedTunableNumber highAlgeaHeightTunable =
+      new LoggedTunableNumber("Pivot/HighAlgeaDegrees", highAlgeaDegrees);
 
   public static void checkTunableNumbers() {
     if (l2HeightTunable.hasChanged(PivotConstants.class.hashCode())
@@ -91,6 +95,8 @@ public class PivotConstants {
       prepareBargeDegrees = prepareBargeHeightTunable.get();
       bargeDegrees = bargeHeightTunable.get();
       processorDegrees = processorHeightTunable.get();
+      lowAlgeaDegrees = lowAlgeaHeightTunable.get();
+      highAlgeaDegrees = highAlgeaHeightTunable.get();
     }
   }
 }

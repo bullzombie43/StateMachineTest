@@ -158,6 +158,15 @@ public class GeomUtil {
     return targetPose.getTranslation().getDistance(actualPose.getTranslation()) < tolerance;
   }
 
+  public static boolean isNearPoses(Pose2d[] targetPoses, Pose2d actualPose, double tolerance) {
+    for (Pose2d targetPose : targetPoses) {
+      if (isNearPose(targetPose, actualPose, tolerance)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Check if poses are close to each other Checks both rotation and translation
    *

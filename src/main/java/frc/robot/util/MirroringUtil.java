@@ -40,6 +40,14 @@ public class MirroringUtil {
         flipToCurrentAlliance(poseAtBlueSide.getRotation()));
   }
 
+  public static Pose2d[] fliptoCurrentAlliance(Pose2d[] posesAtBlueSide) {
+    Pose2d[] flippedPoses = new Pose2d[posesAtBlueSide.length];
+    for (int i = 0; i < posesAtBlueSide.length; i++) {
+      flippedPoses[i] = flipToCurrentAlliance(posesAtBlueSide[i]);
+    }
+    return flippedPoses;
+  }
+
   public static Translation3d flipToCurrentAlliance(Translation3d translation3dAtBlueSide) {
     final Translation2d translation3dAtCurrentAlliance =
         flipToCurrentAlliance(translation3dAtBlueSide.toTranslation2d());

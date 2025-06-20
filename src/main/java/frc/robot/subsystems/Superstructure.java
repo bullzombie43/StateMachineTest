@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.Drive;
@@ -17,6 +18,7 @@ import frc.robot.subsystems.intake.CoralIntake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.pivot.Pivot;
 import frc.robot.util.GeomUtil;
+import frc.robot.util.MirroringUtil;
 import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
@@ -317,10 +319,34 @@ public class Superstructure extends SubsystemBase {
 
   private void removeHighAlgea() {
     // Logic to remove high algae
+    elevator.setWantedStateFunc(Elevator.WantedState.HIGH_ALGEA);
+    pivot.setWantedStateFunc(Pivot.WantedState.HIGH_ALGEA);
+
+    if (algeaIntake.hasAlgea()) {
+      setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
+    }
+
+    if (elevator.atSetpoint() && pivot.atSetpoint()) {
+      coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
+      algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
+      endEffector.setWantedStateFunc(EndEffector.WantedState.INTAKE);
+    }
   }
 
   private void removeLowAlgea() {
     // Logic to remove low algae
+    elevator.setWantedStateFunc(Elevator.WantedState.LOW_ALGEA);
+    pivot.setWantedStateFunc(Pivot.WantedState.LOW_ALGEA);
+
+    if (algeaIntake.hasAlgea()) {
+      setWantedSuperStateFunc(WantedSuperState.STOW_ALL_SYSTEMS);
+    }
+
+    if (elevator.atSetpoint() && pivot.atSetpoint()) {
+      coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
+      algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
+      endEffector.setWantedStateFunc(EndEffector.WantedState.INTAKE);
+    }
 
   }
 
@@ -454,13 +480,16 @@ public class Superstructure extends SubsystemBase {
     pivot.setWantedStateFunc(Pivot.WantedState.STOW);
     endEffector.setWantedStateFunc(EndEffector.WantedState.STOPPED);
 
-    if (previousSuperState == CurrentSuperState.INTAKING_CORAL_GROUND)
+    if (previousSuperState == CurrentSuperState.INTAKING_CORAL_GROUND || algeaIntake.hasAlgea())
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
 
     if (elevator.atSetpoint() && pivot.atSetpoint()) {
       // If the elevator and pivot are at their stow positions, we can also stow the
       // coral intake
-      coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
+
+      if (algeaIntake.hasAlgea())
+        coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
+      else coralIntake.setWantedStateFunc(CoralIntake.WantedState.STOW);
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
     }
   }
@@ -532,6 +561,18 @@ public class Superstructure extends SubsystemBase {
 
     Logger.recordOutput("Poses/IntakeCoral", coralPose);
     Logger.recordOutput("Poses/IntakeAlgea", algeaPose);
+
+    if ((currentSuperState == CurrentSuperState.REMOVING_HIGH_ALGEA
+            || currentSuperState == CurrentSuperState.REMOVING_LOW_ALGEA)
+        && GeomUtil.isNearPoses(
+            MirroringUtil.fliptoCurrentAlliance(Constants.removeAlgeaPoses),
+            drivetrain.getPose(),
+            0.1)
+        && elevator.atSetpoint()
+        && pivot.atSetpoint()) {
+
+      algeaIntake.setHasAlgea(true);
+    }
   }
 
   public boolean hasCoral() {

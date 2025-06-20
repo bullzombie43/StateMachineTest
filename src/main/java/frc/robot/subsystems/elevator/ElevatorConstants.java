@@ -53,8 +53,8 @@ public class ElevatorConstants {
   public static double prepareBargeHeight = 0.7;
   public static double bargeHeight = 1.75;
   public static double processorHeight = 0.0;
-  public static double lowAlgeaHeight = 0.0;
-  public static double highAlgeaHeight = 0.0;
+  public static double lowAlgeaHeight = 0.6;
+  public static double highAlgeaHeight = 1.0;
   public static double algeaIntakeHeight = 0.0;
   public static double algeaOuttakeHeight = 0.0;
 
@@ -81,6 +81,10 @@ public class ElevatorConstants {
       new LoggedTunableNumber("Elevator/BargeHeight", bargeHeight);
   public static final LoggedTunableNumber processorHeightTunable =
       new LoggedTunableNumber("Elevator/ProcessorHeight", processorHeight);
+  public static final LoggedTunableNumber lowAlgeaHeightTunable =
+      new LoggedTunableNumber("Elevator/LowAlgeaHeight", lowAlgeaHeight);
+  public static final LoggedTunableNumber highAlgeaHeightTunable =
+      new LoggedTunableNumber("Elevator/HighAlgeaHeight", highAlgeaHeight);
 
   public static void checkTunableNumbers() {
     if (l2HeightTunable.hasChanged(ElevatorConstants.class.hashCode())
@@ -95,6 +99,8 @@ public class ElevatorConstants {
       prepareBargeHeight = prepareBargeHeightTunable.get();
       bargeHeight = bargeHeightTunable.get();
       processorHeight = processorHeightTunable.get();
+      lowAlgeaHeight = lowAlgeaHeightTunable.get();
+      highAlgeaHeight = highAlgeaHeightTunable.get();
     }
   }
 }

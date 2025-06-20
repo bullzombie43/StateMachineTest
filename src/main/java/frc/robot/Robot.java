@@ -179,7 +179,6 @@ public class Robot extends LoggedRobot {
 
   private int autonomousPeriodicCounter = 0;
 
-
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {

@@ -51,6 +51,16 @@ public final class Constants {
     disableHAL = true;
   }
 
+  public static final Pose2d[] removeAlgeaPoses =
+      new Pose2d[] {
+        new Pose2d(3.207, 4.037, Rotation2d.k180deg),
+        new Pose2d(3.831, 2.924, Rotation2d.fromDegrees(-120)),
+        new Pose2d(5.131, 2.904, Rotation2d.fromDegrees(-60)),
+        new Pose2d(5.757, 4.004, Rotation2d.kZero),
+        new Pose2d(5.106, 5.121, Rotation2d.fromDegrees(60)),
+        new Pose2d(3.863, 5.106, Rotation2d.fromDegrees(120)),
+      };
+
   public static Pose3d[] algeaPoses =
       new Pose3d[] {
         new Pose3d(),
