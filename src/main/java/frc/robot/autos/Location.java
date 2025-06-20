@@ -21,7 +21,8 @@ public enum Location {
   KAYLA,
   LLAMA,
   PROC_INTAKE,
-  BARGE_INTAKE;
+  BARGE_INTAKE,
+  MIDDLE_CORALALGEA;
 
   public static Pose2d getLocationPose(Location loc) {
     switch (loc) {
@@ -59,6 +60,8 @@ public enum Location {
         return new Pose2d(1.765, 0.955, Rotation2d.fromDegrees(-129));
       case BARGE_INTAKE:
         return new Pose2d(1.765, 7.097, Rotation2d.fromDegrees(129));
+      case MIDDLE_CORALALGEA:
+        return new Pose2d(1.224, 4.023, Rotation2d.k180deg);
       default:
         return Pose2d.kZero; // Default case if no match found
     }

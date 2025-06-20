@@ -57,6 +57,78 @@ public class AutoFactory {
     this.alliance = alliance;
   }
 
+  public Command procEchoDeltaCharlieBravoL3() {
+    AutoSegment echoIntake = loadSegment(Location.ECHO, Location.PROC_INTAKE, "Echo-Intake");
+
+    preloadTrajectoryClass(echoIntake);
+
+    SequentialCommandGroup group = new SequentialCommandGroup();
+
+    group.addCommands(resetPose(Location.PROC_START));
+    group.addCommands(driveThenScoreL4(Location.ECHO));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(segmentUntilGroundIntake(echoIntake));
+    group.addCommands(driveThenScoreL4(Location.DELTA));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
+    group.addCommands(driveThenScoreL4(Location.CHARLIE));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
+    group.addCommands(driveThenScoreL4(Location.BRAVO));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(driveUntilGroundIntake(Location.MIDDLE_CORALALGEA));
+    group.addCommands(driveThenScoreL3(Location.BRAVO));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(stowAllSubsystems());
+
+    return group;
+  }
+
+  public Command procEchoDeltaCharlieBravo() {
+    AutoSegment echoIntake = loadSegment(Location.ECHO, Location.PROC_INTAKE, "Echo-Intake");
+
+    preloadTrajectoryClass(echoIntake);
+
+    SequentialCommandGroup group = new SequentialCommandGroup();
+
+    group.addCommands(resetPose(Location.PROC_START));
+    group.addCommands(driveThenScoreL4(Location.ECHO));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(segmentUntilGroundIntake(echoIntake));
+    group.addCommands(driveThenScoreL4(Location.DELTA));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
+    group.addCommands(driveThenScoreL4(Location.CHARLIE));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
+    group.addCommands(driveThenScoreL4(Location.BRAVO));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(stowAllSubsystems());
+
+    return group;
+  }
+
+  public Command procEchoDeltaCharlie() {
+    AutoSegment echoIntake = loadSegment(Location.ECHO, Location.PROC_INTAKE, "Echo-Intake");
+
+    preloadTrajectoryClass(echoIntake);
+
+    SequentialCommandGroup group = new SequentialCommandGroup();
+
+    group.addCommands(resetPose(Location.PROC_START));
+    group.addCommands(driveThenScoreL4(Location.ECHO));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(segmentUntilGroundIntake(echoIntake));
+    group.addCommands(driveThenScoreL4(Location.DELTA));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
+    group.addCommands(driveThenScoreL4(Location.CHARLIE));
+    group.addCommands(Commands.waitSeconds(0.1));
+    group.addCommands(stowAllSubsystems());
+
+    return group;
+  }
+
   public Command procEchoDelta() {
     AutoSegment echoIntake = loadSegment(Location.ECHO, Location.PROC_INTAKE, "Echo-Intake");
 
@@ -86,6 +158,22 @@ public class AutoFactory {
     return group;
   }
 
+  public Command segmentThenScoreL4(Location start, Location end, String name) {
+    return Commands.parallel(
+        superstructure.setWantedSuperState(WantedSuperState.SCORE_L4),
+        followSegment(loadSegment(start, end, name)));
+  }
+
+  public Command driveThenScoreL2(Location scoringLoc) {
+    return Commands.parallel(
+        superstructure.setWantedSuperState(WantedSuperState.SCORE_L2), driveToPoint(scoringLoc));
+  }
+
+  public Command driveThenScoreL3(Location scoringLoc) {
+    return Commands.parallel(
+        superstructure.setWantedSuperState(WantedSuperState.SCORE_L3), driveToPoint(scoringLoc));
+  }
+
   public Command driveThenScoreL4(Location scoringLoc) {
     return Commands.parallel(
         superstructure.setWantedSuperState(WantedSuperState.SCORE_L4), driveToPoint(scoringLoc));
@@ -95,10 +183,16 @@ public class AutoFactory {
     return superstructure.setWantedSuperState(WantedSuperState.STOW_ALL_SYSTEMS);
   }
 
+  public Command driveUntilGroundIntake(Location loc) {
+    return Commands.parallel(
+        superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND), driveToPoint(loc))
+        .until(() -> superstructure.hasCoral());
+  }
+
   public Command segmentUntilGroundIntake(AutoSegment segment) {
     return Commands.parallel(
-            superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND),
-            followSegment(segment))
+        superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND),
+        followSegment(segment))
         .until(() -> superstructure.hasCoral());
   }
 
@@ -108,9 +202,8 @@ public class AutoFactory {
 
   public Command driveToPoint(Supplier<Pose2d> point) {
     return Commands.defer(
-        () ->
-            Commands.runOnce(() -> robotContainer.setTargetPose(point.get()))
-                .andThen(new DriveToPose(swerve, point)),
+        () -> Commands.runOnce(() -> robotContainer.setTargetPose(point.get()))
+            .andThen(new DriveToPose(swerve, point)),
         Set.of(swerve));
   }
 
@@ -144,14 +237,15 @@ public class AutoFactory {
   }
 
   private void preloadTrajectoryClass(AutoSegment segment) {
-    // This is done because Java loads classes lazily. Calling this here loads the trajectory class
+    // This is done because Java loads classes lazily. Calling this here loads the
+    // trajectory class
     // which
-    // is used to follow paths and saves user code ms loop time at the start of auto.
+    // is used to follow paths and saves user code ms loop time at the start of
+    // auto.
     if (!trajectoriesLoaded) {
       trajectoriesLoaded = true;
-      var trajectory =
-          new PathPlannerTrajectory(
-              segment.path(), swerve.getChassisSpeeds(), swerve.getRotation(), Drive.PP_CONFIG);
+      var trajectory = new PathPlannerTrajectory(
+          segment.path(), swerve.getChassisSpeeds(), swerve.getRotation(), Drive.PP_CONFIG);
     }
   }
 }
