@@ -26,6 +26,26 @@ public class MirroringUtil {
     return new Translation2d(FIELD_WIDTH - translation.getX(), FIELD_HEIGHT - translation.getY());
   }
 
+  public static Translation3d flipTranslation3d(Translation3d translation3d) {
+    final Translation2d flippedTranslation2d = flipTranslation2d(translation3d.toTranslation2d());
+    return new Translation3d(
+        flippedTranslation2d.getX(), flippedTranslation2d.getY(), translation3d.getZ());
+  }
+
+  public static Rotation3d flipRotation3d(Rotation3d rotation3d) {
+    final Rotation2d flippedRotation2d = flipRotation2d(rotation3d.toRotation2d());
+    return new Rotation3d(
+        flippedRotation2d.getRadians(), flippedRotation2d.getRadians(), rotation3d.getZ());
+  }
+
+  public static Pose2d flip(Pose2d pose) {
+    return new Pose2d(flipTranslation2d(pose.getTranslation()), flipRotation2d(pose.getRotation()));
+  }
+
+  public static Pose3d flip(Pose3d pose) {
+    return new Pose3d(flipTranslation3d(pose.getTranslation()), flipRotation3d(pose.getRotation()));
+  }
+
   public static Translation2d flipToCurrentAlliance(Translation2d translationAtBlueSide) {
     return isRedSide() ? flipTranslation2d(translationAtBlueSide) : translationAtBlueSide;
   }

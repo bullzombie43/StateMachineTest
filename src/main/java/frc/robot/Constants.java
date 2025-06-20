@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.util.MirroringUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,6 +60,22 @@ public final class Constants {
         new Pose2d(5.757, 4.004, Rotation2d.kZero),
         new Pose2d(5.106, 5.121, Rotation2d.fromDegrees(60)),
         new Pose2d(3.863, 5.106, Rotation2d.fromDegrees(120)),
+      };
+
+  public static Pose3d[] reefAlgeaPoses =
+      new Pose3d[] {
+        new Pose3d(3.801, 4.018, 1.3, Rotation3d.kZero),
+        new Pose3d(4.146, 3.442, 0.9, Rotation3d.kZero),
+        new Pose3d(4.821, 3.452, 1.3, Rotation3d.kZero),
+        new Pose3d(5.170, 4.031, 0.9, Rotation3d.kZero),
+        new Pose3d(4.829, 4.613, 1.3, Rotation3d.kZero),
+        new Pose3d(4.152, 4.613, 0.9, Rotation3d.kZero),
+        MirroringUtil.flip(new Pose3d(3.801, 4.018, 1.3, Rotation3d.kZero)),
+        MirroringUtil.flip(new Pose3d(4.146, 3.442, 0.9, Rotation3d.kZero)),
+        MirroringUtil.flip(new Pose3d(4.821, 3.452, 1.3, Rotation3d.kZero)),
+        MirroringUtil.flip(new Pose3d(5.170, 4.031, 0.9, Rotation3d.kZero)),
+        MirroringUtil.flip(new Pose3d(4.829, 4.613, 1.3, Rotation3d.kZero)),
+        MirroringUtil.flip(new Pose3d(4.152, 4.613, 0.9, Rotation3d.kZero))
       };
 
   public static Pose3d[] algeaPoses =

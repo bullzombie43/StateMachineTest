@@ -142,6 +142,7 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Poses/Scoring", new Pose2d(11.8, 3.84, Rotation2d.kPi));
     Logger.recordOutput(
         "Poses/AlgeaNet", MirroringUtil.flipToCurrentAlliance(Constants.algeaPoses));
+    Logger.recordOutput("Poses/ReefAlgea", Constants.reefAlgeaPoses);
   }
 
   /** This function is called periodically during all modes. */
