@@ -57,7 +57,7 @@ public class AutoFactory {
     this.alliance = alliance;
   }
 
-  public Command procEchoDeltaCharlieBravoL3() {
+  public Command procEchoDeltaCharlieBravoL2() {
     AutoSegment echoIntake = loadSegment(Location.ECHO, Location.PROC_INTAKE, "Echo-Intake");
 
     preloadTrajectoryClass(echoIntake);
@@ -77,7 +77,7 @@ public class AutoFactory {
     group.addCommands(driveThenScoreL4(Location.BRAVO));
     group.addCommands(Commands.waitSeconds(0.1));
     group.addCommands(driveUntilGroundIntake(Location.MIDDLE_CORALALGEA));
-    group.addCommands(driveThenScoreL3(Location.BRAVO));
+    group.addCommands(driveThenScoreL2(Location.BRAVO));
     group.addCommands(Commands.waitSeconds(0.1));
     group.addCommands(stowAllSubsystems());
 
@@ -185,14 +185,14 @@ public class AutoFactory {
 
   public Command driveUntilGroundIntake(Location loc) {
     return Commands.parallel(
-        superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND), driveToPoint(loc))
+            superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND), driveToPoint(loc))
         .until(() -> superstructure.hasCoral());
   }
 
   public Command segmentUntilGroundIntake(AutoSegment segment) {
     return Commands.parallel(
-        superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND),
-        followSegment(segment))
+            superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND),
+            followSegment(segment))
         .until(() -> superstructure.hasCoral());
   }
 
@@ -202,8 +202,9 @@ public class AutoFactory {
 
   public Command driveToPoint(Supplier<Pose2d> point) {
     return Commands.defer(
-        () -> Commands.runOnce(() -> robotContainer.setTargetPose(point.get()))
-            .andThen(new DriveToPose(swerve, point)),
+        () ->
+            Commands.runOnce(() -> robotContainer.setTargetPose(point.get()))
+                .andThen(new DriveToPose(swerve, point)),
         Set.of(swerve));
   }
 
@@ -244,8 +245,9 @@ public class AutoFactory {
     // auto.
     if (!trajectoriesLoaded) {
       trajectoriesLoaded = true;
-      var trajectory = new PathPlannerTrajectory(
-          segment.path(), swerve.getChassisSpeeds(), swerve.getRotation(), Drive.PP_CONFIG);
+      var trajectory =
+          new PathPlannerTrajectory(
+              segment.path(), swerve.getChassisSpeeds(), swerve.getRotation(), Drive.PP_CONFIG);
     }
   }
 }

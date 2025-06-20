@@ -177,6 +177,9 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledPeriodic() {}
 
+  private int autonomousPeriodicCounter = 0;
+
+
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
@@ -187,7 +190,12 @@ public class Robot extends LoggedRobot {
       autonomousCommand.schedule();
     }
 
+    autonomousPeriodicCounter = 0;
+
     robotContainer.getCoralIntake().setHasCoral(true);
+
+    SimulatedArena.getInstance().clearGamePieces();
+
     SimulatedArena.getInstance()
         .addGamePiece(
             new ReefscapeCoralOnField(
@@ -200,8 +208,6 @@ public class Robot extends LoggedRobot {
   }
 
   /** This function is called periodically during autonomous. */
-  private int autonomousPeriodicCounter = 0;
-
   @Override
   public void autonomousPeriodic() {
     autonomousPeriodicCounter++;
