@@ -1,13 +1,13 @@
 {
   "hubs": [
     {
-      "x": 170,
+      "x": 62,
       "y": 69,
-      "width": 1100,
+      "width": 1208,
       "height": 650,
       "state": {
         "sidebar": {
-          "width": 300,
+          "width": 160,
           "expanded": [
             "/AdvantageKit",
             "/AdvantageKit/RealOutputs",
@@ -54,7 +54,7 @@
               "title": "Odometry",
               "controller": {
                 "sources": [],
-                "game": "Shop Carpet",
+                "game": "2025 Field (Welded)",
                 "bumpers": "auto",
                 "origin": "blue",
                 "orientation": 0,
@@ -129,6 +129,16 @@
                     "options": {
                       "variant": "Algae"
                     }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Poses/TargetPose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "2025 Citrus",
+                      "color": "#00ff00"
+                    }
                   }
                 ],
                 "game": "2025 Field (Welded)",
@@ -139,17 +149,17 @@
                 "cameraIndex": -1,
                 "orbitFov": 50,
                 "cameraPosition": [
-                  2.699533874573174,
-                  5.267774495306325,
-                  -12.009614615879164
+                  9.60203342984545,
+                  1.7869278974942775,
+                  -0.21554713630526162
                 ],
                 "cameraTarget": [
-                  0,
-                  0.5,
-                  0
+                  5.81951831300383,
+                  0.9616495971190986,
+                  -0.45919022190295183
                 ]
               },
-              "controlsHeight": 200
+              "controlsHeight": 142
             }
           ]
         }

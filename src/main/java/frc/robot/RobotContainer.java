@@ -19,6 +19,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.AutoScoreConstants;
+import frc.robot.autos.AutoFactory;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveToPose;
 import frc.robot.generated.TunerConstants;
@@ -206,6 +208,9 @@ public class RobotContainer {
             () -> coralScoringHeight == 2 || coralScoringHeight == 3 || coralScoringHeight == 4);
     coralTroughMode = new Trigger(() -> coralScoringHeight == 1);
 
+    // Initialize AutoFactory
+    AutoFactory.getInstance(this, DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue));
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -224,6 +229,8 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption("ProcEcho", AutoFactory.getInstance().procEcho());
+    autoChooser.addOption("ProcEchoDelta", AutoFactory.getInstance().procEchoDelta());
 
     Logger.recordOutput("Poses/TargetPose", targetPose);
 
@@ -492,5 +499,18 @@ public class RobotContainer {
     Logger.recordOutput("Poses/TargetPose", targetPose);
 
     return MirroringUtil.flipToCurrentAlliance(AutoScoreConstants.rightScorePoses.get(closestNum));
+  }
+
+  public void setTargetPose(Pose2d pose) {
+    this.targetPose = pose;
+    Logger.recordOutput("Poses/TargetPose", targetPose);
+  }
+
+  public Drive getSwerve() {
+    return drive;
+  }
+
+  public Superstructure getSuperstructure() {
+    return superstructure;
   }
 }

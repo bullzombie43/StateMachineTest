@@ -77,7 +77,7 @@ public final class Constants {
         new Pose3d(8.785, 6.146 + 1.6, 2.1, Rotation3d.kZero),
       };
 
-  class AutoScoreConstants {
+  public class AutoScoreConstants {
     public static HashMap<Integer, Pose2d> kScorePoseMap = new HashMap<Integer, Pose2d>();
 
     public static List<Pose2d> rightScorePoses = new ArrayList<Pose2d>();
@@ -90,7 +90,7 @@ public final class Constants {
       kScorePoseMap.put(2, new Pose2d(3.17, 3.850, Rotation2d.k180deg));
       kScorePoseMap.put(3, new Pose2d(3.69, 2.91, Rotation2d.fromDegrees(-120)));
       kScorePoseMap.put(4, new Pose2d(3.97, 2.76, Rotation2d.fromDegrees(-120)));
-      kScorePoseMap.put(5, new Pose2d(5.02, 2.76, Rotation2d.fromDegrees(-60)));
+      kScorePoseMap.put(5, new Pose2d(5.002, 2.828, Rotation2d.fromDegrees(-60)));
       kScorePoseMap.put(6, new Pose2d(5.32, 2.94, Rotation2d.fromDegrees(-60)));
       kScorePoseMap.put(7, new Pose2d(5.85, 3.87, Rotation2d.kZero));
       kScorePoseMap.put(8, new Pose2d(5.85, 4.21, Rotation2d.kZero));

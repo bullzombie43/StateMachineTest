@@ -270,6 +270,7 @@ public class Superstructure extends SubsystemBase {
     pivot.setWantedStateFunc(Pivot.WantedState.INTAKE);
     coralIntake.setWantedStateFunc(CoralIntake.WantedState.OUT_NO_INTAKE);
     algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.OUT_NO_INTAKE);
+    endEffector.setWantedStateFunc(EndEffector.WantedState.INTAKE);
 
     if (pivot.atSetpoint() && elevator.atSetpoint()) {
       coralIntake.setWantedStateFunc(CoralIntake.WantedState.INTAKE);
@@ -531,5 +532,9 @@ public class Superstructure extends SubsystemBase {
 
     Logger.recordOutput("Poses/IntakeCoral", coralPose);
     Logger.recordOutput("Poses/IntakeAlgea", algeaPose);
+  }
+
+  public boolean hasCoral() {
+    return coralIntake.hasCoral();
   }
 }
