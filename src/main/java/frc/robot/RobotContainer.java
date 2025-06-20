@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.AutoScoreConstants;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveToPose;
 import frc.robot.generated.TunerConstants;
@@ -56,6 +57,7 @@ import frc.robot.subsystems.pivot.PivotIOPhoenix6;
 import frc.robot.subsystems.pivot.PivotIOSim;
 import frc.robot.subsystems.vision.*;
 import frc.robot.util.MirroringUtil;
+import java.util.List;
 import java.util.Set;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -73,6 +75,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   private boolean isAlgea = false;
   private int coralScoringHeight = 1;
+  public Pose2d targetPose = Pose2d.kZero;
 
   // Subsystems
   private final Drive drive;
@@ -100,6 +103,8 @@ public class RobotContainer {
   private final Trigger algeaMode;
   private final Trigger preparedProcesser;
   private final Trigger preparedBarge;
+  private final Trigger coralPoleMode;
+  private final Trigger coralTroughMode;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -196,6 +201,10 @@ public class RobotContainer {
     preparedBarge =
         new Trigger(
             () -> superstructure.getWantedSuperState().equals(WantedSuperState.PREPARE_BARGE));
+    coralPoleMode =
+        new Trigger(
+            () -> coralScoringHeight == 2 || coralScoringHeight == 3 || coralScoringHeight == 4);
+    coralTroughMode = new Trigger(() -> coralScoringHeight == 1);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -215,6 +224,8 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    Logger.recordOutput("Poses/TargetPose", targetPose);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -253,7 +264,16 @@ public class RobotContainer {
     controller
         .R1()
         .and(algeaMode.negate())
-        .onTrue(scoreCoral())
+        .and(coralPoleMode)
+        .onTrue(scoreCoralPole().alongWith(new DriveToPose(drive, () -> getClosestRightPole())))
+        .onFalse(
+            superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
+
+    controller
+        .L1()
+        .and(algeaMode.negate())
+        .and(coralPoleMode)
+        .onTrue(scoreCoralPole().alongWith(new DriveToPose(drive, () -> getClosestLeftPole())))
         .onFalse(
             superstructure.setWantedSuperState(Superstructure.WantedSuperState.STOW_ALL_SYSTEMS));
 
@@ -403,12 +423,10 @@ public class RobotContainer {
     this.coralScoringHeight = height;
   }
 
-  public Command scoreCoral() {
+  public Command scoreCoralPole() {
     return superstructure.defer(
         () -> {
-          if (coralScoringHeight == 1) {
-            return superstructure.setWantedSuperState(WantedSuperState.SCORE_L1);
-          } else if (coralScoringHeight == 2) {
+          if (coralScoringHeight == 2) {
             return superstructure.setWantedSuperState(WantedSuperState.SCORE_L2);
           } else if (coralScoringHeight == 3) {
             return superstructure.setWantedSuperState(WantedSuperState.SCORE_L3);
@@ -418,25 +436,61 @@ public class RobotContainer {
         });
   }
 
-  public Pose2d getRandomPose() {
-    int randomIndex = (int) (Math.random() * 3);
-    Pose2d randomPose;
-    switch (randomIndex) {
-      case 0:
-        randomPose = new Pose2d(1.0, 1.0, new Rotation2d());
-        break;
-      case 1:
-        randomPose = new Pose2d(2.0, 2.0, new Rotation2d(Math.PI / 2));
-        break;
-      case 2:
-        randomPose = new Pose2d(3.0, 3.0, new Rotation2d(Math.PI));
-        break;
-      default:
-        randomPose = new Pose2d(); // Default pose in case of unexpected behavior
-        break;
+  public Command scoreCoralTrough() {
+    return superstructure.setWantedSuperState(WantedSuperState.SCORE_L1);
+  }
+
+  public Pose2d getClosestLeftPole() {
+    List<Pose2d> poseList =
+        AutoBuilder.shouldFlip()
+            ? AutoScoreConstants.flippedLeftScorePoses
+            : AutoScoreConstants.leftScorePoses;
+
+    Pose2d closest = poseList.get(0);
+    int closestNum = 0;
+
+    for (int i = 1; i < poseList.size(); i++) {
+      double currentDiff =
+          Math.abs(poseList.get(i).getRotation().minus(drive.getRotation()).getRadians());
+      double closestDiff = Math.abs(closest.getRotation().minus(drive.getRotation()).getRadians());
+
+      if (currentDiff < closestDiff) {
+        closest = poseList.get(i);
+        closestNum = i;
+      }
     }
 
-    Logger.recordOutput("Poses/RandomPose", randomPose);
-    return randomPose;
+    targetPose =
+        MirroringUtil.flipToCurrentAlliance(AutoScoreConstants.leftScorePoses.get(closestNum));
+    Logger.recordOutput("Poses/TargetPose", targetPose);
+
+    return MirroringUtil.flipToCurrentAlliance(AutoScoreConstants.leftScorePoses.get(closestNum));
+  }
+
+  public Pose2d getClosestRightPole() {
+    List<Pose2d> poseList =
+        AutoBuilder.shouldFlip()
+            ? AutoScoreConstants.flippedRightScorePoses
+            : AutoScoreConstants.rightScorePoses;
+
+    Pose2d closest = poseList.get(0);
+    int closestNum = 0;
+
+    for (int i = 1; i < poseList.size(); i++) {
+      double currentDiff =
+          Math.abs(poseList.get(i).getRotation().minus(drive.getRotation()).getRadians());
+      double closestDiff = Math.abs(closest.getRotation().minus(drive.getRotation()).getRadians());
+
+      if (currentDiff < closestDiff) {
+        closest = poseList.get(i);
+        closestNum = i;
+      }
+    }
+
+    targetPose =
+        MirroringUtil.flipToCurrentAlliance(AutoScoreConstants.rightScorePoses.get(closestNum));
+    Logger.recordOutput("Poses/TargetPose", targetPose);
+
+    return MirroringUtil.flipToCurrentAlliance(AutoScoreConstants.rightScorePoses.get(closestNum));
   }
 }

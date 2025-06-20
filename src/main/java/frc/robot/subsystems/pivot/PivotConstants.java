@@ -7,6 +7,7 @@ package frc.robot.subsystems.pivot;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.util.Gains;
+import frc.robot.util.LoggedTunableNumber;
 
 /** Add your docs here. */
 public class PivotConstants {
@@ -39,27 +40,57 @@ public class PivotConstants {
 
   public static final double acceptablePitchErrorDegrees = 1.0;
 
-  /*Setpoints */
-  public static final double stowDegrees = 0.0;
-  public static final double intakeDegrees = -180.0;
-  public static final double climbDegrees = 0.0;
-  public static final double L1Degrees = 0;
-  public static final double L2Degrees = -30.0;
-  public static final double L3Degrees = -30.0;
-  public static final double L4Degrees = -65.0;
-  public static final double prepareBargeDegrees = -45.0;
-  public static final double bargeDegrees = -45;
-  public static final double processorDegrees = -180.0;
-  public static final double lowAlgeaDegrees = 0.0;
-  public static final double highAlgeaDegrees = 0.0;
-  public static final double algeaIntakeDegrees = -180.0;
-  public static final double algeaOuttakeDegrees = -180.0;
-  public static final double coralOuttakeDegrees = -180.0;
+  /* Setpoints */
+  public static double stowDegrees = 0.0;
+  public static double intakeDegrees = -180.0;
+  public static double climbDegrees = 0.0;
+  public static double L1Degrees = 0;
+  public static double L2Degrees = -30.0;
+  public static double L3Degrees = -30.0;
+  public static double L4Degrees = -65.0;
+  public static double prepareBargeDegrees = -45.0;
+  public static double bargeDegrees = -45;
+  public static double processorDegrees = -180.0;
+  public static double lowAlgeaDegrees = 0.0;
+  public static double highAlgeaDegrees = 0.0;
+  public static double algeaIntakeDegrees = -180.0;
+  public static double algeaOuttakeDegrees = -180.0;
+  public static double coralOuttakeDegrees = -180.0;
 
-  /*Simulation Values */
+  /* Simulation Values */
   public static final double simMOI = 0.5; // kg*m^2
   public static final double simArmLength = 0.15; // meters
   public static final double pivotOffsetX = Units.inchesToMeters(-6.8);
   public static final double pivotOffsetY = 0;
   public static final double pivotOffsetZ = Units.inchesToMeters(20.481);
+
+  // Tunable Numbers
+  public static final LoggedTunableNumber l2HeightTunable =
+      new LoggedTunableNumber("Pivot/L2Degrees", L2Degrees);
+  public static final LoggedTunableNumber l3HeightTunable =
+      new LoggedTunableNumber("Pivot/L3Degrees", L3Degrees);
+  public static final LoggedTunableNumber l4HeightTunable =
+      new LoggedTunableNumber("Pivot/L4Degrees", L4Degrees);
+  public static final LoggedTunableNumber prepareBargeHeightTunable =
+      new LoggedTunableNumber("Pivot/PrepareBargeDegrees", prepareBargeDegrees);
+  public static final LoggedTunableNumber bargeHeightTunable =
+      new LoggedTunableNumber("Pivot/BargeDegrees", bargeDegrees);
+  public static final LoggedTunableNumber processorHeightTunable =
+      new LoggedTunableNumber("Pivot/ProcessorDegrees", processorDegrees);
+
+  public static void checkTunableNumbers() {
+    if (l2HeightTunable.hasChanged(PivotConstants.class.hashCode())
+        || l3HeightTunable.hasChanged(PivotConstants.class.hashCode())
+        || l4HeightTunable.hasChanged(PivotConstants.class.hashCode())
+        || prepareBargeHeightTunable.hasChanged(PivotConstants.class.hashCode())
+        || bargeHeightTunable.hasChanged(PivotConstants.class.hashCode())
+        || processorHeightTunable.hasChanged(PivotConstants.class.hashCode())) {
+      L2Degrees = l2HeightTunable.get();
+      L3Degrees = l3HeightTunable.get();
+      L4Degrees = l4HeightTunable.get();
+      prepareBargeDegrees = prepareBargeHeightTunable.get();
+      bargeDegrees = bargeHeightTunable.get();
+      processorDegrees = processorHeightTunable.get();
+    }
+  }
 }

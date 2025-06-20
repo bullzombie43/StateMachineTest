@@ -31,7 +31,7 @@ public class DriveToPose extends Command {
   private final LoggedTunableNumber ffMaxRadiusTunable =
       new LoggedTunableNumber("DriveToPose/ffMaxRadius", ffMaxRadius);
   private final LoggedTunableNumber driveKP =
-      new LoggedTunableNumber("DriveToPose/translation/kP", 6.0);
+      new LoggedTunableNumber("DriveToPose/translation/kP", 3.0);
   private final LoggedTunableNumber driveKI =
       new LoggedTunableNumber("DriveToPose/translation/kI", 0.0);
   private final LoggedTunableNumber driveKD =

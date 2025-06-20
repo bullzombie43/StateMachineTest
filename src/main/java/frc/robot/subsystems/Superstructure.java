@@ -382,11 +382,12 @@ public class Superstructure extends SubsystemBase {
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
 
       // CHECK IF WE ARE IN RIGHT POSITION
-
-      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A
-      // DIFFERENT STATE
-      // WILL TURN THEM OFF WHEN THE ARM STOWS
-      endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
+      if (GeomUtil.isNearPose(robotContainer.targetPose, drivetrain.getPose(), 0.02)) {
+        // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A
+        // DIFFERENT STATE
+        // WILL TURN THEM OFF WHEN THE ARM STOWS
+        endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
+      }
     }
   }
 
@@ -405,11 +406,12 @@ public class Superstructure extends SubsystemBase {
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
 
       // CHECK IF WE ARE IN RIGHT POSITION
-
-      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A
-      // DIFFERENT STATE
-      // WILL TURN THEM OFF WHEN THE ARM STOWS
-      endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
+      if (GeomUtil.isNearPose(robotContainer.targetPose, drivetrain.getPose(), 0.02)) {
+        // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A
+        // DIFFERENT STATE
+        // WILL TURN THEM OFF WHEN THE ARM STOWS
+        endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
+      }
     }
   }
 
@@ -428,11 +430,12 @@ public class Superstructure extends SubsystemBase {
       algeaIntake.setWantedStateFunc(AlgeaIntake.WantedState.STOW);
 
       // CHECK IF WE ARE IN RIGHT POSITION
-
-      // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A
-      // DIFFERENT STATE
-      // WILL TURN THEM OFF WHEN THE ARM STOWS
-      endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
+      if (GeomUtil.isNearPose(robotContainer.targetPose, drivetrain.getPose(), 0.02)) {
+        // PLACEHOLDER: OUTTAKE THE PIECE, THIS CAN MAYBE JUST TURN ROLLERS ON AND A
+        // DIFFERENT STATE
+        // WILL TURN THEM OFF WHEN THE ARM STOWS
+        endEffector.setWantedStateFunc(EndEffector.WantedState.OUTTAKE);
+      }
     }
   }
 

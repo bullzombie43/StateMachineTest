@@ -24,6 +24,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.pivot.PivotConstants;
 import frc.robot.util.MirroringUtil;
 import frc.robot.util.PhoenixUtil;
@@ -157,6 +158,11 @@ public class Robot extends LoggedRobot {
 
     // TODO: OPTOMIZE BY DISABLING UNLESS ITS SIM OR REPLAY
     Logger.recordOutput("Poses/Components", componentPoses);
+
+    if (Constants.tuningMode) {
+      ElevatorConstants.checkTunableNumbers();
+      PivotConstants.checkTunableNumbers();
+    }
   }
 
   /** This function is called once when the robot is disabled. */

@@ -79,14 +79,14 @@ public class EndEffectorIOSim implements EndEffectorIO {
                   drivetrainSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
                   drivetrainSimulation.getSimulatedDriveTrainPose().getRotation(),
                   Meters.of(Superstructure.coralPose.getTranslation().getZ()),
-                  MetersPerSecond.of(2),
+                  MetersPerSecond.of(6),
                   Degrees.of(
-                      Robot.componentPoses[3]
+                      -Robot.componentPoses[3]
                               .transformBy(IntakeConstants.coralIntakeOffset)
                               .getRotation()
                               .getMeasureY()
                               .in(Degrees)
-                          - 90)));
+                          + 180)));
 
       Robot.robotContainer.getCoralIntake().setHasCoral(hasCoral);
     }
