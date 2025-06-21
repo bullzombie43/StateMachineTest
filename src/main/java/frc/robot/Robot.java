@@ -199,7 +199,7 @@ public class Robot extends LoggedRobot {
     SimulatedArena.getInstance()
         .addGamePiece(
             new ReefscapeCoralOnField(
-                MirroringUtil.flipToCurrentAlliance(new Pose2d(1.85, 0.7, Rotation2d.kZero))));
+                MirroringUtil.flipToCurrentAlliance(new Pose2d(1.65, 0.4, Rotation2d.kZero))));
 
     SimulatedArena.getInstance()
         .addGamePiece(
@@ -213,13 +213,23 @@ public class Robot extends LoggedRobot {
     autonomousPeriodicCounter++;
 
     // Call the method every 3 seconds (3 / 0.02 = 150 cycles)
-    if (autonomousPeriodicCounter == 150
-        || autonomousPeriodicCounter == 450
-        || autonomousPeriodicCounter == 600) {
+    if (autonomousPeriodicCounter == 250) {
       SimulatedArena.getInstance()
           .addGamePiece(
               new ReefscapeCoralOnField(
-                  MirroringUtil.flipToCurrentAlliance(new Pose2d(1.85, 0.7, Rotation2d.kZero))));
+                  MirroringUtil.flipToCurrentAlliance(new Pose2d(1.65, 0.4, Rotation2d.kZero))));
+    } else if (autonomousPeriodicCounter == 450) {
+      SimulatedArena.getInstance()
+          .addGamePiece(
+              new ReefscapeCoralOnField(
+                  MirroringUtil.flipToCurrentAlliance(
+                      new Pose2d(1.85, 0.5, Rotation2d.fromDegrees(10)))));
+    } else if (autonomousPeriodicCounter == 600) {
+      SimulatedArena.getInstance()
+          .addGamePiece(
+              new ReefscapeCoralOnField(
+                  MirroringUtil.flipToCurrentAlliance(
+                      new Pose2d(1.45, 0.3, Rotation2d.fromDegrees(-10)))));
     }
   }
 

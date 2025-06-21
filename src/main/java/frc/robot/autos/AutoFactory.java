@@ -7,6 +7,9 @@ package frc.robot.autos;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -19,15 +22,20 @@ import frc.robot.commands.FollowAlliancePathCommand;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.WantedSuperState;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.util.GeomUtil;
 import frc.robot.util.MirroringUtil;
 import java.util.Set;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class AutoFactory {
   private final RobotContainer robotContainer;
   private final Drive swerve;
   private final Superstructure superstructure;
+  private final Vision vision;
   private final DriverStation.Alliance alliance;
 
   private boolean trajectoriesLoaded = false;
@@ -55,19 +63,17 @@ public class AutoFactory {
     this.swerve = robotContainer.getSwerve();
     this.superstructure = robotContainer.getSuperstructure();
     this.alliance = alliance;
+    this.vision = robotContainer.getVision();
   }
 
   public Command procEchoDeltaCharlieBravoL2() {
-    AutoSegment echoIntake = loadSegment(Location.ECHO, Location.PROC_INTAKE, "Echo-Intake");
-
-    preloadTrajectoryClass(echoIntake);
 
     SequentialCommandGroup group = new SequentialCommandGroup();
 
     group.addCommands(resetPose(Location.PROC_START));
     group.addCommands(driveThenScoreL4(Location.ECHO));
     group.addCommands(Commands.waitSeconds(0.1));
-    group.addCommands(segmentUntilGroundIntake(echoIntake));
+    group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
     group.addCommands(driveThenScoreL4(Location.DELTA));
     group.addCommands(Commands.waitSeconds(0.1));
     group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
@@ -85,16 +91,12 @@ public class AutoFactory {
   }
 
   public Command procEchoDeltaCharlieBravo() {
-    AutoSegment echoIntake = loadSegment(Location.ECHO, Location.PROC_INTAKE, "Echo-Intake");
-
-    preloadTrajectoryClass(echoIntake);
-
     SequentialCommandGroup group = new SequentialCommandGroup();
 
     group.addCommands(resetPose(Location.PROC_START));
     group.addCommands(driveThenScoreL4(Location.ECHO));
     group.addCommands(Commands.waitSeconds(0.1));
-    group.addCommands(segmentUntilGroundIntake(echoIntake));
+    group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
     group.addCommands(driveThenScoreL4(Location.DELTA));
     group.addCommands(Commands.waitSeconds(0.1));
     group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
@@ -109,16 +111,13 @@ public class AutoFactory {
   }
 
   public Command procEchoDeltaCharlie() {
-    AutoSegment echoIntake = loadSegment(Location.ECHO, Location.PROC_INTAKE, "Echo-Intake");
-
-    preloadTrajectoryClass(echoIntake);
 
     SequentialCommandGroup group = new SequentialCommandGroup();
 
     group.addCommands(resetPose(Location.PROC_START));
     group.addCommands(driveThenScoreL4(Location.ECHO));
     group.addCommands(Commands.waitSeconds(0.1));
-    group.addCommands(segmentUntilGroundIntake(echoIntake));
+    group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
     group.addCommands(driveThenScoreL4(Location.DELTA));
     group.addCommands(Commands.waitSeconds(0.1));
     group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
@@ -130,16 +129,12 @@ public class AutoFactory {
   }
 
   public Command procEchoDelta() {
-    AutoSegment echoIntake = loadSegment(Location.ECHO, Location.PROC_INTAKE, "Echo-Intake");
-
-    preloadTrajectoryClass(echoIntake);
-
     SequentialCommandGroup group = new SequentialCommandGroup();
 
     group.addCommands(resetPose(Location.PROC_START));
     group.addCommands(driveThenScoreL4(Location.ECHO));
     group.addCommands(Commands.waitSeconds(0.1));
-    group.addCommands(segmentUntilGroundIntake(echoIntake));
+    group.addCommands(driveUntilGroundIntake(Location.PROC_INTAKE));
     group.addCommands(driveThenScoreL4(Location.DELTA));
     group.addCommands(Commands.waitSeconds(0.1));
     group.addCommands(stowAllSubsystems());
@@ -185,7 +180,8 @@ public class AutoFactory {
 
   public Command driveUntilGroundIntake(Location loc) {
     return Commands.parallel(
-            superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND), driveToPoint(loc))
+            superstructure.setWantedSuperState(WantedSuperState.INTAKE_GROUND),
+            driveWithCoralDetection(loc))
         .until(() -> superstructure.hasCoral());
   }
 
@@ -224,6 +220,62 @@ public class AutoFactory {
     return new DeferredCommand(
         () -> new InstantCommand(() -> swerve.setPose(MirroringUtil.flipToCurrentAlliance(pose))),
         Set.of());
+  }
+
+  public Command driveWithCoralDetection(Location loc) {
+    return driveWithCoralDetection(Location.getLocationPose(loc));
+  }
+
+  public Command driveWithCoralDetection(Pose2d originalTargetPose) {
+    Supplier<Pose2d> poseSupplier =
+        new Supplier<>() {
+          private Pose2d lastSeenPose = originalTargetPose;
+          private long lastSeenTime = System.currentTimeMillis();
+
+          @Override
+          public Pose2d get() {
+            Rotation2d tX = vision.getTargetX(2);
+            Rotation2d tY = vision.getTargetY(2);
+
+            if (tX.getDegrees() == 0 && tY.getDegrees() == 0) {
+              // No target detected
+              Logger.recordOutput("DriveToPose/seenCoral", true);
+              if (System.currentTimeMillis() - lastSeenTime <= 500) {
+                return lastSeenPose; // Use last seen pose for 0.5 seconds
+              }
+
+              return originalTargetPose; // Fallback to original pose
+            }
+
+            Double distance =
+                (VisionConstants.CAMERA_HEIGHT - VisionConstants.CORAL_HEIGHT)
+                    / Math.tan(VisionConstants.CAMERA_ANGLE + tY.getDegrees());
+
+            Pose2d cameraPose =
+                swerve
+                    .getPose()
+                    .transformBy(GeomUtil.transform3dTo2d(VisionConstants.robotToCoralCamera));
+
+            Transform2d cameraToCoral =
+                new Transform2d(
+                    new Translation2d(Math.abs(distance), 0.0).rotateBy(tX.unaryMinus()),
+                    new Rotation2d());
+
+            Pose2d coralPose = cameraPose.transformBy(cameraToCoral);
+
+            Logger.recordOutput("DriveToPose/distance", distance);
+            Logger.recordOutput("DriveToPose/tX", tX.getDegrees());
+            Logger.recordOutput("DriveToPose/seenCoral", true);
+
+            // Update last seen pose and time
+            lastSeenPose = coralPose;
+            lastSeenTime = System.currentTimeMillis();
+
+            return coralPose;
+          }
+        };
+
+    return new DriveToPose(swerve, poseSupplier).until(() -> superstructure.hasCoral());
   }
 
   private AutoSegment loadSegment(final Location start, final Location end, String name) {

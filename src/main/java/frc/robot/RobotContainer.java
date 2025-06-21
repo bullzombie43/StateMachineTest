@@ -25,12 +25,12 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.AutoScoreConstants;
 import frc.robot.autos.AutoFactory;
+import frc.robot.autos.Location;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveToPose;
 import frc.robot.generated.TunerConstants;
@@ -153,13 +153,20 @@ public class RobotContainer {
             new Vision(
                 drive,
                 new VisionIOPhotonVisionSim(
-                    camera0Name, robotToCamera0, driveSimulation::getSimulatedDriveTrainPose),
+                    camera0Name,
+                    robotToCamera0,
+                    driveSimulation::getSimulatedDriveTrainPose,
+                    false),
                 new VisionIOPhotonVisionSim(
-                    camera1Name, robotToCamera1, driveSimulation::getSimulatedDriveTrainPose),
+                    camera1Name,
+                    robotToCamera1,
+                    driveSimulation::getSimulatedDriveTrainPose,
+                    false),
                 new VisionIOPhotonVisionSim(
                     coralCameraName,
                     robotToCoralCamera,
-                    driveSimulation::getSimulatedDriveTrainPose));
+                    driveSimulation::getSimulatedDriveTrainPose,
+                    true));
 
         pivot = new Pivot(new PivotIOSim());
         elevator = new Elevator(new ElevatorIOSim());
@@ -381,10 +388,7 @@ public class RobotContainer {
 
     controller
         .options()
-        .onTrue(
-            new DeferredCommand(
-                () -> new DriveToPose(drive, () -> new Pose2d(3.0, 3.0, Rotation2d.kCW_90deg)),
-                Set.of(drive)));
+        .onTrue(AutoFactory.getInstance().driveUntilGroundIntake(Location.PROC_INTAKE));
   }
 
   /**
@@ -422,7 +426,7 @@ public class RobotContainer {
     SimulatedArena.getInstance()
         .addGamePiece(
             new ReefscapeCoralOnField(
-                MirroringUtil.flipToCurrentAlliance(new Pose2d(3.5, 5, Rotation2d.kZero))));
+                MirroringUtil.flipToCurrentAlliance(new Pose2d(1.3, 1.3, Rotation2d.kZero))));
   }
 
   public void spawnAlgea() {
@@ -573,5 +577,9 @@ public class RobotContainer {
 
   public Superstructure getSuperstructure() {
     return superstructure;
+  }
+
+  public Vision getVision() {
+    return vision;
   }
 }

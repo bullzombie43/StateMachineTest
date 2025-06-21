@@ -198,4 +198,10 @@ public class GeomUtil {
   public static final Pose2d pose2dFromTranslation(Translation2d translation) {
     return new Pose2d(translation, Rotation2d.kZero);
   }
+
+  public static final Transform2d transform3dTo2d(Transform3d transform) {
+    return new Transform2d(
+        new Translation2d(transform.getX(), transform.getY()),
+        transform.getRotation().toRotation2d());
+  }
 }

@@ -29,6 +29,7 @@ import org.photonvision.simulation.VisionTargetSim;
 /** IO implementation for physics sim using PhotonVision simulator. */
 public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
   private static VisionSystemSim visionSim;
+  private static VisionSystemSim coralSim;
 
   private final Supplier<Pose2d> poseSupplier;
   private final PhotonCameraSim cameraSim;
@@ -40,7 +41,7 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
    * @param poseSupplier Supplier for the robot pose to use in simulation.
    */
   public VisionIOPhotonVisionSim(
-      String name, Transform3d robotToCamera, Supplier<Pose2d> poseSupplier) {
+      String name, Transform3d robotToCamera, Supplier<Pose2d> poseSupplier, boolean coralCamera) {
     super(name, robotToCamera);
     this.poseSupplier = poseSupplier;
 
@@ -50,17 +51,30 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
       visionSim.addAprilTags(aprilTagLayout);
     }
 
+    // Initialize coral sim
+    if (coralSim == null) {
+      coralSim = new VisionSystemSim("coral");
+    }
+
     // Add sim camera
     var cameraProperties = new SimCameraProperties();
     cameraSim = new PhotonCameraSim(camera, cameraProperties, aprilTagLayout);
-    visionSim.addCamera(cameraSim, robotToCamera);
+    if (coralCamera) {
+      coralSim.addCamera(cameraSim, robotToCamera);
+    } else {
+      visionSim.addCamera(cameraSim, robotToCamera);
+    }
+
+    cameraSim.enableDrawWireframe(false);
+    cameraSim.enableProcessedStream(false);
+    cameraSim.enableRawStream(false);
   }
 
   @Override
   public void updateInputs(VisionIOInputs inputs) {
     visionSim.update(poseSupplier.get());
-    visionSim.clearVisionTargets();
-    visionSim.addAprilTags(aprilTagLayout);
+    coralSim.update(poseSupplier.get());
+    coralSim.clearVisionTargets();
 
     Pose3d[] coralPoses = SimulatedArena.getInstance().getGamePiecesArrayByType("Coral");
     VisionTargetSim[] targets = new VisionTargetSim[coralPoses.length];
@@ -68,7 +82,7 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
       targets[i] = new VisionTargetSim(coralPoses[i], VisionConstants.CORAL_MODEL);
     }
 
-    visionSim.addVisionTargets(targets);
+    coralSim.addVisionTargets(targets);
 
     Logger.recordOutput("Vision/Coral/NumCoralTargets", targets.length);
 

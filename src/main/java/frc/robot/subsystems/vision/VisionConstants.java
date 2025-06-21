@@ -22,10 +22,8 @@ import org.photonvision.estimation.TargetModel;
 
 public class VisionConstants {
   // AprilTag layout
-  public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-
-  public static final TargetModel CORAL_MODEL = new TargetModel(
-      Units.inchesToMeters(11.875), Units.inchesToMeters(4), Units.inchesToMeters(4));
+  public static AprilTagFieldLayout aprilTagLayout =
+      AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
   // Camera names, must match names configured on coprocessor
   public static String camera0Name = "camera_0";
@@ -34,13 +32,25 @@ public class VisionConstants {
 
   // Robot to camera transforms
   // (Not used by Limelight, configure in web UI instead)
-  public static Transform3d robotToCamera0 = new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, 0.0));
-  public static Transform3d robotToCamera1 = new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI));
-  public static Transform3d robotToCoralCamera = new Transform3d(
-      Units.inchesToMeters(8.55),
-      Units.inchesToMeters(0),
-      Units.inchesToMeters(39),
-      new Rotation3d(0, Units.degreesToRadians(30), 0));
+  public static Transform3d robotToCamera0 =
+      new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, 0.0));
+  public static Transform3d robotToCamera1 =
+      new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI));
+  public static Transform3d robotToCoralCamera =
+      new Transform3d(
+          Units.inchesToMeters(8.55),
+          Units.inchesToMeters(0),
+          Units.inchesToMeters(39),
+          new Rotation3d(0, Units.degreesToRadians(30), 0));
+
+  public static final TargetModel CORAL_MODEL =
+      new TargetModel(
+          Units.inchesToMeters(11.875), Units.inchesToMeters(4), Units.inchesToMeters(4));
+  public static final double CORAL_HEIGHT =
+      Units.inchesToMeters(2); // Half its total height because ty is to center
+  public static final double CAMERA_HEIGHT = robotToCoralCamera.getZ();
+  public static final double CAMERA_ANGLE =
+      robotToCoralCamera.getRotation().getY(); // Y is pitch in Transform3d
 
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.3;
@@ -53,12 +63,14 @@ public class VisionConstants {
 
   // Standard deviation multipliers for each camera
   // (Adjust to trust some cameras more than others)
-  public static double[] cameraStdDevFactors = new double[] {
-      1.0, // Camera 0
-      1.0 // Camera 1
-  };
+  public static double[] cameraStdDevFactors =
+      new double[] {
+        1.0, // Camera 0
+        1.0 // Camera 1
+      };
 
   // Multipliers to apply for MegaTag 2 observations
   public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
-  public static double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // No rotation data available
+  public static double angularStdDevMegatag2Factor =
+      Double.POSITIVE_INFINITY; // No rotation data available
 }
