@@ -16,11 +16,18 @@ package frc.robot.subsystems.vision;
 import static frc.robot.subsystems.vision.VisionConstants.aprilTagLayout;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
+
 import java.util.function.Supplier;
+
+import org.ironmaple.simulation.SimulatedArena;
+import org.photonvision.estimation.TargetModel;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
+import org.photonvision.simulation.VisionTargetSim;
 
 /** IO implementation for physics sim using PhotonVision simulator. */
 public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
@@ -55,6 +62,16 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
   @Override
   public void updateInputs(VisionIOInputs inputs) {
     visionSim.update(poseSupplier.get());
+    visionSim.clearVisionTargets();
+
+    Pose3d[] coralPoses = SimulatedArena.getInstance().getGamePiecesArrayByType("Coral");
+    VisionTargetSim[] targets = new VisionTargetSim[coralPoses.length];
+    for (int i = 0; i < coralPoses.length; i++) {
+      targets[i] = new VisionTargetSim(coralPoses[i], VisionConstants.CORAL_MODEL);
+    }
+
+    visionSim.addVisionTargets(targets);
+
     super.updateInputs(inputs);
   }
 }
