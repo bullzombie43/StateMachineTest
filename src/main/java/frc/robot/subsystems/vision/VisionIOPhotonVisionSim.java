@@ -18,12 +18,9 @@ import static frc.robot.subsystems.vision.VisionConstants.aprilTagLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.util.Units;
-
 import java.util.function.Supplier;
-
 import org.ironmaple.simulation.SimulatedArena;
-import org.photonvision.estimation.TargetModel;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
@@ -63,6 +60,7 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
   public void updateInputs(VisionIOInputs inputs) {
     visionSim.update(poseSupplier.get());
     visionSim.clearVisionTargets();
+    visionSim.addAprilTags(aprilTagLayout);
 
     Pose3d[] coralPoses = SimulatedArena.getInstance().getGamePiecesArrayByType("Coral");
     VisionTargetSim[] targets = new VisionTargetSim[coralPoses.length];
@@ -71,6 +69,8 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
     }
 
     visionSim.addVisionTargets(targets);
+
+    Logger.recordOutput("Vision/Coral/NumCoralTargets", targets.length);
 
     super.updateInputs(inputs);
   }
