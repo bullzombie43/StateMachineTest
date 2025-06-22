@@ -259,7 +259,7 @@ public class AutoFactory {
             Transform2d cameraToCoral =
                 new Transform2d(
                     new Translation2d(Math.abs(distance), 0.0).rotateBy(tX.unaryMinus()),
-                    new Rotation2d());
+                    tX.unaryMinus());
 
             Pose2d coralPose = cameraPose.transformBy(cameraToCoral);
 
