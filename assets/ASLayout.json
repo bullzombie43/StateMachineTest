@@ -1,17 +1,18 @@
 {
   "hubs": [
     {
-      "x": 62,
+      "x": 60,
       "y": 69,
       "width": 1208,
       "height": 650,
       "state": {
         "sidebar": {
-          "width": 160,
+          "width": 217,
           "expanded": [
             "/AdvantageKit",
+            "/AdvantageKit/RealOutputs/Poses",
             "/AdvantageKit/RealOutputs",
-            "/AdvantageKit/RealOutputs/Poses"
+            "/AdvantageKit/RealOutputs/DriveToPose"
           ]
         },
         "tabs": {
@@ -134,10 +135,29 @@
                     "type": "ghost",
                     "logKey": "NT:/AdvantageKit/RealOutputs/Poses/TargetPose",
                     "logType": "Pose2d",
-                    "visible": true,
+                    "visible": false,
                     "options": {
                       "model": "2025 Citrus",
                       "color": "#00ff00"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Poses/ReefAlgea",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Algae"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/DriveToPose/targetPose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "2025 Citrus",
+                      "color": "#00ffff"
                     }
                   }
                 ],
@@ -149,17 +169,17 @@
                 "cameraIndex": -1,
                 "orbitFov": 50,
                 "cameraPosition": [
-                  9.60203342984545,
-                  1.7869278974942775,
-                  -0.21554713630526162
+                  9.425095174880255,
+                  6.485670378786121,
+                  -2.3562101906129187
                 ],
                 "cameraTarget": [
-                  5.81951831300383,
-                  0.9616495971190986,
-                  -0.45919022190295183
+                  4.982829165808145,
+                  -0.30325769530429236,
+                  -1.5926668801668857
                 ]
               },
-              "controlsHeight": 142
+              "controlsHeight": 159
             }
           ]
         }
